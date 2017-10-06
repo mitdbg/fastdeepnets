@@ -3,7 +3,6 @@
 |Start Date|End Date  |
 |----------|----------|
 |2017-10-06|          |
-|----------|----------|
 
 ## Description
 
@@ -13,16 +12,15 @@ The architecture will have only one (oversized) hidden layer.
 
 ## Delivrables
 
-- Pytorch code with the architecture and the training process
-- Intepretation (+plots) of the variance on different network size
-- Conclusion on the value of the variance as indicator of network size
+- [x] Pytorch code with the architecture and the training process
+- [ ] Intepretation (+plots) of the variance on different network size
+- [ ] Conclusion on the value of the variance as indicator of network size
 
 # Find relationship between the distribution of activations and the accuracy
 
 |Start Date|End Date  |
 |----------|----------|
 |          |          |
-|----------|----------|
 
 ## Description
 
@@ -30,6 +28,6 @@ The goal of this milestone is to find if there is a relation between the varianc
 
 ## Delibrables
 
-- Pytorch code that evaluates the testing accuracy for each model
-- Plots comparing the activations and the accuracy
-- Conclusion on the value of the variance as a control parameter for the network resize procedure
+- [ ] Pytorch code that evaluates the testing accuracy for each model
+- [ ] Plots comparing the activations and the accuracy
+- [ ] Conclusion on the value of the variance as a control parameter for the network resize procedure
