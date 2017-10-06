@@ -1,4 +1,4 @@
-# Activation of variance as a hint for the shrinking procedure
+# Variance of activations as a proxy metric for network size
 
 |Start Date|End Date  |
 |----------|----------|
