@@ -13,6 +13,8 @@ The architecture will have only one (oversized) hidden layer.
 ## Delivrables
 
 - [x] Pytorch code with the architecture and the training process
+  - `/models/MNIST_h1.py` is the model
+  - `/variance_metric.py` is the training procedure
 - [ ] Intepretation (+plots) of the variance on different network size
 - [ ] Conclusion on the value of the variance as indicator of network size
 
