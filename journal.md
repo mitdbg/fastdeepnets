@@ -34,8 +34,8 @@ The most normal distribution and the two neighbours are shown on a figure.
 ![Distribution of variance for the most normal network and the two neighbours](/plots/MNIST_1h_dist_activations_arround_sweet.png?raw=true "Distribution of variance for the most normal network and the two neighbours")
 
 We can also conjecture that the total amount of variance is
-- Either constant as we can see on the plot
-- Logarithmic as what all except two observations suggest. It is possible that the two outliers (1 and 3 from the end) are wrong because 5 epochs were not enough to train that many neurons
+- ~~Either constant as we can see on the plot~~ (
+- Logarithmic as what all except two observations suggest. It is possible that the two outliers (1 and 3 from the end) are wrong because 5 epochs were not enough to train that many neurons. After training longer it seems that indeed the total amount of variance follows a logarithmic trend.
 
 ![Total amount of variance](/plots/MNIST_1h_sum_variance.png?raw=true "Total amount of variance")
 
