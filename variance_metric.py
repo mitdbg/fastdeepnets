@@ -37,7 +37,7 @@ def train(models):
     criterion = nn.CrossEntropyLoss()
     optimizers = [Adam(model.parameters()) for model in models]
 
-    for e in range(0, 5):
+    for e in range(0, 15):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(training_dataloader):
             print(round(i / len(training_dataloader) * 100))
@@ -77,7 +77,7 @@ def plot_distributions(activations):
 def plot_sum_variance(activations):
     sizes = np.array([len(x) for x in activations])
     sums = np.array([x.sum() for x in activations])
-    plt.figure(figsize=(5, 5))
+    plt.figure(figsize=(10, 5))
     plt.plot(sizes, sums)
     plt.title('Sum of variance depending on the size of the layer')
     plt.xlabel('Number of neurons')
@@ -106,11 +106,14 @@ def plot_shapiro(activations):
 
 
 def plot_distributions_arround_sweet(activations):
-    to_plot = [8, 9, 10]
+    t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
+    argmax = t_values.argmax()
+    to_plot = [argmax - 1, argmax, argmax + 1]
     plt.figure(figsize=(10, 5))
     for i in reversed(sorted(to_plot)):
         sns.distplot(activations[i], hist=False, label="%s neurons" % len(activations[i]))
     plt.xlim((0, 5))
+    plt.ylim((0, 0.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
     plt.title('Distribution of standard deviation of activation after hidden layer arround the most normal')
@@ -123,7 +126,7 @@ def plot_distributions_arround_sweet(activations):
 def plot_dead_neurons(activations):
     sizes = np.array([len(x) for x in activations])
     deads = np.array([(x == 0).sum() for x in activations])
-    plt.figure(figsize=(5, 5))
+    plt.figure(figsize=(10, 5))
     plt.plot(sizes, deads)
     plt.title('Evolution of the quantity of dead neurons')
     plt.xlabel('Number of neurons')
