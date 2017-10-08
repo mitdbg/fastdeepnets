@@ -6,6 +6,10 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy
 
 from models.MNIST_1h import MNIST_1h
 
@@ -26,7 +30,7 @@ training_dataloader = DataLoader(
     shuffle=True)
 
 def init_models():
-    return [MNIST_1h(int(2**(i / 2))) for i in range(24)]
+    return [MNIST_1h(int(2**(i / 2))) for i in range(7, 29)]
 
 
 def train(models):
@@ -36,7 +40,7 @@ def train(models):
     for e in range(0, 5):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(training_dataloader):
-            print(i)
+            print(round(i / len(training_dataloader) * 100))
             images = Variable(images, requires_grad=False)
             labels = Variable(labels, requires_grad=False)
             for model, optimizer in zip(models, optimizers):
@@ -54,3 +58,87 @@ def get_activations(model):
         outputs.append(model.partial_forward(images))
     return torch.cat(outputs, 0).std(0).data.numpy()
 
+
+def plot_distributions(activations):
+    to_plot = [1, 3,  5, 9, 11, 13]
+    plt.figure(figsize=(10, 5))
+    for i in reversed(sorted(to_plot)):
+        sns.distplot(activations[i], hist=False, label="%s neurons" % len(activations[i]))
+    plt.xlim((0, 8.5))
+    plt.xlabel('Standard deviation (unitless)')
+    plt.ylabel('Density')
+    plt.title('Distribution of standard deviation of activation after hidden layer')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('./plots/MNIST_1h_dist_activations.png')
+    plt.close()
+
+
+def plot_sum_variance(activations):
+    sizes = np.array([len(x) for x in activations])
+    sums = np.array([x.sum() for x in activations])
+    plt.figure(figsize=(5, 5))
+    plt.plot(sizes, sums)
+    plt.title('Sum of variance depending on the size of the layer')
+    plt.xlabel('Number of neurons')
+    plt.ylabel('Sum of variance')
+    plt.tight_layout()
+    plt.savefig('./plots/MNIST_1h_sum_variance.png')
+    plt.close()
+
+
+def plot_shapiro(activations):
+    sizes = np.array([len(x) for x in activations])
+    t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
+    plt.figure(figsize=(10, 5))
+    plt.plot(sizes, t_values)
+    plt.title('Results of normality tests(Shapiro) for different layer size')
+    plt.xlabel('Number of neurons')
+    plt.ylabel('t_value')
+    argmax = sizes[t_values.argmax()]
+    plt.axvline(x=argmax, color='C1')
+    plt.xticks(list(plt.xticks()[0]) + [argmax])
+    plt.xlim(0, 10000)
+    plt.ylim((0, 1))
+    plt.tight_layout()
+    plt.savefig('./plots/MNIST_1h_normality_test.png')
+    plt.close()
+
+
+def plot_distributions_arround_sweet(activations):
+    to_plot = [8, 9, 10]
+    plt.figure(figsize=(10, 5))
+    for i in reversed(sorted(to_plot)):
+        sns.distplot(activations[i], hist=False, label="%s neurons" % len(activations[i]))
+    plt.xlim((0, 5))
+    plt.xlabel('Standard deviation (unitless)')
+    plt.ylabel('Density')
+    plt.title('Distribution of standard deviation of activation after hidden layer arround the most normal')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('./plots/MNIST_1h_dist_activations_arround_sweet.png')
+    plt.close()
+
+
+def plot_dead_neurons(activations):
+    sizes = np.array([len(x) for x in activations])
+    deads = np.array([(x == 0).sum() for x in activations])
+    plt.figure(figsize=(5, 5))
+    plt.plot(sizes, deads)
+    plt.title('Evolution of the quantity of dead neurons')
+    plt.xlabel('Number of neurons')
+    plt.ylabel('Number of dead neurons')
+    plt.tight_layout()
+    plt.savefig('./plots/MNIST_1h_dead_neurons.png')
+    plt.close()
+
+
+if __name__ == '__main__':
+    models = init_models()
+    train(models)
+    activations = [get_activations(model) for model in models]
+    plot_distributions(activations)
+    plot_shapiro(activations)
+    plot_sum_variance(activations)
+    plot_distributions_arround_sweet(activations)
+    plot_dead_neurons(activations)
