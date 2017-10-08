@@ -2,7 +2,7 @@
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-10-06|          |
+|2017-10-06|2016-10-08|
 
 ## Description
 
@@ -16,18 +16,32 @@ The architecture will have only one (oversized) hidden layer.
   - `/models/MNIST_h1.py` is the model
   - `/variance_metric.py` is the training procedure, and generates plots
 - [x] Intepretation (+plots) of the variance on different network size
-- [ ] Conclusion on the value of the variance as indicator of network size
+- [x] Conclusion on the value of the variance as indicator of network size
 
 
 ## Interpretation
 
-As we can see on the plot, the bigger the network, the more the distribution of the variance of activation shift towards 0. This means that the more we add neurons, the more some of them are useless and can be factored in the next layer. Our goal here is to find wether the variance of activation can tell us if the network is oversized. Clearly 2048 is oversized and 64 is not but let's try to define the boundary between the two situations. Intuitively it would make sense to expect a normal distribution for the variance of the activation. As we can see on the results of the Shapiro normality tests, it seems that there is a sweet spot where the variance of the activation are almost normally distributed. The most normal distribution and the two neighbours are shown on a figure.
+As we can see on the plot, the bigger the network, the more the distribution of the variance of activation shift towards 0. This means that the more we add neurons, the more some of them are useless and can be factored in the next layer.
+
+![Distribution of Activations](/plots/MNIST_1h_dist_activations.png?raw=true "Distribution of Activations")
+
+Our goal here is to find wether the variance of activation can tell us if the network is oversized. Clearly 2048 is oversized and 64 is not but let's try to define the boundary between the two situations. Intuitively it would make sense to expect a normal distribution for the variance of the activation. As we can see on the results of the Shapiro normality tests, it seems that there is a sweet spot where the variance of the activation are almost normally distributed.
+
+![Results of normality test](/plots/MNIST_1h_normality_test.png?raw=true "Results of normality tests")
+
+The most normal distribution and the two neighbours are shown on a figure.
+
+![Distribution of variance for the most normal network and the two neighbours](/plots/MNIST_1h_dist_activations_arround_sweet.png?raw=true "Distribution of variance for the most normal network and the two neighbours")
 
 We can also conjecture that the total amount of variance is
 - Either constant as we can see on the plot
 - Logarithmic as what all except two observations suggest. It is possible that the two outliers (1 and 3 from the end) are wrong because 5 epochs were not enough to train that many neurons
 
+![Total amount of variance](/plots/MNIST_1h_sum_variance.png?raw=true "Total amount of variance")
+
 We also see that the number of dead neurons (no variance at all) increase with the network size (alsmot linearly after some time).
+
+![Number of dead neurons](/plots/MNIST_1h_dead_neurons.png?raw=true "Number of dead neurons")
 
 ## Conclusion
 
