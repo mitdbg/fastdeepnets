@@ -63,3 +63,20 @@ The goal of this milestone is to find if there is a relation between the varianc
 - [ ] Pytorch code that evaluates the testing accuracy for each model
 - [ ] Plots comparing the activations and the accuracy
 - [ ] Conclusion on the value of the variance as a control parameter for the network resize procedure
+
+
+# See if observations extrapolate on the Zalando MNIST dataset
+
+|Start Date|End Date  |
+|----------|----------|
+|          |          |
+
+## Description
+
+The goal of this milestone is to find if whatever we observed in the previous experiments if they generalize on another Dataset. The Zalondo MNIST here is a very good candidate since it has the exact same shape as the classic MNIST. It would make this experiment very interesting because the only factor changing is the distribution of inputs and outputs. Everything else stays the same.
+
+## Delibrables
+
+- [ ] Pytorch code that run the same procedure on the Zalando MNIST Dataset
+- [ ] Interpretation of the difference between the two datasets
+- [ ] Conclusion on robustness of whatever was found previously
