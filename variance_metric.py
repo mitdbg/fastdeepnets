@@ -29,6 +29,17 @@ training_dataloader = DataLoader(
     batch_size=64,
     shuffle=True)
 
+testing_dataset = MNIST(
+    './datasets/MNIST/',
+    train=False,
+    download=True,
+    transform=transform
+)
+testing_dataloader = DataLoader(
+    testing_dataset,
+    batch_size=64,
+    shuffle=True)
+
 def init_models():
     return [MNIST_1h(int(2**(i / 2))) for i in range(7, 29)]
 
@@ -51,9 +62,9 @@ def train(models):
                 optimizer.zero_grad()
 
 
-def get_activations(model):
+def get_activations(model, loader=training_dataloader):
     outputs = []
-    for images, labels in training_dataloader:
+    for images, labels in loader:
         images = Variable(images, volatile=True)
         outputs.append(model.partial_forward(images))
     return torch.cat(outputs, 0).std(0).data.numpy()
@@ -135,13 +146,39 @@ def plot_dead_neurons(activations):
     plt.savefig('./plots/MNIST_1h_dead_neurons.png')
     plt.close()
 
+def get_accuracy(model, loader=training_dataloader):
+    accs = []
+    for images, labels in loader:
+        images = Variable(images, volatile=True)
+        predicted = model(images).data
+        accs.append((predicted.max(1)[1] == labels).float().mean())
+    return np.array(accs).mean()
+
+
+def plot_compare_shapiro_accuracy(activations, accuracies):
+    sizes = np.array([len(x) for x in activations])
+    t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
+    plt.figure(figsize=(10, 5))
+    a = plt.gca()
+    b = a.twinx()
+    a.plot(sizes, t_values, color='C0')
+    b.plot(sizes, accuracies, color='C1')
+    a.set_ylabel('t_value (shapiro test)')
+    b.set_ylabel('accuracy')
+    plt.xlabel('Number of neurons')
+    plt.title('Comparison between normality test and measured accuracy')
+    plt.savefig('./plots/MNIST_1h_acc_vs_shapiro.png')
+    plt.close()
+
 
 if __name__ == '__main__':
     models = init_models()
     train(models)
     activations = [get_activations(model) for model in models]
+    accuracies = np.array([get_accuracy(x) for x in models])
     plot_distributions(activations)
     plot_shapiro(activations)
     plot_sum_variance(activations)
     plot_distributions_arround_sweet(activations)
     plot_dead_neurons(activations)
+    plot_compare_shapiro_accuracy(activations, accuracies)

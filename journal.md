@@ -52,7 +52,7 @@ It seems that the variance of the activation of the hidden layer gives a lot of 
 
 |Start Date|End Date  |
 |----------|----------|
-|          |          |
+|2017-10-08|2017-10-08|
 
 ## Description
 
@@ -60,9 +60,18 @@ The goal of this milestone is to find if there is a relation between the varianc
 
 ## Delibrables
 
-- [ ] Pytorch code that evaluates the testing accuracy for each model
-- [ ] Plots comparing the activations and the accuracy
-- [ ] Conclusion on the value of the variance as a control parameter for the network resize procedure
+- [x] Pytorch code that evaluates the testing accuracy for each model
+  - `variance_metric.py` was updated
+- [x] Plots comparing the activations and the accuracy
+- [x] Conclusion on the value of the variance as a control parameter for the network resize procedure
+
+## Conclusion
+
+![Comparison accuracy/normality](/plots/MNIST_1h_acc_vs_shapiro.png?raw=true "Comparison accuracy/normality")
+
+As we can see from the plot, it seems that the normality of the variance of activations seems to be related. They reach their maximum around the same values (181 neurons and 256 respectively). The two curves are quite noisy, it might be a good thing to rerun the experiments multiple time and aggregate the results.
+
+In any case the variance of the activation seems to be a good candidate to control the shrinking and expansion process of a neural network. It seems to be a good proxy for accuracy but has the advantage that it gives information on each layer while the accuracy is only for the entire network. That means we can use it to resize each layer independently.
 
 
 # See if observations extrapolate on the Zalando MNIST dataset
