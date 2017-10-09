@@ -58,7 +58,7 @@ It seems that the variance of the activation of the hidden layer gives a lot of 
 
 The goal of this milestone is to find if there is a relation between the variance of the activation and the accuracy. It would be nice to see if it can help predicting when overfitting is happening. If such a thing exists then the variance of the activation would be a good candidate to control the shriking/expansion process.
 
-## Delibrables
+## Delivrables
 
 - [x] Pytorch code that evaluates the testing accuracy for each model
   - `variance_metric.py` was updated
@@ -84,7 +84,7 @@ In any case the variance of the activation seems to be a good candidate to contr
 
 The goal of this milestone is to find if whatever we observed in the previous experiments if they generalize on another Dataset. The Zalondo MNIST here is a very good candidate since it has the exact same shape as the classic MNIST. It would make this experiment very interesting because the only factor changing is the distribution of inputs and outputs. Everything else stays the same.
 
-## Delibrables
+## Delivrables
 
 - [ ] Pytorch code that run the same procedure on the Zalando MNIST Dataset
 - [ ] Interpretation of the difference between the two datasets
@@ -100,7 +100,7 @@ The goal of this milestone is to find if whatever we observed in the previous ex
 
 In the previous experiments, the values measured were sometimes noisy and probably partially random. It would be a good thing to run many training with different seeeds to make sure that the results are reproducible.
 
-## Delibrables
+## Delivrables
 
 - [ ] Pytorch code that run all the previous experiments multiple time and average the results
 - [ ] Update all the plots with the aggregated measurements
