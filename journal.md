@@ -89,3 +89,20 @@ The goal of this milestone is to find if whatever we observed in the previous ex
 - [ ] Pytorch code that run the same procedure on the Zalando MNIST Dataset
 - [ ] Interpretation of the difference between the two datasets
 - [ ] Conclusion on robustness of whatever was found previously
+
+# Run Multiple trainings to confirm results
+
+|Start Date|End Date  |
+|----------|----------|
+|          |          |
+
+## Description
+
+In the previous experiments, the values measured were sometimes noisy and probably partially random. It would be a good thing to run many training with different seeeds to make sure that the results are reproducible.
+
+## Delibrables
+
+- [ ] Pytorch code that run all the previous experiments multiple time and average the results
+- [ ] Update all the plots with the aggregated measurements
+- [ ] Global conclusion on the variance of activation
+- [ ] Propose an training algorithm that use this metric for resizing the layers
