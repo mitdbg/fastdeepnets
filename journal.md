@@ -102,6 +102,8 @@ In the previous experiments, the values measured were sometimes noisy and probab
 
 ## Delivrables
 
+- [ ] Get access to GPUs that are accessible through ssh
+- [ ] Update existing code to run on CUDA
 - [ ] Pytorch code that run all the previous experiments multiple time and average the results
 - [ ] Update all the plots with the aggregated measurements
 - [ ] Global conclusion on the variance of activation
