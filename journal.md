@@ -94,7 +94,7 @@ The goal of this milestone is to find if whatever we observed in the previous ex
 
 |Start Date|End Date  |
 |----------|----------|
-|          |          |
+|2017-10-08|          |
 
 ## Description
 
@@ -107,4 +107,23 @@ In the previous experiments, the values measured were sometimes noisy and probab
 - [ ] Pytorch code that run all the previous experiments multiple time and average the results
 - [ ] Update all the plots with the aggregated measurements
 - [ ] Global conclusion on the variance of activation
-- [ ] Propose an training algorithm that use this metric for resizing the layers
+- [x] Propose an training algorithm that use this metric for resizing the layers
+  - While the normality test seems to be able tell when a netowrk is properly sized, it seems complicated to use it to design a training algorithm using it. Indeed, just by looking at the t value there is not enough information to know if we can improve it by changing the size of the network, even worse, we don't know if we should shrink or expand the layer to get a better model.
+
+# Investigate mixture models
+
+|Start Date|End Date  |
+|----------|----------|
+|          |          |
+
+## Description
+
+If we look carefully at the distribution of the variance of activations we can see that oversized network almost follow an exponential distribution. On the other side, undersized network follow a distribution similar to Poisson. In the middle they seem to be a mix of the two distribution. If we were able to estimate the parameter of both of the distribution and estimate the population size allocated to each distributions we would be able to tell accurately if we should shrink or expand a network.
+
+## Delivrables
+
+- [ ] Read litterature about Mixture models:
+  - [ ] [Wikipedia](https://en.wikipedia.org/wiki/Mixture_model)
+  - [ ] Find books/lecture notes
+- [ ] Try to implement an algorithm that separate the two components of the distribution
+- [ ] Interpret and conclude
