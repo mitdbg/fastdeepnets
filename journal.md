@@ -117,6 +117,7 @@ If we look carefully at the distribution of the variance of activations we can s
 
 - [ ] Read litterature about Mixture models:
   - [x] [Wikipedia](https://en.wikipedia.org/wiki/Mixture_model)
+  - [ ] [Interesting article about EM algorithm applied to mixture models](http://www.waset.org/publications/2675)
   - [ ] Find books/lecture notes
 - [ ] Try to implement an algorithm that separate the two components of the distributio
   - The idea seems to be good, but it is extremely hard to fit the model.
