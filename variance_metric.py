@@ -13,6 +13,8 @@ import scipy
 
 from models.MNIST_1h import MNIST_1h
 
+REPLICATES = 11
+
 transform = transforms.Compose([
                        transforms.ToTensor(),
                        transforms.Normalize((0.1307,), (0.3081,))
@@ -26,7 +28,8 @@ training_dataset = MNIST(
 )
 training_dataloader = DataLoader(
     training_dataset,
-    batch_size=64,
+    batch_size=128,
+    pin_memory=True,
     shuffle=True)
 
 testing_dataset = MNIST(
@@ -37,12 +40,23 @@ testing_dataset = MNIST(
 )
 testing_dataloader = DataLoader(
     testing_dataset,
-    batch_size=64,
+    batch_size=128,
+    pin_memory=True,
     shuffle=True)
 
-def init_models():
-    return [MNIST_1h(int(2**(i / 2))) for i in range(7, 29)]
+wrap = lambda x: x.cuda(async=True) if torch.is_tensor(x) and x.is_pinned() else x.cuda()
+unwrap = lambda x: x.cpu()
 
+def init_models(count=REPLICATES):
+    return [wrap(MNIST_1h(int(2**(i / 2)))) for i in range(7, 28) for _ in range(count)]
+
+def save_model(model, id):
+    with open('/tmp/model-%s.data' % id, 'wb+') as f:
+        torch.save(model, f)
+
+def load_model(id):
+    with open('/tmp/model-%s.data' % id, 'rb') as f:
+        return torch.load(f)
 
 def train(models):
     criterion = nn.CrossEntropyLoss()
@@ -52,8 +66,8 @@ def train(models):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(training_dataloader):
             print(round(i / len(training_dataloader) * 100))
-            images = Variable(images, requires_grad=False)
-            labels = Variable(labels, requires_grad=False)
+            images = wrap(Variable(images, requires_grad=False))
+            labels = wrap(Variable(labels, requires_grad=False))
             for model, optimizer in zip(models, optimizers):
                 output = model(images)
                 loss = criterion(output, labels)
@@ -62,19 +76,26 @@ def train(models):
                 optimizer.zero_grad()
 
 
-def get_activations(model, loader=training_dataloader):
-    outputs = []
-    for images, labels in loader:
-        images = Variable(images, volatile=True)
-        outputs.append(model.partial_forward(images))
-    return torch.cat(outputs, 0).std(0).data.numpy()
+def get_activations(models, loader=training_dataloader):
+    results = []
+    for i, model in enumerate(reversed(models)):
+        model = wrap(model)
+        print('Model ', i)
+        outputs = None
+        for images, labels in loader:
+            images = wrap(Variable(images, volatile=True))
+            b = model.partial_forward(images)
+            outputs = b if outputs is None else torch.cat([outputs, b], 0)
+        model = None
+        results.append(unwrap(outputs.std(0).data).numpy())
+    return results
 
 
 def plot_distributions(activations):
-    to_plot = [1, 3,  5, 9, 11, 13]
+    to_plot = [1, 3,  5, 9, 11, 13, 15]
     plt.figure(figsize=(10, 5))
     for i in reversed(sorted(to_plot)):
-        sns.distplot(activations[i], hist=False, label="%s neurons" % len(activations[i]))
+        sns.distplot(activations[i], hist=False, label="%s neurons" % (len(activations[i]) / REPLICATES ))
     plt.xlim((0, 8.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
@@ -86,7 +107,7 @@ def plot_distributions(activations):
 
 
 def plot_sum_variance(activations):
-    sizes = np.array([len(x) for x in activations])
+    sizes = np.array([len(x) / REPLICATES for x in activations])
     sums = np.array([x.sum() for x in activations])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, sums)
@@ -99,7 +120,7 @@ def plot_sum_variance(activations):
 
 
 def plot_shapiro(activations):
-    sizes = np.array([len(x) for x in activations])
+    sizes = np.array([len(x) / REPLICATES for x in activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, t_values)
@@ -116,26 +137,26 @@ def plot_shapiro(activations):
     plt.close()
 
 
-def plot_distributions_arround_sweet(activations):
+def plot_distributions_around_sweet(activations):
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     argmax = t_values.argmax()
     to_plot = [argmax - 1, argmax, argmax + 1]
     plt.figure(figsize=(10, 5))
     for i in reversed(sorted(to_plot)):
-        sns.distplot(activations[i], hist=False, label="%s neurons" % len(activations[i]))
+        sns.distplot(activations[i], hist=False, label="%s neurons" % (len(activations[i]) / REPLICATES))
     plt.xlim((0, 5))
     plt.ylim((0, 0.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
-    plt.title('Distribution of standard deviation of activation after hidden layer arround the most normal')
+    plt.title('Distribution of standard deviation of activation after hidden layer around the most normal')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_dist_activations_arround_sweet.png')
+    plt.savefig('./plots/MNIST_1h_dist_activations_around_sweet.png')
     plt.close()
 
 
 def plot_dead_neurons(activations):
-    sizes = np.array([len(x) for x in activations])
+    sizes = np.array([len(x) / REPLICATES for x in activations])
     deads = np.array([(x == 0).sum() for x in activations])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, deads)
@@ -146,17 +167,21 @@ def plot_dead_neurons(activations):
     plt.savefig('./plots/MNIST_1h_dead_neurons.png')
     plt.close()
 
-def get_accuracy(model, loader=training_dataloader):
-    accs = []
+def get_accuracy(models, loader=training_dataloader):
+    models = [wrap(model) for model in models]
+    accs = [0] * len(models)
     for images, labels in loader:
-        images = Variable(images, volatile=True)
-        predicted = model(images).data
-        accs.append((predicted.max(1)[1] == labels).float().mean())
-    return np.array(accs).mean()
+        images = wrap(Variable(images, volatile=True))
+        labels = wrap(labels)
+        for i, model in enumerate(models):
+            predicted = model(images).data
+            acc = (predicted.max(1)[1] == labels).float().mean()
+            accs[i] += acc
+    return np.array(accs) / len(loader)
 
 
 def plot_compare_shapiro_accuracy(activations, accuracies):
-    sizes = np.array([len(x) for x in activations])
+    sizes = np.array([len(x) / REPLICATES for x in activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     plt.figure(figsize=(10, 5))
     a = plt.gca()
@@ -172,14 +197,18 @@ def plot_compare_shapiro_accuracy(activations, accuracies):
     plt.close()
 
 
-if __name__ == '__main__':
+if False and __name__ == '__main__':
     models = init_models()
     train(models)
-    activations = [get_activations(model) for model in models]
-    accuracies = np.array([get_accuracy(x) for x in models])
+    for i, model in enumerate(models):
+        save_model(models, i)
+    models = [unwrap(model) for model in models] # Freeing some GPU memory
+    activations = np.array(get_activations(models)).reshape(-1, REPLICATES)
+    activations = [np.concatenate(a) for a in activations]
+    accuracies = get_accuracy(models).reshape(-1, REPLICATES).mean(axis=1) 
     plot_distributions(activations)
     plot_shapiro(activations)
     plot_sum_variance(activations)
-    plot_distributions_arround_sweet(activations)
+    plot_distributions_around_sweet(activations)
     plot_dead_neurons(activations)
     plot_compare_shapiro_accuracy(activations, accuracies)
