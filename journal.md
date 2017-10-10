@@ -31,7 +31,7 @@ Our goal here is to find wether the variance of activation can tell us if the ne
 
 The most normal distribution and the two neighbours are shown on a figure.
 
-![Distribution of variance for the most normal network and the two neighbours](/plots/MNIST_1h_dist_activations_arround_sweet.png?raw=true "Distribution of variance for the most normal network and the two neighbours")
+![Distribution of variance for the most normal network and the two neighbours](/plots/MNIST_1h_dist_activations_around_sweet.png?raw=true "Distribution of variance for the most normal network and the two neighbours")
 
 We can also conjecture that the total amount of variance is
 - ~~Either constant as we can see on the plot~~ (Better simulations invalidate this hypothesis)

@@ -137,21 +137,21 @@ def plot_shapiro(activations):
     plt.close()
 
 
-def plot_distributions_arround_sweet(activations):
+def plot_distributions_around_sweet(activations):
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     argmax = t_values.argmax()
     to_plot = [argmax - 1, argmax, argmax + 1]
     plt.figure(figsize=(10, 5))
     for i in reversed(sorted(to_plot)):
-        sns.distplot(activations[i], hist=False, label="%s neurons" % len(activations[i]))
+        sns.distplot(activations[i], hist=False, label="%s neurons" % (len(activations[i]) / REPLICATES))
     plt.xlim((0, 5))
     plt.ylim((0, 0.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
-    plt.title('Distribution of standard deviation of activation after hidden layer arround the most normal')
+    plt.title('Distribution of standard deviation of activation after hidden layer around the most normal')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_dist_activations_arround_sweet.png')
+    plt.savefig('./plots/MNIST_1h_dist_activations_around_sweet.png')
     plt.close()
 
 
@@ -208,6 +208,6 @@ if False and __name__ == '__main__':
     plot_distributions(activations)
     plot_shapiro(activations)
     plot_sum_variance(activations)
-    plot_distributions_arround_sweet(activations)
+    plot_distributions_around_sweet(activations)
     plot_dead_neurons(activations)
     plot_compare_shapiro_accuracy(activations, accuracies)
