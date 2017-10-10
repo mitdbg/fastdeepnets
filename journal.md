@@ -73,6 +73,13 @@ As we can see from the plot, it seems that the normality of the variance of acti
 
 In any case the variance of the activation seems to be a good candidate to control the shrinking and expansion process of a neural network. It seems to be a good proxy for accuracy but has the advantage that it gives information on each layer while the accuracy is only for the entire network. That means we can use it to resize each layer independently.
 
+# Run Multiple trainings to confirm results
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-10-08|2017-10-09|
+
+
 ## Description
 
 In the previous experiments, the values measured were sometimes noisy and probably partially random. It would be a good thing to run many training with different seeeds to make sure that the results are reproducible.
@@ -111,7 +118,8 @@ If we look carefully at the distribution of the variance of activations we can s
 - [ ] Read litterature about Mixture models:
   - [x] [Wikipedia](https://en.wikipedia.org/wiki/Mixture_model)
   - [ ] Find books/lecture notes
-- [ ] Try to implement an algorithm that separate the two components of the distribution
+- [ ] Try to implement an algorithm that separate the two components of the distributio
+  - The idea seems to be good, but it is extremely hard to fit the model.
 - [ ] Interpret and conclude
 
 
@@ -131,10 +139,4 @@ The goal of this milestone is to find if whatever we observed in the previous ex
 - [ ] Pytorch code that run the same procedure on the Zalando MNIST Dataset
 - [ ] Interpretation of the difference between the two datasets
 - [ ] Conclusion on robustness of whatever was found previously
-
-# Run Multiple trainings to confirm results
-
-|Start Date|End Date  |
-|----------|----------|
-|2017-10-08|2017-10-09|
 
