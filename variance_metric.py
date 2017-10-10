@@ -167,6 +167,7 @@ def plot_compare_shapiro_accuracy(activations, accuracies):
     b.set_ylabel('accuracy')
     plt.xlabel('Number of neurons')
     plt.title('Comparison between normality test and measured accuracy')
+    plot.tight_layout()
     plt.savefig('./plots/MNIST_1h_acc_vs_shapiro.png')
     plt.close()
 
