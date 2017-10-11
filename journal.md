@@ -90,7 +90,7 @@ In the previous experiments, the values measured were sometimes noisy and probab
 - [x] Update existing code to run on CUDA
   - `variance_metric.py` now uses cuda
 - [x] Pytorch code that run all the previous experiments multiple time and average the results
-  - On titan Xp we were able to run 11 models in parallel.
+  - On titan Xp we were able to run 11 models in parallel for each networks size (220+ models in total)
 - [x] Update all the plots with the aggregated measurements
   - All plots were updated
 - [x] Global conclusion on the variance of activation
