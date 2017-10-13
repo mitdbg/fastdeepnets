@@ -130,7 +130,7 @@ If we look carefully at the distribution of the variance of activations we can s
       - The fit obtained with this model is quite good but has a tendency to overestimate the amount of dead neurons
     - `./algorithms/digamma_mixture_fit.py`: that fits a mixture of two gamma distribution
       - It seems this one fits better but it has a disadvantage because it might fit two distribution that are gaussian-like when the network is properly sized
-- [ ] Generate plots
+- [x] Generate plots
 - [ ] Interpret and conclude
 
 # Interpretation 
