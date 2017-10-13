@@ -120,11 +120,16 @@ If we look carefully at the distribution of the variance of activations we can s
   - [x] [Interesting article about EM algorithm applied to mixture models](http://www.waset.org/publications/2675)
   - [x] [Expectation–maximization algorithm](https://en.wikipedia.org/wiki/Expectation–maximization_algorithm)
   - [x] Find books/lecture notes
-- [ ] Try to implement an algorithm that separate the two components of the distributio
+- [x] Try to implement an algorithm that separate the two components of the distributio
   - The idea seems to be good, but it is extremely hard to fit the model.
   - Will try to implement EM algorithm
   - EM is very efficient on a mixture of exponnential and gaussian distribution, but it does not look like it is the best model for the data
   - I tried fitting two gamma distributions and they fit the data very well. The only problem now is that the algorithm I have for EM in this case is randomised and have poor convergence properties. I will try to have a deterministic algorithm and the results should be even better (and much faster than the randomised one, based on bootstraping)
+  - Implemented two very efficient fitting algorithms based on the EM concept:
+    - `./algorithms/exp_norm_mixture_fit.py` : that fits a mixture of an exponnential and a normal distribution
+      - The fit obtained with this model is quite good but has a tendency to overestimate the amount of dead neurons
+    - `./algorithms/digamma_mixture_fit.py`: that fits a mixture of two gamma distribution
+      - It seems this one fits better but it has a disadvantage because it might fit two distribution that are gaussian-like when the network is properly sized
 - [ ] Interpret and conclude
 
 
