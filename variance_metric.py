@@ -221,7 +221,7 @@ def plot_mixture_ratio(activations, accuracies):
     a.plot(sizes, t_values, color='C2', label='Shapiro normality test')
     a.plot(sizes, n_acc, color='C4', label='Normalized accuracy')
     a.axhline(y = 0.025, color='C5', label='Arbitrary suggested threshold (p=0.05)')
-    a.legend(loc='bottom right')
+    a.legend(loc='lower right')
     b.plot(sizes, z_activations, color='C3', label='Dead neurons')
     a.set_ylabel('Proportions')
     b.set_ylabel('Number of dead neurons')
