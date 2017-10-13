@@ -15,7 +15,6 @@ def fit(x, maxiter=100, pi=0.5):
         p2 = (1 - pi) * gamma.pdf(x, k2, scale=theta2)
         tau = p1 / (p1 + p2)
         pi, oldpi = tau.mean(), pi
-        print(pi, k1, theta1, k2, theta2)
         k1, theta1 = fit_gamma(x, tau)
         k2, theta2 = fit_gamma(x, 1 - tau)
         if abs(pi - oldpi) < EPS:

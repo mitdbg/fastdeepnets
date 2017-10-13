@@ -76,19 +76,25 @@ def train(models):
                 optimizer.zero_grad()
 
 
+# There is DEFINITELY a better online batched estimator for the variance
+# But this one is quite efficient and quite stable (no square of sums)
+# I will improve it for sure when I have more time
+# At least this is good enough to get me started
 def get_activations(models, loader=training_dataloader):
-    results = []
-    for i, model in enumerate(reversed(models)):
-        model = wrap(model)
-        print('Model ', i)
-        outputs = None
-        for images, labels in loader:
-            images = wrap(Variable(images, volatile=True))
-            b = model.partial_forward(images)
-            outputs = b if outputs is None else torch.cat([outputs, b], 0)
-        model = None
-        results.append(unwrap(outputs.std(0).data).numpy())
-    return results
+    count = 0
+    sums = [wrap(torch.zeros(m.hidden_layer.out_features)) for m in models]
+    sums_diff = [wrap(torch.zeros(m.hidden_layer.out_features)) for m in models]
+    for images, labels in loader:
+        images = wrap(Variable(images, volatile=True))
+        bs = images.size(0)
+        count += bs
+        for i, model in enumerate(models):
+            b = model.partial_forward(images).data
+            sums[i] += b.sum(0)
+            running_mean = sums[i] / count
+            diff = b - running_mean.unsqueeze(0).expand(bs, sums_diff[i].size()[0])
+            sums_diff[i] += (diff * diff).sum(0)
+    return [torch.sqrt(x / count).cpu().numpy() for x in sums_diff]
 
 
 def plot_distributions(activations):
@@ -200,9 +206,6 @@ def plot_compare_shapiro_accuracy(activations, accuracies):
 if False and __name__ == '__main__':
     models = init_models()
     train(models)
-    for i, model in enumerate(models):
-        save_model(models, i)
-    models = [unwrap(model) for model in models] # Freeing some GPU memory
     activations = np.array(get_activations(models)).reshape(-1, REPLICATES)
     activations = [np.concatenate(a) for a in activations]
     accuracies = get_accuracy(models).reshape(-1, REPLICATES).mean(axis=1) 
