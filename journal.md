@@ -133,6 +133,10 @@ If we look carefully at the distribution of the variance of activations we can s
 - [ ] Generate plots
 - [ ] Interpret and conclude
 
+# Interpretation 
+![Comparison of different metrics](/plots/MNIST_1h_acc_vs_mixtures.png?raw=true "Comparison of different metrics")
+
+
 
 
 # See if observations extrapolate on the Zalando MNIST dataset

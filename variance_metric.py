@@ -10,6 +10,8 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
+from algorithms.exp_norm_mixture_fit import fit as fit_exp_norm
+from algorithms.digamma_mixture_fit import fit as fit_digamma
 
 from models.MNIST_1h import MNIST_1h
 
@@ -48,7 +50,7 @@ wrap = lambda x: x.cuda(async=True) if torch.is_tensor(x) and x.is_pinned() else
 unwrap = lambda x: x.cpu()
 
 def init_models(count=REPLICATES):
-    return [wrap(MNIST_1h(int(2**(i / 2)))) for i in range(7, 28) for _ in range(count)]
+    return [wrap(MNIST_1h(int(2**(i / 2)))) for i in range(8, 28) for _ in range(count)]
 
 def save_model(model, id):
     with open('/tmp/model-%s.data' % id, 'wb+') as f:
@@ -196,14 +198,43 @@ def plot_compare_shapiro_accuracy(activations, accuracies):
     b.plot(sizes, accuracies, color='C1')
     a.set_ylabel('t_value (shapiro test)')
     b.set_ylabel('accuracy')
-    plt.xlabel('Number of neurons')
+    plt.xscale('log', basex=2)
+    a.set_xlabel('Number of neurons')
     plt.title('Comparison between normality test and measured accuracy')
-    plot.tight_layout()
+    plt.tight_layout()
     plt.savefig('./plots/MNIST_1h_acc_vs_shapiro.png')
     plt.close()
 
+def plot_mixture_ratio(activations, accuracies):
+    n_acc = (accuracies - accuracies.min()) / (accuracies.max() - accuracies.min())
+    z_activations = [(a == 0).sum() / REPLICATES for a in activations]
+    nz_activations = [a[a != 0] for a in activations]
+    sizes = np.array([len(x) / REPLICATES for x in activations])
+    digamma_ratio = np.array([fit_digamma(x)[1] for x in nz_activations])
+    exp_norm_ratio = np.array([fit_exp_norm(x)[1] for x in nz_activations])
+    t_values = np.array([scipy.stats.shapiro(x)[0] for x in nz_activations])
+    plt.figure(figsize=(10, 5))
+    a = plt.gca()
+    b = a.twinx()
+    a.plot(sizes, digamma_ratio, color='C0', label='Digamma fitting')
+    a.plot(sizes, exp_norm_ratio, color='C1', label='Exp+Normal fitting')
+    a.plot(sizes, t_values, color='C2', label='Shapiro normality test')
+    a.plot(sizes, n_acc, color='C4', label='Normalized accuracy')
+    a.axhline(y = 0.025, color='C5', label='Arbitrary suggested threshold (p=0.05)')
+    a.legend(loc='bottom right')
+    b.plot(sizes, z_activations, color='C3', label='Dead neurons')
+    a.set_ylabel('Proportions')
+    b.set_ylabel('Number of dead neurons')
+    b.legend(loc='upper right')
+    plt.xscale('log', basex=2)
+    b.set_ylim((0, 20))
+    a.set_xlabel('Number of neurons')
+    plt.title('Comparison between multiple metrics')
+    plt.savefig('./plots/MNIST_1h_acc_vs_mixtures.png')
+    plt.close()
 
-if False and __name__ == '__main__':
+
+if __name__ == '__main__':
     models = init_models()
     train(models)
     activations = np.array(get_activations(models)).reshape(-1, REPLICATES)
@@ -215,3 +246,4 @@ if False and __name__ == '__main__':
     plot_distributions_around_sweet(activations)
     plot_dead_neurons(activations)
     plot_compare_shapiro_accuracy(activations, accuracies)
+    plot_mixture_ratio(activations, accuracies)
