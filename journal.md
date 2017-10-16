@@ -131,7 +131,7 @@ If we look carefully at the distribution of the variance of activations we can s
     - `./algorithms/digamma_mixture_fit.py`: that fits a mixture of two gamma distribution
       - It seems this one fits better but it has a disadvantage because it might fit two distribution that are gaussian-like when the network is properly sized
 - [x] Generate plots
-- [ ] Interpret and conclude
+- [x] Interpret and conclude
 
 # Interpretation 
 ![Comparison of different metrics](/plots/MNIST_1h_acc_vs_mixtures.png?raw=true "Comparison of different metrics")
