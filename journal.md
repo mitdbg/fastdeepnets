@@ -107,7 +107,7 @@ The distribution of the variance of activation seems to be a good proxy for netw
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-10-09|          |
+|2017-10-09|2017-10-16|
 
 ## Description
 
@@ -136,14 +136,16 @@ If we look carefully at the distribution of the variance of activations we can s
 # Interpretation 
 ![Comparison of different metrics](/plots/MNIST_1h_acc_vs_mixtures.png?raw=true "Comparison of different metrics")
 
+As we can see on this plot, the thre variance-based metrics seem to moderately underestimate the size of the network, but they are still interesting for our purpose. The number of dead neurons might be promising too except that whatever the threshold we might set it would be a completely arbitrary value (except if we choose zero but it does not seem to be a good one).
 
+In the next section we will try to see how it generalizes on an another data set.
 
 
 # See if observations extrapolate on the Zalando MNIST dataset
 
 |Start Date|End Date  |
 |----------|----------|
-|          |          |
+|2017-10-16|          |
 
 ## Description
 
