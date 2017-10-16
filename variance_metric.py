@@ -3,7 +3,7 @@ from torch import nn
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-from torchvision.datasets import MNIST
+from torchvision.datasets import MNIST, FashionMNIST
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 import seaborn as sns
@@ -22,29 +22,6 @@ transform = transforms.Compose([
                        transforms.Normalize((0.1307,), (0.3081,))
 ])
 
-training_dataset = MNIST(
-    './datasets/MNIST/',
-    train=True,
-    download=True,
-    transform=transform
-)
-training_dataloader = DataLoader(
-    training_dataset,
-    batch_size=128,
-    pin_memory=True,
-    shuffle=True)
-
-testing_dataset = MNIST(
-    './datasets/MNIST/',
-    train=False,
-    download=True,
-    transform=transform
-)
-testing_dataloader = DataLoader(
-    testing_dataset,
-    batch_size=128,
-    pin_memory=True,
-    shuffle=True)
 
 wrap = lambda x: x.cuda(async=True) if torch.is_tensor(x) and x.is_pinned() else x.cuda()
 unwrap = lambda x: x.cpu()
@@ -60,14 +37,14 @@ def load_model(id):
     with open('/tmp/model-%s.data' % id, 'rb') as f:
         return torch.load(f)
 
-def train(models):
+def train(models, dl):
     criterion = nn.CrossEntropyLoss()
     optimizers = [Adam(model.parameters()) for model in models]
 
     for e in range(0, 15):
         print("Epoch %s" % e)
-        for i, (images, labels) in enumerate(training_dataloader):
-            print(round(i / len(training_dataloader) * 100))
+        for i, (images, labels) in enumerate(dl):
+            print(round(i / len(dl) * 100))
             images = wrap(Variable(images, requires_grad=False))
             labels = wrap(Variable(labels, requires_grad=False))
             for model, optimizer in zip(models, optimizers):
@@ -82,7 +59,7 @@ def train(models):
 # But this one is quite efficient and quite stable (no square of sums)
 # I will improve it for sure when I have more time
 # At least this is good enough to get me started
-def get_activations(models, loader=training_dataloader):
+def get_activations(models, loader):
     count = 0
     sums = [wrap(torch.zeros(m.hidden_layer.out_features)) for m in models]
     sums_diff = [wrap(torch.zeros(m.hidden_layer.out_features)) for m in models]
@@ -99,7 +76,7 @@ def get_activations(models, loader=training_dataloader):
     return [torch.sqrt(x / count).cpu().numpy() for x in sums_diff]
 
 
-def plot_distributions(activations):
+def plot_distributions(activations, prefix):
     to_plot = [1, 3,  5, 9, 11, 13, 15]
     plt.figure(figsize=(10, 5))
     for i in reversed(sorted(to_plot)):
@@ -110,11 +87,11 @@ def plot_distributions(activations):
     plt.title('Distribution of standard deviation of activation after hidden layer')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_dist_activations.png')
+    plt.savefig('./plots/%s_1h_dist_activations.png' % prefix)
     plt.close()
 
 
-def plot_sum_variance(activations):
+def plot_sum_variance(activations, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     sums = np.array([x.sum() for x in activations])
     plt.figure(figsize=(10, 5))
@@ -123,11 +100,11 @@ def plot_sum_variance(activations):
     plt.xlabel('Number of neurons')
     plt.ylabel('Sum of variance')
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_sum_variance.png')
+    plt.savefig('./plots/%s_1h_sum_variance.png' % prefix)
     plt.close()
 
 
-def plot_shapiro(activations):
+def plot_shapiro(activations, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     plt.figure(figsize=(10, 5))
@@ -141,11 +118,11 @@ def plot_shapiro(activations):
     plt.xlim(0, 10000)
     plt.ylim((0, 1))
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_normality_test.png')
+    plt.savefig('./plots/%s_1h_normality_test.png' % prefix)
     plt.close()
 
 
-def plot_distributions_around_sweet(activations):
+def plot_distributions_around_sweet(activations, prefix):
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     argmax = t_values.argmax()
     to_plot = [argmax - 1, argmax, argmax + 1]
@@ -159,11 +136,11 @@ def plot_distributions_around_sweet(activations):
     plt.title('Distribution of standard deviation of activation after hidden layer around the most normal')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_dist_activations_around_sweet.png')
+    plt.savefig('./plots/%s_1h_dist_activations_around_sweet.png' % prefix)
     plt.close()
 
 
-def plot_dead_neurons(activations):
+def plot_dead_neurons(activations, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     deads = np.array([(x == 0).sum() for x in activations])
     plt.figure(figsize=(10, 5))
@@ -172,10 +149,10 @@ def plot_dead_neurons(activations):
     plt.xlabel('Number of neurons')
     plt.ylabel('Number of dead neurons')
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_dead_neurons.png')
+    plt.savefig('./plots/%s_1h_dead_neurons.png' % prefix)
     plt.close()
 
-def get_accuracy(models, loader=training_dataloader):
+def get_accuracy(models, loader):
     models = [wrap(model) for model in models]
     accs = [0] * len(models)
     for images, labels in loader:
@@ -188,7 +165,7 @@ def get_accuracy(models, loader=training_dataloader):
     return np.array(accs) / len(loader)
 
 
-def plot_compare_shapiro_accuracy(activations, accuracies):
+def plot_compare_shapiro_accuracy(activations, accuracies, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     plt.figure(figsize=(10, 5))
@@ -202,10 +179,10 @@ def plot_compare_shapiro_accuracy(activations, accuracies):
     a.set_xlabel('Number of neurons')
     plt.title('Comparison between normality test and measured accuracy')
     plt.tight_layout()
-    plt.savefig('./plots/MNIST_1h_acc_vs_shapiro.png')
+    plt.savefig('./plots/%s_1h_acc_vs_shapiro.png' % prefix)
     plt.close()
 
-def plot_mixture_ratio(activations, accuracies):
+def plot_mixture_ratio(activations, accuracies, prefix):
     n_acc = (accuracies - accuracies.min()) / (accuracies.max() - accuracies.min())
     z_activations = [(a == 0).sum() / REPLICATES for a in activations]
     nz_activations = [a[a != 0] for a in activations]
@@ -230,20 +207,35 @@ def plot_mixture_ratio(activations, accuracies):
     b.set_ylim((0, 20))
     a.set_xlabel('Number of neurons')
     plt.title('Comparison between multiple metrics')
-    plt.savefig('./plots/MNIST_1h_acc_vs_mixtures.png')
+    plt.savefig('./plots/%s_1h_acc_vs_mixtures.png' % prefix)
     plt.close()
 
+def benchmark(dataset, prefix):
+    dl = DataLoader(
+        dataset(
+            './datasets/%s/' % prefix,
+            train=True,
+            download=True,
+            transform=transform),
+        batch_size=128,
+        pin_memory=True,
+        shuffle=True
+    )
+    models = init_models()
+    train(models, dl)
+    activations = np.array(get_activations(models, dl)).reshape(-1, REPLICATES)
+    activations = [np.concatenate(a) for a in activations]
+    accuracies = get_accuracy(models, dl).reshape(-1, REPLICATES).mean(axis=1) 
+    plot_distributions(activations, prefix)
+    plot_shapiro(activations, prefix)
+    plot_sum_variance(activations, prefix)
+    plot_distributions_around_sweet(activations, prefix)
+    plot_dead_neurons(activations, prefix)
+    plot_compare_shapiro_accuracy(activations, accuracies, prefix)
+    plot_mixture_ratio(activations, accuracies, prefix)
 
 if __name__ == '__main__':
-    models = init_models()
-    train(models)
-    activations = np.array(get_activations(models)).reshape(-1, REPLICATES)
-    activations = [np.concatenate(a) for a in activations]
-    accuracies = get_accuracy(models).reshape(-1, REPLICATES).mean(axis=1) 
-    plot_distributions(activations)
-    plot_shapiro(activations)
-    plot_sum_variance(activations)
-    plot_distributions_around_sweet(activations)
-    plot_dead_neurons(activations)
-    plot_compare_shapiro_accuracy(activations, accuracies)
-    plot_mixture_ratio(activations, accuracies)
+    pass
+
+    # benchmark(MNIST, 'MNIST')
+    # benchmark(FashionMNIST, 'FashionMNIST')
