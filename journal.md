@@ -153,7 +153,54 @@ The goal of this milestone is to find if whatever we observed in the previous ex
 
 ## Delivrables
 
-- [ ] Pytorch code that run the same procedure on the Zalando MNIST Dataset
-- [ ] Interpretation of the difference between the two datasets
-- [ ] Conclusion on robustness of whatever was found previously
+- [x] Pytorch code that run the same procedure on the Zalando MNIST Dataset
+  - `variance_metric.py` was updated
+- [x] Interpretation of the difference between the two datasets
+- [x] Conclusion on robustness of whatever was found previously
 
+## Interpretation
+
+Before we interpret any results it is important to understand why we choose to compare against the FashionMNIST instead any other machine learning task:
+
+- FashionMNIST is a *clone* of the orginal dataset
+  - Same number of inputs
+  - Same domain (`[0;1]`) for inputs
+  - Same number of classes
+ - Therefore the model itself does not have to change. We are sure that we are not introducing any other external factors that could impact the results fo the comparison
+ - It even has the same distribution of outputs. It means the variance on the outputs is the same in the two experiments.
+ - The only difference between the two problems is their difficulty
+ 
+ With this experiment we want to challenge the following thesis
+ 
+ *The metrics designed in the first steps are useful in a sense that they can predict if a netowrk is undersized or oversized*
+ 
+ Here by switching to FashionMNIST we are increasing the difficulty of the problem so this is what we are expecting
+ - The accuracy plateau occurs later on the most complext dataset (The model needs more neurons to reach its optimal accuracy)
+ - The distributions of the variance for a given number of neurons shoud be shifted on the right for the more complex dataset
+ - The metrics indicating that the network is oversized also occurs later (The model predicts that we need more neurons for this problem.
+ 
+ If the first hypothesis is true (we reach the plateau at roughly 1024 neurons for FashionMNIST vs 256 for MNIST). Unfortunately, the two others do not seem to hold. (Note that to ensure that the results were not training time dependant I doubled the training time from 15 to 30 epochs so this variable cannot explain the results).
+ 
+ When we look at the distributions, we can see that in the undersized configuration (362 neurons for example) the average activation is higher on the simple dataset. In the oversized configuration (2896 neurons) the density of useless neurons is higher on the more complex task. If you think about it, this result makes sense. If you consider that a classification neural network tries to "separate" classes, when it is facing a hard task the boundaries it draws in the input space might not be well placed. As a result one class might get more elements than it should. Since the inputs are uniformly distributed then in this case the variance is necessarly lower in the more complex task.
+  
+ ![Distribution of Activations - MNIST](/plots/MNIST_1h_dist_activations.png?raw=true "Distribution of Activations - MNIST")
+
+ ![Distribution of Activations - FashionMNIST](/plots/FashionMNIST_1h_dist_activations.png?raw=true "Distribution of Activations - FashionMNIST")
+
+Since the assumption that the distribution of activation is a proxy for the size of the network, necessarly the last hypothesis does not hold (except for the number of dead neurons since it does not rely on the distribution of activations)
+
+![MNIST Metrics](/plots/MNIST_1h_acc_vs_mixtures.png?raw=true "MNIST Metrics")
+
+![FashionMNIST Metrics](/plots/FashionMNIST_1h_acc_vs_mixtures.png?raw=true "FashionMNIST Metrics")
+
+## Conclusion
+
+As we showed in this experiment the variance of activation does not seem to be a good candidate to estimate the size of a network in the general case. We introduced potential explnations of these counter intuitive results and could spend time trying to confirm  them or not but it would not change the concusion on the validity of the variance of activations as a metric so I don't think it is worth spending time on it.
+
+In the near future we will have to investigate other metrics in order to get a general estimator of network size.
+
+Candidates are now:
+
+- Number of dead neurons (threshold seem to be arbitrary and past experiments shows that it underestimate the network size on FashionMNIST)
+- PCA decomposition of the weight matrix
+- Factorization of the weight matrix in two matrix that minimizes the size of the intermediate result (output compression similar to autoencoders)
