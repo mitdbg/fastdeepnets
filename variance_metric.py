@@ -41,7 +41,7 @@ def train(models, dl):
     criterion = nn.CrossEntropyLoss()
     optimizers = [Adam(model.parameters()) for model in models]
 
-    for e in range(0, 15):
+    for e in range(0, 30):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(dl):
             print(round(i / len(dl) * 100))
@@ -84,7 +84,7 @@ def plot_distributions(activations, prefix):
     plt.xlim((0, 8.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
-    plt.title('Distribution of standard deviation of activation after hidden layer')
+    plt.title(prefix +' - Distribution of standard deviation of activation after hidden layer')
     plt.legend()
     plt.tight_layout()
     plt.savefig('./plots/%s_1h_dist_activations.png' % prefix)
@@ -96,7 +96,7 @@ def plot_sum_variance(activations, prefix):
     sums = np.array([x.sum() for x in activations])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, sums)
-    plt.title('Sum of variance depending on the size of the layer')
+    plt.title(prefix +' - Sum of variance depending on the size of the layer')
     plt.xlabel('Number of neurons')
     plt.ylabel('Sum of variance')
     plt.tight_layout()
@@ -109,7 +109,7 @@ def plot_shapiro(activations, prefix):
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, t_values)
-    plt.title('Results of normality tests(Shapiro) for different layer size')
+    plt.title(prefix +' - Results of normality tests(Shapiro) for different layer size')
     plt.xlabel('Number of neurons')
     plt.ylabel('t_value')
     argmax = sizes[t_values.argmax()]
@@ -133,7 +133,7 @@ def plot_distributions_around_sweet(activations, prefix):
     plt.ylim((0, 0.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
-    plt.title('Distribution of standard deviation of activation after hidden layer around the most normal')
+    plt.title(prefix +' - Distribution of standard deviation of activation after hidden layer around the most normal')
     plt.legend()
     plt.tight_layout()
     plt.savefig('./plots/%s_1h_dist_activations_around_sweet.png' % prefix)
@@ -145,7 +145,7 @@ def plot_dead_neurons(activations, prefix):
     deads = np.array([(x == 0).sum() for x in activations])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, deads)
-    plt.title('Evolution of the quantity of dead neurons')
+    plt.title(prefix +' - Evolution of the quantity of dead neurons')
     plt.xlabel('Number of neurons')
     plt.ylabel('Number of dead neurons')
     plt.tight_layout()
@@ -177,7 +177,7 @@ def plot_compare_shapiro_accuracy(activations, accuracies, prefix):
     b.set_ylabel('accuracy')
     plt.xscale('log', basex=2)
     a.set_xlabel('Number of neurons')
-    plt.title('Comparison between normality test and measured accuracy')
+    plt.title(prefix +' - Comparison between normality test and measured accuracy')
     plt.tight_layout()
     plt.savefig('./plots/%s_1h_acc_vs_shapiro.png' % prefix)
     plt.close()
@@ -206,7 +206,7 @@ def plot_mixture_ratio(activations, accuracies, prefix):
     plt.xscale('log', basex=2)
     b.set_ylim((0, 20))
     a.set_xlabel('Number of neurons')
-    plt.title('Comparison between multiple metrics')
+    plt.title(prefix +' - Comparison between multiple metrics')
     plt.savefig('./plots/%s_1h_acc_vs_mixtures.png' % prefix)
     plt.close()
 
@@ -235,7 +235,5 @@ def benchmark(dataset, prefix):
     plot_mixture_ratio(activations, accuracies, prefix)
 
 if __name__ == '__main__':
-    pass
-
-    # benchmark(MNIST, 'MNIST')
-    # benchmark(FashionMNIST, 'FashionMNIST')
+    benchmark(MNIST, 'MNIST')
+    benchmark(FashionMNIST, 'FashionMNIST')
