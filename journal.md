@@ -204,3 +204,20 @@ Candidates are now:
 - Number of dead neurons (threshold seem to be arbitrary and past experiments shows that it underestimate the network size on FashionMNIST)
 - PCA decomposition of the weight matrix
 - Factorization of the weight matrix in two matrix that minimizes the size of the intermediate result (output compression similar to autoencoders)
+
+# Investigate PCA based metrics for layer size
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-10-17|          |
+
+## Description
+
+The idea behind this experiment is that PCA gives you a kind of factorization that minimizes the latent space (you can choose the size of this space ant it will minimize the error introduced by this reduction). What we would like to do is to find for each layer, what is the real number of dimensions we need to express the data. This can be interpreted as the minimmal number of neurons that are needed to express this transformation (the layer). The key difference between the measurements and the ones with the variance is that we will have to hook before the activation function otherwise the values will not be nicely spread and we will see sharp boundaries.
+
+## Delivrables
+
+- [ ] Pytorch code that estimate the minimum viable dimensionality for a given model
+- [ ] Interpretation 
+- [ ] Conclusion
+
