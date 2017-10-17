@@ -145,7 +145,7 @@ In the next section we will try to see how it generalizes on an another data set
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-10-16|          |
+|2017-10-16|2017-10-16|
 
 ## Description
 
