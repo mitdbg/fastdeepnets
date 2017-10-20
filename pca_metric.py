@@ -32,7 +32,7 @@ else:
     unwrap = wrap
 
 def init_models(count=REPLICATES):
-    return [wrap(MNIST_1h(s)) for s in [32, 64, 128, 200, 350, 568, 1024]]
+    return [wrap(MNIST_1h(s)) for s in [32, 64, 128, 200, 350, 568, 1024, 2048]]
 
 def save_model(model, id):
     with open('/tmp/model-%s.data' % id, 'wb+') as f:
@@ -46,7 +46,7 @@ def train(models, dl):
     criterion = nn.CrossEntropyLoss()
     optimizers = [Adam(model.parameters()) for model in models]
 
-    for e in range(0, 5):
+    for e in range(0, 10):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(dl):
             print(round(i / len(dl) * 100))
@@ -64,7 +64,8 @@ def get_activations(model, loader):
     for images, labels in loader:
         images = wrap(Variable(images, volatile=True))
         outputs.append(model.partial_forward(images, False).data)
-    return torch.cat(outputs, 0)
+    result = torch.cat(outputs, 0)
+    return result - result.mean(0)
 
 def simplify_all(values, basis):
     D = torch.inverse(basis).mm(values.transpose(0, 1))
