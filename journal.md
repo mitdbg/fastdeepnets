@@ -209,7 +209,7 @@ Candidates are now:
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-10-17|          |
+|2017-10-17|2017-10-20|
 
 ## Description
 
@@ -217,7 +217,40 @@ The idea behind this experiment is that PCA gives you a kind of factorization th
 
 ## Delivrables
 
-- [ ] Pytorch code that estimate the minimum viable dimensionality for a given model
-- [ ] Interpretation 
-- [ ] Conclusion
+- [x] Pytorch code that estimate the minimum viable dimensionality for a given model
+  - New file `pca_metric.py` has been added. It performs CPU PCA and GPU processing of the results and then generates the plots
+- [x] Interpretation 
+- [x] Conclusion
 
+# Interpretation
+
+For this task we decided to measure before the activation. The main reason behind this decision is that since we are doing a PCA, it will not interact well with the domain being "cut" by the boundary of the activation (here, ReLU). We can see on the following figure the explained variance of each PCA component sorted by their importance. We did the same plot for the two dataset
+
+
+![MNIST PCA explained variance](/plots/MNIST_1h_pca_explained_variance.png?raw=true "MNIST PCA explained variance")
+
+![FashionMNIST PCA explained variance](/plots/FashionMNIST_1h_pca_explained_variance.png?raw=true "FashionMNIST PCA explained variance")
+
+By looking at these two plots it hard to see anything really significant. It seems that the tangent at the last point before it "dives". But if we pay close attention to the FashionMNIST we see that there are steep tips for small networks, then it attenuates and start again. Nothing in these plot could explain the difference between the 200 neurons required for the simple dataset and the 500+ for the more complex one
+ 
+The second metric we investigate is the reconstruction error. We measure the average distance between a data point and the same with itself without only k components of the PCA. Here are the results:
+
+![MNIST PCA reconstruction distance](/plots/MNIST_1h_pca_reconstruction_distance.png?raw=true "MNIST PCA reconstruction distance")
+
+We would suspect that there would be some components more important than others. But as this plot suggests, all components are equally important. However it seems that the slope of the curve might have some signification. Lines seems to be parallel to the last one. Using this metric the optimal size would be arround 350 neurons. Now let's take a look at the same plot for the complex dataset.
+
+![FashionMNIST PCA reconstruction distance](/plots/FashionMNIST_1h_pca_reconstruction_distance.png?raw=true "FashionMNIST PCA reconstruction distance")
+
+Here the slope seem to be just noise and there is nothing we can clearly see
+
+## Conclusion
+
+It really looks like there is nothing we can extract from all these metric that are based on the PCA of the activations. The two first approach we tried are inconclusive. We can start doubting that the goal of trying to find a metric that takes information about a layer and tells wether it is properly sized is not vain. It leads us to this conjecture:
+
+### Conjecture
+
+__*There is no metric that takes information about a layer and determine if it is oversized, undersized or properly sized*__
+
+### "Proof"
+
+Let's assume that such a function `f` exists and works. We take a dataset `d1` and train a model `M` with a single layer. We choose the number of neurons such that the answer `f(M)` is `undersized`. Now we consider a new dataset `d2`. Its inputs are random noise of the same shape as the inputs of `d1`, and the outputs are `M(d1_inputs)`. By construction the accuracy is 100%, therefore it is properly sized. `M` has not changed therefore `f(M)` is still `undersized` therefore `f` does not work because it is wrong on the second dataset
