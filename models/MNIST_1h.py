@@ -12,7 +12,9 @@ class MNIST_1h(nn.Module):
     def forward(self, x):
         return self.output_layer(self.partial_forward(x))
 
-    def partial_forward(self, x):
+    def partial_forward(self, x, with_activation=True):
         x = x.view(-1, 28 * 28)
-        return self.activation(self.hidden_layer(x))
-
+        x = self.hidden_layer(x)
+        if with_activation:
+            x = self.activation(x)
+        return x
