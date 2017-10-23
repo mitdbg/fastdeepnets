@@ -269,6 +269,36 @@ Since it seems that finding a proper metric is very hard and might be vain, duri
 ## Delivrables
 
 - [ ] Design and formalize a metric-less training procedure
+  - Algorithm is the following
+    ```python
+    
+    # Hyper Parameters
+    
+    l = 0.9 # Ratio of the real loss (for the multi objective optimization)
+    
+    ## Initialization
+    
+    running_mean = zeros(N)
+    running_var = zeros(0)
+    bias = zeros(N)
+    k = 1
+    x_0 = N
+    
+    ## For each batch
+    
+    x = W @ x + bias  # Compute the output of the layer
+    x = act(x) # go through the activation function
+    factors = 1 -  1 / (1 + exp(-k * (range(0, N) - x_0))) # Compute the scaler for each neuron
+    x = x * factors
+    return x
+    
+    ## compute the loss
+    
+    loss = original_loss
+    for k, x_0 in layers:
+      loss += l * sum(1 -  1 / (1 + exp(-k * (range(0, N) - x_0))))
+    ```
+  - I don't think this will work as is because the low variance neurons might be at the begining
 - [ ] Implementation in pytorch
 - [ ] Interpret the results
 - [ ] Conclude
