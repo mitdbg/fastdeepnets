@@ -254,3 +254,23 @@ __*There is no metric that takes information about a layer and determine if it i
 ### "Proof"
 
 Let's assume that such a function `f` exists and works. We take a dataset `d1` and train a model `M` with a single layer. We choose the number of neurons such that the answer `f(M)` is `undersized`. Now we consider a new dataset `d2`. Its inputs are random noise of the same shape as the inputs of `d1`, and the outputs are `M(d1_inputs)`. By construction the accuracy is 100%, therefore it is properly sized. `M` has not changed therefore `f(M)` is still `undersized` therefore `f` does not work because it is wrong on the second dataset. It can't be undersized sine we have a 100% accuracy on the second dataest. 
+
+# Implement a metric-less resizing
+
+## Description
+
+Since it seems that finding a proper metric is very hard and might be vain, during this project we will try to implement a resizing procedure that is automatic (it is not driven by a metric to know whether we should increase or decrease the size of a layer).
+
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-10-23|          |
+
+## Delivrables
+
+- [ ] Design and formalize a metric-less training procedure
+- [ ] Implementation in pytorch
+- [ ] Interpret the results
+- [ ] Conclude
+
+
