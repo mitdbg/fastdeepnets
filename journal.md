@@ -264,11 +264,11 @@ Since it seems that finding a proper metric is very hard and might be vain, duri
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-10-23|          |
+|2017-10-23|2017-10-23|
 
 ## Delivrables
 
-- [ ] Design and formalize a metric-less training procedure
+- [x] Design and formalize a metric-less training procedure
   - Algorithm is the following
     ```python
     
@@ -299,8 +299,12 @@ Since it seems that finding a proper metric is very hard and might be vain, duri
       loss += l * sum(1 -  1 / (1 + exp(-k * (range(0, N) - x_0))))
     ```
   - I don't think this will work as is because the low variance neurons might be at the begining
-- [ ] Implementation in pytorch
-- [ ] Interpret the results
-- [ ] Conclude
+- [x] Implementation in pytorch
+  - `/models/MNIST_1h_flexible.py` was added. It contains a model with the scaler applied
+  - `/simple_metricless.py`. It contains the training procedure and integrate the loss
+- [x] Interpret the results
+  - The gradient of the parameters `k` and `x_0` are `Nan`. Probably because the way it was computed is pretty messy. There are no results with `Nan` values in gradients
+- [x] Conclude
+  - We should implement the gradient calculation ourselves instead of relying on `torch.autograd` since it fails miserably here.
 
 
