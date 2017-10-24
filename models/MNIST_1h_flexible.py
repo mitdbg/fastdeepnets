@@ -2,8 +2,11 @@ import torch
 from torch.autograd import Variable
 from torch import nn
 
-def stable_logexp(factor):
-    return (1 + 1 / factor.exp()).log() + factor
+def stable_logexp(factor, k):
+    return (1 + (-factor * k).exp()).log() / k + factor
+
+def compute_loss(k, x_0, size):
+        return stable_logexp(x_0, k) - stable_logexp(x_0 - size, k)
 
 class MNIST_1h_flexible(nn.Module):
     def __init__(self, size, wrap):
@@ -25,6 +28,5 @@ class MNIST_1h_flexible(nn.Module):
         x = x * self.get_scaler()
         x = self.output_layer(x)
         return x
-
     def loss(self):
-        return (stable_logexp(self.k * self.x_0) - stable_logexp(self.k * (self.x_0 - self.size))) / self.k
+        return compute_loss(self.k, self.x_0, self.size)
