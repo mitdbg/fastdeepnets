@@ -253,4 +253,54 @@ __*There is no metric that takes information about a layer and determine if it i
 
 ### "Proof"
 
-Let's assume that such a function `f` exists and works. We take a dataset `d1` and train a model `M` with a single layer. We choose the number of neurons such that the answer `f(M)` is `undersized`. Now we consider a new dataset `d2`. Its inputs are random noise of the same shape as the inputs of `d1`, and the outputs are `M(d1_inputs)`. By construction the accuracy is 100%, therefore it is properly sized. `M` has not changed therefore `f(M)` is still `undersized` therefore `f` does not work because it is wrong on the second dataset
+Let's assume that such a function `f` exists and works. We take a dataset `d1` and train a model `M` with a single layer. We choose the number of neurons such that the answer `f(M)` is `undersized`. Now we consider a new dataset `d2`. Its inputs are random noise of the same shape as the inputs of `d1`, and the outputs are `M(d1_inputs)`. By construction the accuracy is 100%, therefore it is properly sized. `M` has not changed therefore `f(M)` is still `undersized` therefore `f` does not work because it is wrong on the second dataset. It can't be undersized sine we have a 100% accuracy on the second dataest. 
+
+# Implement a metric-less resizing
+
+## Description
+
+Since it seems that finding a proper metric is very hard and might be vain, during this project we will try to implement a resizing procedure that is automatic (it is not driven by a metric to know whether we should increase or decrease the size of a layer).
+
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-10-23|          |
+
+## Delivrables
+
+- [ ] Design and formalize a metric-less training procedure
+  - Algorithm is the following
+    ```python
+    
+    # Hyper Parameters
+    
+    l = 0.9 # Ratio of the real loss (for the multi objective optimization)
+    
+    ## Initialization
+    
+    running_mean = zeros(N)
+    running_var = zeros(0)
+    bias = zeros(N)
+    k = 1
+    x_0 = N
+    
+    ## For each batch
+    
+    x = W @ x + bias  # Compute the output of the layer
+    x = act(x) # go through the activation function
+    factors = 1 -  1 / (1 + exp(-k * (range(0, N) - x_0))) # Compute the scaler for each neuron
+    x = x * factors
+    return x
+    
+    ## compute the loss
+    
+    loss = original_loss
+    for k, x_0 in layers:
+      loss += l * sum(1 -  1 / (1 + exp(-k * (range(0, N) - x_0))))
+    ```
+  - I don't think this will work as is because the low variance neurons might be at the begining
+- [ ] Implementation in pytorch
+- [ ] Interpret the results
+- [ ] Conclude
+
+
