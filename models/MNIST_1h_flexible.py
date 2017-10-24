@@ -2,15 +2,18 @@ import torch
 from torch.autograd import Variable
 from torch import nn
 
+def stable_logexp(factor):
+    return (1 + 1 / factor.exp()).log() + factor
+
 class MNIST_1h_flexible(nn.Module):
-    def __init__(self, size):
+    def __init__(self, size, wrap):
         super(MNIST_1h_flexible, self).__init__()
         self.size = size
         self.k = nn.Parameter(torch.ones(1))
         self.x_0 = nn.Parameter(torch.ones(1) * size)
         self.hidden_layer = nn.Linear(28 * 28, size, bias=True)
         self.activation = nn.ReLU()
-        self.range = Variable(torch.arange(0, size), requires_grad=False).cuda()
+        self.range = wrap(Variable(torch.arange(0, size), requires_grad=False))
         self.output_layer = nn.Linear(size, 10, bias=True)
 
     def get_scaler(self):
@@ -24,4 +27,4 @@ class MNIST_1h_flexible(nn.Module):
         return x
 
     def loss(self):
-        return self.get_scaler().sum()
+        return (stable_logexp(self.k * self.x_0) - stable_logexp(self.k * (self.x_0 - self.size))) / self.k
