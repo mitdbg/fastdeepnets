@@ -14,6 +14,8 @@ from algorithms.exp_norm_mixture_fit import fit as fit_exp_norm
 from algorithms.digamma_mixture_fit import fit as fit_digamma
 
 from models.MNIST_1h_flexible import MNIST_1h_flexible
+from models.MNIST_1h import MNIST_1h
+from variance_metric import get_activations
 
 REPLICATES = 11
 
@@ -31,23 +33,27 @@ else:
 
 def train(model, dl):
     criterion = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters())
+    normal_params = list(model.hidden_layer.parameters()) + list(model.output_layer.parameters())
+    params = {}
+    for x in normal_params:
+        params[x] = {
+            'weight_decay': 0.001
+        } 
 
-    for e in range(0, 30):
+    optimizer = Adam(model.parameters()) 
+    for e in range(0, 5):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(dl):
-            print(round(i / len(dl) * 100))
+            # print(round(i / len(dl) * 100))
             images = wrap(Variable(images, requires_grad=False))
             labels = wrap(Variable(labels, requires_grad=False))
             output = model(images)
-            loss = criterion(output, labels) + 0.01 * model.loss()
-            loss.backward()
-            acc = (output.max(1)[1] == labels).float().mean()
-            res = (acc, model.x_0, model.k)
-            return res
-            optimizer.step()
             optimizer.zero_grad()
-            return res
+            (criterion(output, labels) + 0.01 * model.loss()).backward()
+            acc = (output.max(1)[1] == labels).float().mean()
+            print(acc.data.numpy()[0], model.x_0.data.numpy()[0], model.x_0.grad.data.numpy()[0])
+            optimizer.step()
+            model.x_0.data -= model.x_0.grad.data * 100
 
 def get_accuracy(model, loader):
     acc = 0
@@ -58,10 +64,10 @@ def get_accuracy(model, loader):
         acc += (predicted.max(1)[1] == labels).float().mean()
     return np.array(acc) / len(loader)
 
-def get_dl(dataset, prefix):
+def get_dl(dataset):
     return DataLoader(
         dataset(
-            './datasets/%s/' % prefix,
+            './datasets/%s/' % dataset.__name__,
             train=True,
             download=True,
             transform=transform),
@@ -70,6 +76,6 @@ def get_dl(dataset, prefix):
         shuffle=True
     )
 
-if __name__ == '__main__':
-    model = MNIST_1h_flexible(500, wrap)
 
+if __name__ == '__main__':
+    model = MNIST_1h_flexible(1000, wrap)
