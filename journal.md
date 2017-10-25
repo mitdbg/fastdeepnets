@@ -308,3 +308,22 @@ Since it seems that finding a proper metric is very hard and might be vain, duri
   - We should implement the gradient calculation ourselves instead of relying on `torch.autograd` since it fails miserably here.
 
 
+# Improve numerical stability
+
+## Description
+
+As we saw in the previous implementation we are only getting NaNs in the gradients. We need to find a way to fix it and make the training procedure numerically stable
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-10-24|          |
+
+## Delivrables
+
+- [x] Find the integral of the scaler instead of doing the sum.
+- [x] Find a way to compute it in a stable way (avoid inf and NaNs)
+- [x] Update the training procedure
+- [ ] Generate plots
+- [ ] Interpret
+- [ ] Conclude
+
