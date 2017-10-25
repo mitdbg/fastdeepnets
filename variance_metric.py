@@ -59,7 +59,7 @@ def train(models, dl):
 # But this one is quite efficient and quite stable (no square of sums)
 # I will improve it for sure when I have more time
 # At least this is good enough to get me started
-def get_activations(models, loader):
+def get_activations(models, loader, wrap=wrap):
     count = 0
     sums = [wrap(torch.zeros(m.hidden_layer.out_features)) for m in models]
     sums_diff = [wrap(torch.zeros(m.hidden_layer.out_features)) for m in models]
