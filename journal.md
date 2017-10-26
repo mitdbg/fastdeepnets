@@ -327,3 +327,38 @@ As we saw in the previous implementation we are only getting NaNs in the gradien
 - [ ] Interpret
 - [ ] Conclude
 
+# Evaluate Inference time influence of multiple neurons orderings
+
+## Description
+
+In the previous model we do not really see very good accuracy. I think the main issue is that the limit between useful and useless neurons is completely arbirary. If the interesting neurons are on the "right", then they should not be discarded. If we could find a way of order them by importance and train the limit (x_0) between important and less important neurons. A perfect ordering would be "the decreasing impact on the loss if this neuron would be set to zero". We will try to find if this quantity is easy to evaluate, or estimate. If not we will try to find a proxy for this metric.
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-10-25|          |
+
+## Delivrables
+
+- [ ] Try to find if there is a way to compute the increase in loss if a given neuron would be set to zero
+- [ ] Try to find proxies for this ordering
+- [ ] Generate plots
+- [ ] Interpret
+- [ ] Conclude
+
+# Evaluate the stability of these orderings at training time
+
+## Description
+
+Neural networks expect smooth variations during trainig. Reordering neurons will change their scaler. If the reorder is more than one or two spots wide then the activation might go from 0 to 1 in a single batch. It might take a while before the rest of the network adapt from this change. A good ordering of the neurons would make sure that the number of swaps is low and that neurons move a small distance durint trianing
+
+|Start Date|End Date  |
+|----------|----------|
+|          |          |
+
+## Delivrables
+
+- [ ] Implement a benchmark in pytorch that compare the stability for these metrics
+- [ ] Generate plots
+- [ ] Interpret
+- [ ] Conclude
+
