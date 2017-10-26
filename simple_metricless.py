@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.autograd import Variable
-from torch.optim import Adam
+from torch.optim import Adam, SGD
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST, FashionMNIST
 from torchvision import transforms
@@ -14,6 +14,7 @@ from algorithms.exp_norm_mixture_fit import fit as fit_exp_norm
 from algorithms.digamma_mixture_fit import fit as fit_digamma
 
 from models.MNIST_1h_flexible import MNIST_1h_flexible
+from models.MNIST_1h_flexible_sorted import MNIST_1h_flexible_sorted
 from models.MNIST_1h import MNIST_1h
 from variance_metric import get_activations
 
@@ -34,14 +35,15 @@ else:
 def train(model, dl):
     criterion = nn.CrossEntropyLoss()
     normal_params = list(model.hidden_layer.parameters()) + list(model.output_layer.parameters())
-    params = {}
-    for x in normal_params:
-        params[x] = {
-            'weight_decay': 0.001
-        } 
 
-    optimizer = Adam(model.parameters()) 
-    for e in range(0, 5):
+    optimizer = Adam([{
+        'params': normal_params,
+        'weight_decay': 0.001,
+    }, {
+        'params': [model.x_0],
+        'lr': 1,
+    }])
+    for e in range(0, 10):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(dl):
             # print(round(i / len(dl) * 100))
@@ -49,11 +51,10 @@ def train(model, dl):
             labels = wrap(Variable(labels, requires_grad=False))
             output = model(images)
             optimizer.zero_grad()
-            (criterion(output, labels) + 0.01 * model.loss()).backward()
+            (criterion(output, labels) + 0.001 * model.loss()).backward()
             acc = (output.max(1)[1] == labels).float().mean()
             print(acc.data.numpy()[0], model.x_0.data.numpy()[0], model.x_0.grad.data.numpy()[0])
             optimizer.step()
-            model.x_0.data -= model.x_0.grad.data * 100
 
 def get_accuracy(model, loader):
     acc = 0
@@ -78,4 +79,4 @@ def get_dl(dataset):
 
 
 if __name__ == '__main__':
-    model = MNIST_1h_flexible(1000, wrap)
+    model = MNIST_1h_flexible_sorted(500, wrap, 58)
