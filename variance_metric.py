@@ -37,14 +37,14 @@ def load_model(id):
     with open('/tmp/model-%s.data' % id, 'rb') as f:
         return torch.load(f)
 
-def train(models, dl):
+def train(models, dl, epochs=30):
     criterion = nn.CrossEntropyLoss()
     optimizers = [Adam(model.parameters()) for model in models]
 
-    for e in range(0, 30):
+    for e in range(0, epochs):
         print("Epoch %s" % e)
         for i, (images, labels) in enumerate(dl):
-            print(round(i / len(dl) * 100))
+            # print(round(i / len(dl) * 100))
             images = wrap(Variable(images, requires_grad=False))
             labels = wrap(Variable(labels, requires_grad=False))
             for model, optimizer in zip(models, optimizers):
