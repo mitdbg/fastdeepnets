@@ -170,7 +170,7 @@ def benchmark_dataset(ds):
     dl2 = get_dl(ds, False)
     sizes = np.array(range(0, 500, 25))
     models = [wrap(MNIST_1h_flexible(500, wrap, k)) for k in range(0, 500, 25)]
-    train(models, dl, 0.001)
+    train(models, dl, 1e-5)
     accuracies = np.array(get_accuracy(models, dl))
     plot_accuracies(accuracies, sizes, ds.__name__)
     plot_convergence(models, sizes, ds.__name__)

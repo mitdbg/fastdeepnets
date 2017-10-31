@@ -42,4 +42,4 @@ class MNIST_1h_flexible(nn.Module):
         return x
 
     def loss(self):
-        return self.x_0
+        return compute_loss(self.k, self.x_0, self.size)
