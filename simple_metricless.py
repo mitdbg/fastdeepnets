@@ -114,8 +114,6 @@ def plot_accuracies(accuracies, sizes, prefix):
     plt.title(prefix +' - Accuracies for different starting sizes')
     plt.xlabel('Number of neurons at the beginning')
     plt.ylabel('Accuracy after training')
-    plt.yscale('log')
-    plt.grid(True)
     plt.tight_layout()
     plt.savefig('./plots/%s_1h_simple_flexible_accuracies' % prefix)
     plt.close()
