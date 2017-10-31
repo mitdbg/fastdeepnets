@@ -323,10 +323,51 @@ As we saw in the previous implementation we are only getting NaNs in the gradien
 - [x] Find the integral of the scaler instead of doing the sum.
 - [x] Find a way to compute it in a stable way (avoid inf and NaNs)
 - [x] Update the training procedure
-- [ ] Generate plots
-- [ ] Interpret
+- [x] Generate plots
+  - Plot generation was added in `/simple_metricless.py`
+- [x] Interpret
 - [ ] Conclude
 
+## Interpretation
+
+Pr Madden suggested that the entire integral calculation was pointless and could just be replaced with the `x_0` parameter. It did make a lot of sense but after trying I noticed that the system diverged more often than it should. After investigation the reason is pretty simple. The integral tend to `0` when `x_0` tend towards -infinity and `size` when infinity. By replacing the integral by `x_0` we allow the loss to be as low as -infinity which does not make sense. The loss associated to the network size should always be positive.
+ 
+ As we can see on the plots whatever the starting size is the NN always converge (roughly) to the same number of neurons. This is great news because that shows that the function is smooth enough not to get stuck in local minima.
+ 
+![MNIST learned network size](plots/MNIST_1h_simple_flexible_convergence.png?raw=true "MNIST learned network size")
+ 
+We can also make the same observation for the accuracy. It does not depend on the starting network size.
+
+![MNIST accuracies](plots/MNIST_1h_simple_flexible_accuracies.png?raw=true "MNIST accuracies")
+
+Now it would be interesting to compare the accuracy obtained with
+  - a flexible network against a static network trained with the size the flexible network converged to
+  - The best accuracy available
+  
+We did that on the **testing accuracy** and here are the results:
+  
+![MNIST accuracy comparaison](plots/MNIST_1h_simple_flexible_frontier.png?raw=true "MNIST accuracy comparaison")
+  
+![FashionMNIST learned network size](plots/FashionMNIST_1h_simple_flexible_frontier.png?raw=true "FashionMNIST learned network size")
+
+There are key observations to make from these plots:
+
+- The loss in accuracy is much higher on `FasionMNIST` than `MNIST`
+- The NN size seems to be converging to some plateau
+- On `MNIST` the flexible model seems to be as good as the static model. It is not the case at all on `FashionMNIST`
+- The size `MNIST` converge to is higher than the size `FashionMNIST` does. It is counter intuitive because the former is simpler than the latter.
+
+## Conclusion
+
+Even if the results obtained are interesting there a re a lot of question to be answered
+
+- Why does the size converges to a plateau ? Why can't we reach arbitrary big networks ?
+- Why `MNIST` is bigger than `FashionMNIST`
+- Can we reach the same accurcy on the flexible network than the static one ?
+
+We will try to answer these question later in this journal.
+
+ 
 # Evaluate Inference time influence of multiple neurons orderings
 
 ## Description
