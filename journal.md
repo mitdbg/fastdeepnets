@@ -326,7 +326,7 @@ As we saw in the previous implementation we are only getting NaNs in the gradien
 - [x] Generate plots
   - Plot generation was added in `/simple_metricless.py`
 - [x] Interpret
-- [ ] Conclude
+- [x] Conclude
 
 ## Interpretation
 
