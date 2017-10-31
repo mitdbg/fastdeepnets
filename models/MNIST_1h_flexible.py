@@ -14,11 +14,13 @@ def compute_loss(k, x_0, size):
         return stable_logexp(x_0, k) - stable_logexp(x_0 - size, k)
 
 class MNIST_1h_flexible(nn.Module):
-    def __init__(self, size, wrap):
+    def __init__(self, size, wrap, x_0=None):
+        if x_0 is None:
+            x_0 = size
         super(MNIST_1h_flexible, self).__init__()
         self.size = size
-        self.k = Variable(torch.ones(1), requires_grad=False)
-        self.x_0 = nn.Parameter(torch.ones(1) * size)
+        self.k = wrap(Variable(torch.ones(1), requires_grad=False))
+        self.x_0 = nn.Parameter(wrap(torch.ones(1)))
         self.hidden_layer = nn.Linear(28 * 28, size, bias=True)
         self.activation = nn.ReLU()
         self.range = wrap(Variable(torch.arange(0, size), requires_grad=False))
@@ -38,5 +40,6 @@ class MNIST_1h_flexible(nn.Module):
         x = x * self.get_scaler()
         x = self.output_layer(x)
         return x
+
     def loss(self):
-        return compute_loss(self.k, self.x_0, self.size)
+        return self.x_0
