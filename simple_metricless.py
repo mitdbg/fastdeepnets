@@ -40,7 +40,7 @@ else:
     wrap = lambda x: x
     unwrap = wrap
 
-def train(models, dl, lamb=0.001, epochs=EPOCHS):
+def train(models, dl, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
     criterion = nn.CrossEntropyLoss()
     optimizers = []
     for model in models:
@@ -49,7 +49,7 @@ def train(models, dl, lamb=0.001, epochs=EPOCHS):
 
         optimizer = Adam([{
             'params': normal_params,
-            'weight_decay': 0.001,
+            'weight_decay': l2_penalty,
         }, {
             'params': [model.x_0],
             'lr': 1,
@@ -179,7 +179,29 @@ def benchmark_dataset(ds):
     simple_train([best_model], dl, EPOCHS)
     plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__)
 
+def validate_plateau_hypothesis(ds):
+    dl = get_dl(ds, False) # Testing because it is smaller, does not change anything
+    model = wrap(MNIST_1h_flexible(500, wrap, 250))
+    train([model], dl, 0, l2_penalty=0.001)
+    total_weights = unwrap(torch.abs(model.output_layer.weight).sum(0).data).numpy()
+    scaler = unwrap(model.get_scaler().data).numpy()
+    plt.figure(figsize=(10, 5))
+    plt.title('Proof that the regularization is responsible for the size plateau')
+    a = plt.gca()
+    b = a.twinx()
+    b.plot(total_weights, label='Sum of absolute weights associated', color='C0')
+    a.plot(scaler, label='Neuron used (Smoothe Indicator function)', color='C1')
+    a.legend(loc='upper right')
+    b.legend(loc='lower right')
+    plt.xlabel('neuron')
+    a.set_ylabel('Neuron liveness')
+    b.set_ylabel('Sum of abs. weights')
+    plt.tight_layout()
+    plt.savefig('./plots/%s_1h_plateau_explanation.png' % (ds.__name__))
+    plt.close()
+
 if __name__ == '__main__':
-    benchmark_dataset(MNIST)
-    benchmark_dataset(FashionMNIST)
+    # benchmark_dataset(MNIST)
+    # benchmark_dataset(FashionMNIST)
+    validate_plateau_hypothesis(MNIST)
     pass
