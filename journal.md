@@ -381,7 +381,9 @@ As we can see on both `MNIST` and `FashionMNIST` it seems the "optimal" network 
 
 - [x] An explanation/intuition about the origin of this plateau
   - A first observation is even if we remove the size of the network from the loss, the size of the network converges to the same value (the same value as if the weight is very small, ie: `10^-8`)
-  - Second Observation: It seems it depends on the l2 regularization that we apply on the weight of the linear layers. It seems as if the size of the network was accounted for in the l2 norm, even if the code says it should not
+  - Second observation: It seems it depends on the l2 regularization that we apply on the weight of the linear layers. It seems as if the size of the network was accounted for in the l2 norm, even if the code says it should not
+  - __Hypothesis__: The lower `x_0` is the more outpus are zeros. When outputs are zero then the lower layers can afford setting their weights to zero for these neurons. It reduces the total l2 norm of the system and have a lower penalty. Increasing the size of `x_0` would require to set non zero weights to use them and increase the l2 norm
+- [ ] Check the hypotesis made in the previous step
 - [ ] An algorithm that allows bigger network
 - [ ] Conclusion
 
