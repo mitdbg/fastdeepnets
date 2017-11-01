@@ -316,7 +316,7 @@ As we saw in the previous implementation we are only getting NaNs in the gradien
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-10-24|          |
+|2017-10-24|2017-10-30|
 
 ## Delivrables
 
@@ -366,6 +366,22 @@ Even if the results obtained are interesting there a re a lot of question to be 
 - Can we reach the same accurcy on the flexible network than the static one ?
 
 We will try to answer these question later in this journal.
+
+# Investigate the origin of the network size plateau and try to get rid of it
+
+## Description
+
+As we can see on both `MNIST` and `FashionMNIST` it seems the "optimal" network size converges to some problem specific value. For example for `MNIST` it seems impossible to use more than 70 neurons. However we know that we can do better accuracies with a slightly bigger network. The question here is why do we hit this wall and can we comfigure the trainign algorithm to use more than 70 neurons and reach the best accurcy.
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-11-01|          |
+
+## Delivrables
+
+- [ ] An explanation/intuition about the origin of this plateau
+- [ ] An algorithm that allows bigger network
+- [ ] Conclusion
 
  
 # Evaluate Inference time influence of multiple neurons orderings
