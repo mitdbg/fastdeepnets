@@ -379,7 +379,9 @@ As we can see on both `MNIST` and `FashionMNIST` it seems the "optimal" network 
 
 ## Delivrables
 
-- [ ] An explanation/intuition about the origin of this plateau
+- [x] An explanation/intuition about the origin of this plateau
+  - A first observation is even if we remove the size of the network from the loss, the size of the network converges to the same value (the same value as if the weight is very small, ie: `10^-8`)
+  - Second Observation: It seems it depends on the l2 regularization that we apply on the weight of the linear layers. It seems as if the size of the network was accounted for in the l2 norm, even if the code says it should not
 - [ ] An algorithm that allows bigger network
 - [ ] Conclusion
 
