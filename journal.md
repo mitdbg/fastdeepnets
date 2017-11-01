@@ -23,7 +23,7 @@ The architecture will have only one (oversized) hidden layer.
 
 As we can see on the plot, the bigger the network, the more the distribution of the variance of activation shift towards 0. This means that the more we add neurons, the more some of them are useless and can be factored in the next layer.
 
-![Distribution of Activations](/plots/MNIST_1h_dist_activations.png?raw=true "Distribution of Activations")
+![Distribution of Activations](/plots/MNIST_1h_dist_activations.png?ra=true "Distribution of Activations")
 
 Our goal here is to find wether the variance of activation can tell us if the network is oversized. Clearly 2048 is oversized and 64 is not but let's try to define the boundary between the two situations. Intuitively it would make sense to expect a normal distribution for the variance of the activation. As we can see on the results of the Shapiro normality tests, it seems that there is a sweet spot where the variance of the activation are almost normally distributed.
 
@@ -423,6 +423,22 @@ We think that from here we have two different options we might want to follow:
 ## Conclusion
 
 During this task we have explained the presence of this plateau and proposed multiple alternatives to overcome it. This is very promising in a sense that using this very simple flexible model we still have a possible chance to reach the same accuracies as static models.
+
+# Analyse the behavior of flexible netowkrs without L2 regularization
+
+## Description
+
+As we saw in the previous task getting rid of the L2 regularization might be a potential solution to converge to bigger (even maybe optimal network sizes). We can test this hypothesis and make sure that they behave properly.
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-11-01|          |
+
+## Delivrables
+
+- [ ] Analyse the convergence properties of flexible networks without regularization
+- [ ] Analyse the weights of underlying layers to make sure that nothing weird is going on
+- [ ] Conclude about this method
  
 # Evaluate Inference time influence of multiple neurons orderings
 
