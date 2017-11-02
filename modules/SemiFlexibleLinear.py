@@ -25,6 +25,7 @@ class SemiFlexibleLinear(nn.Linear):
         bias: If set to False, the layer will not learn an additive bias.
             Default: True
         original_size: the starting effective size of the layer.
+            Default: same as out_features
 
     Shape:
         - Input: :math:`(N, *, in\_features)` where `*` means any number of
