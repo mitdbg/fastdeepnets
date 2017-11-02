@@ -97,7 +97,7 @@ def get_dl(dataset, train=True):
         shuffle=True
     )
 
-def plot_convergence(models, sizes, prefix):
+def plot_convergence(models, sizes, prefix, suffix):
     convergences = np.array([m.x_0.data.cpu().numpy()[0] for m in models])
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, convergences)
@@ -105,20 +105,20 @@ def plot_convergence(models, sizes, prefix):
     plt.xlabel('Number of neurons at the beginning')
     plt.ylabel('Number of neurons at the end')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_simple_flexible_convergence.png' % prefix)
+    plt.savefig('./plots/%s_1h_simple_flexible_convergence%s.png' % (prefix, suffix))
     plt.close()
 
-def plot_accuracies(accuracies, sizes, prefix):
+def plot_accuracies(accuracies, sizes, prefix, suffix):
     plt.figure(figsize=(10, 5))
     plt.plot(sizes, accuracies)
     plt.title(prefix +' - Accuracies for different starting sizes')
     plt.xlabel('Number of neurons at the beginning')
     plt.ylabel('Accuracy after training')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_simple_flexible_accuracies' % prefix)
+    plt.savefig('./plots/%s_1h_simple_flexible_accuracies%s.png' % (prefix, suffix))
     plt.close()
 
-def plot_frontier(powers, data, best_acc, prefix):
+def plot_frontier(powers, data, best_acc, prefix, suffix):
     plt.figure(figsize=(10, 5))
     a = plt.gca()
     b = a.twinx()
@@ -143,13 +143,13 @@ def plot_frontier(powers, data, best_acc, prefix):
     b.legend(loc="upper right")
     a.legend(loc="upper left")
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_simple_flexible_frontier.png' % prefix)
-    # plt.close()
+    plt.savefig('./plots/%s_1h_simple_flexible_frontier%s.png' % (prefix, suffix))
+    plt.close()
 
 def get_data(params):
-    dl, dl2, w = params
+    dl, dl2, w, l2_penalty = params
     models = [wrap(MNIST_1h_flexible(500, wrap, k)) for k in [250] for _ in range(7)]
-    train(models, dl, w, EPOCHS)
+    train(models, dl, w, EPOCHS, l2_penalty=l2_penalty)
     neurons = np.percentile([m.x_0.data.cpu().numpy()[0] for m in models], 50)
     accuracy = np.percentile(get_accuracy(models, dl2), 50)
     if neurons > 0:
@@ -162,22 +162,6 @@ def get_data(params):
     print(res)
     return res
 
-def benchmark_dataset(ds):
-    subpool = Pool(40)
-    dl = get_dl(ds, True)
-    dl2 = get_dl(ds, False)
-    sizes = np.array(range(0, 500, 25))
-    models = [wrap(MNIST_1h_flexible(500, wrap, k)) for k in range(0, 500, 25)]
-    train(models, dl, 1e-5)
-    accuracies = np.array(get_accuracy(models, dl))
-    plot_accuracies(accuracies, sizes, ds.__name__)
-    plot_convergence(models, sizes, ds.__name__)
-    powers = -np.arange(2.5, 8, 0.5)
-    weights = 10**powers
-    data = np.array([get_data((dl, dl2, x)) for x in weights.tolist()])
-    best_model = wrap(MNIST_1h(1000))
-    simple_train([best_model], dl, EPOCHS)
-    plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__)
 
 def validate_plateau_hypothesis2(ds):
     dl = get_dl(ds, False) # Testing because it is smaller, does not change anything
@@ -221,9 +205,30 @@ def validate_plateau_hypothesis(ds):
     plt.savefig('./plots/%s_1h_plateau_explanation.png' % (ds.__name__))
     plt.close()
 
+def benchmark_dataset(ds, l2_penalty=0.001, suffix='', test_train=False):
+    subpool = Pool(40)
+    dl = get_dl(ds, True)
+    dl2 = get_dl(ds, test_train)
+    sizes = np.array(range(0, 500, 25))
+    models = [wrap(MNIST_1h_flexible(500, wrap, k)) for k in range(0, 500, 25)]
+    train(models, dl, 1e-5, l2_penalty=l2_penalty)
+    accuracies = np.array(get_accuracy(models, dl))
+    plot_accuracies(accuracies, sizes, ds.__name__, suffix)
+    plot_convergence(models, sizes, ds.__name__, suffix)
+    powers = -np.arange(2.5, 8, 0.5)
+    weights = 10**powers
+    data = np.array([get_data((dl, dl2, x, l2_penalty)) for x in weights.tolist()])
+    best_model = wrap(MNIST_1h(1000))
+    simple_train([best_model], dl, EPOCHS)
+    plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__, suffix)
+
 if __name__ == '__main__':
     # benchmark_dataset(MNIST)
     # benchmark_dataset(FashionMNIST)
     # validate_plateau_hypothesis(MNIST)
     # validate_plateau_hypothesis2(MNIST)
+    # benchmark_dataset(MNIST, 0, '_without_penalty')
+    # benchmark_dataset(FashionMNIST, 0, '_without_penalty')
+    benchmark_dataset(MNIST, 0, '_without_penalty_training', True)
+    benchmark_dataset(FashionMNIST, 0, '_without_penalty_training', True)
     pass
