@@ -223,12 +223,12 @@ def benchmark_dataset(ds, l2_penalty=0.001, suffix='', test_train=False):
     plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__, suffix)
 
 if __name__ == '__main__':
-    # benchmark_dataset(MNIST)
-    # benchmark_dataset(FashionMNIST)
+    benchmark_dataset(MNIST)
+    benchmark_dataset(FashionMNIST)
     # validate_plateau_hypothesis(MNIST)
     # validate_plateau_hypothesis2(MNIST)
-    # benchmark_dataset(MNIST, 0, '_without_penalty')
-    # benchmark_dataset(FashionMNIST, 0, '_without_penalty')
+    benchmark_dataset(MNIST, 0, '_without_penalty')
+    benchmark_dataset(FashionMNIST, 0, '_without_penalty')
     benchmark_dataset(MNIST, 0, '_without_penalty_training', True)
     benchmark_dataset(FashionMNIST, 0, '_without_penalty_training', True)
     pass
