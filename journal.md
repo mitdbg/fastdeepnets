@@ -463,6 +463,12 @@ We can see tha removing the L2 regularization improved the performance of the fl
   - Why `FashionMNIST` converges to lower size than `MNIST`
   
 We will have to answer these questions to be able to improve again this model.
+
+## Erratum
+
+__There was a huge error in the implementation of flexible networks. The starting size of the network was ignored__
+
+The new conclusion is that now the network is not converging to the same size for any size. In every case the size increases (which is what we would expect because there is no penalty on the size of the network) but eventually it get stuck in a local mimimum. A potential explaination is that the left part was trained therefore reducing the size of the newtork would have a bad impact on the loss and the right part was never activated therefore is still random. Eventually we will reach a point where adding neurons from the right part (random neurons) will also have a bad impact on the loss. Therefore the size does not change anymore.
  
 # Evaluate Inference time influence of multiple neurons orderings
 
