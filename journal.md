@@ -432,13 +432,37 @@ As we saw in the previous task getting rid of the L2 regularization might be a p
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-11-01|          |
+|2017-11-01|2017-11-02|
 
 ## Delivrables
 
-- [ ] Analyse the convergence properties of flexible networks without regularization
+- [x] Analyse the convergence properties of flexible networks without regularization
 - [ ] Analyse the weights of underlying layers to make sure that nothing weird is going on
 - [ ] Conclude about this method
+
+## Interpretation
+
+As we can see from these plots (__these plots are on the training set and not testing unlike the previous measurements__), The performance of models without the L2 regularization are much better. First, they converge to bigger yet reasonable size. And we can see that flexible netowrks are extremely competitives with static networks. They are still underperforming on `FasionMNIST`
+
+![MNIST - Performance with different penalties without l2 reg and on training set](plots/MNIST_1h_simple_flexible_frontier_without_penalty_training.png?raw=true "MNIST - Performance with different penalties without l2 reg and on training")
+
+![FashionMNIST - Performance with different penalties without l2 reg and on training set](plots/FashionMNIST_1h_simple_flexible_frontier_without_penalty_training.png?raw=true "FashionMNIST - Performance with different penalties without l2 reg and on training")
+
+We still observe the two interesting properties:
+
+- Convergence to the same value regardless of the initial size
+  - ![MNIST - size convergence without l2 reg](plots/MNIST_1h_simple_flexible_convergence_without_penalty_training.png?raw=true "MNIST - size convergence without l2 reg")
+- Convergence to the same accuracy regardless of the initial size
+  - ![MNIST - accuracy convergence without l2 reg](plots/MNIST_1h_simple_flexible_accuracies_without_penalty_training.png?raw=true "MNIST - accuracies convergence without l2 reg")
+  
+## Conclusion
+
+We can see tha removing the L2 regularization improved the performance of the flexible layer. However still some questions remains:
+
+  - Why do we still have a size plateau (2x bigger now)
+  - Why `FashionMNIST` converges to lower size than `MNIST`
+  
+We will have to answer these questions to be able to improve again this model.
  
 # Evaluate Inference time influence of multiple neurons orderings
 
