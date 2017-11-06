@@ -527,7 +527,9 @@ The goal is to avoid having garbage on the right side of the network
 
 ## Delivrables
 
-- [ ] Try the random activation method
+- [x] Try the random activation method
+  - __Gradient always zero__
+  - Will try to think how to solve this problem but I will focus on the other alternatives first
 - [ ] Try the random slope method
 - [ ] Try the two phase training method
 - [ ] Produce plots
