@@ -503,6 +503,10 @@ Same as the Random slope
 
 No obvious cons except that it might not help at all the local minimal problem
 
+### Conclusion
+
+With this method gradients will always be zero so this is completely unusable.
+
 ## Two phase training
 
 The idea behind two phase training is:
