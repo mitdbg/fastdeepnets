@@ -22,6 +22,7 @@ from algorithms.digamma_mixture_fit import fit as fit_digamma
 from models.MNIST_1h_flexible import MNIST_1h_flexible
 from models.MNIST_1h_flexible_sorted import MNIST_1h_flexible_sorted
 from models.MNIST_1h_flexible_scaled import MNIST_1h_flexible_scaled
+from models.MNIST_1h_flexible_random import MNIST_1h_flexible_random
 from models.MNIST_1h import MNIST_1h
 from variance_metric import get_activations, train as simple_train
 
@@ -40,6 +41,9 @@ else:
     wrap = lambda x: x
     unwrap = wrap
 
+def tn(x):
+    return x.cpu().numpy()[0]
+
 def train(models, dl, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
     criterion = nn.CrossEntropyLoss()
     optimizers = []
@@ -55,25 +59,36 @@ def train(models, dl, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
             'lr': 1,
         }])
         optimizers.append(optimizer)
+    gradients = []
+    sizes = []
+    losses = []
     for e in range(0, epochs):
         print("Epoch %s" % e)
+        gradient = np.zeros(len(models))
+        los = np.zeros(len(models))
         for i, (images, labels) in enumerate(dl):
             images = wrap(Variable(images, requires_grad=False))
             labels = wrap(Variable(labels, requires_grad=False))
-            for model, optimizer in zip(models, optimizers):
+            for mid, (model, optimizer) in enumerate(zip(models, optimizers)):
                 output = model(images)
                 optimizer.zero_grad()
-                (criterion(output, labels) + lamb * model.loss()).backward()
-                # acc = (output.max(1)[1] == labels).float().mean()
-                # def tn(x):
-                #     return x.cpu().numpy()[0]
+                l = (criterion(output, labels) + lamb * model.loss())
+                l.backward()
+                acc = (output.max(1)[1] == labels).float().mean()
                 # a = tn(model.x_0.grad.data)
                 # if a != a:
                 #     return images, labels
+                gradient[mid] += tn(model.x_0.grad.data)
+                los[mid] += tn(l.data)
                 # print(tn(acc.data), tn(model.x_0.data), tn(model.x_0.grad.data))
                 optimizer.step()
                 if isinstance(model, MNIST_1h_flexible_scaled):
                     model.reorder()
+        gradients.append(gradient)
+        losses.append(los)
+        sizes.append([tn(m.x_0.data) for m in models])
+    total_samples = len(dl.dataset)
+    return np.stack(sizes), -np.stack(gradients) / total_samples, np.stack(losses) / total_samples
 
 def get_accuracy(models, loader):
     accs = [0] * len(models)
@@ -222,13 +237,58 @@ def benchmark_dataset(ds, l2_penalty=0.001, suffix='', test_train=False):
     simple_train([best_model], dl, EPOCHS)
     plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__, suffix)
 
+def compare_convergence(ds):
+    dl = get_dl(ds)
+    replicas = 30
+    r = range(replicas)
+    simple_models = [MNIST_1h_flexible(500, wrap, 0).cuda() for _ in r]
+    random_models = [MNIST_1h_flexible_random(500, wrap, 0).cuda() for _ in r]
+    all_models = simple_models + random_models
+    result = train(all_models, dl, lamb=0, epochs=EPOCHS * 2, l2_penalty=0)
+    sizes, gradients, losses = [x.reshape(-1, 2, replicas).mean(axis=2).T for x in result]
+    return sizes, gradients, losses
+
+def plot_convergence_comparison(sizes, gradients, losses, prefix):
+    sizes = np.insert(sizes, 0, 0, axis=1)
+    epochs = list(range(1, sizes.shape[1]))
+    figure = plt.figure(figsize=(10, 15))
+    plot_sizes = figure.add_subplot(3, 1, 1)
+    plot_sizes.set_title('Evolution of sizes')
+    plot_sizes.set_xlabel('Epoch')
+    plot_sizes.set_ylabel('Size of the network')
+    plot_sizes.plot([0] + epochs, sizes[0], label='Deterministic Model')
+    plot_sizes.plot([0] + epochs, sizes[1], label='Random Model')
+    plot_sizes.grid()
+    plot_sizes.legend()
+    plot_gradients = figure.add_subplot(3, 1, 2)
+    plot_gradients.set_title('Evolution of gradients')
+    plot_gradients.set_xlabel('Epoch')
+    plot_gradients.set_ylabel('Gradient on size')
+    plot_gradients.plot(epochs, gradients[0], label='Deterministic Model')
+    plot_gradients.plot(epochs, gradients[1], label='Random Model')
+    plot_gradients.grid()
+    plot_gradients.legend()
+    plot_gradients.set_yscale('log')
+    plot_losses = figure.add_subplot(3, 1, 3)
+    plot_losses.set_title('Evolution of loss')
+    plot_losses.set_xlabel('Epoch')
+    plot_losses.set_ylabel('Batch loss')
+    plot_losses.plot(epochs, losses[0], label='Deterministic Model')
+    plot_losses.plot(epochs, losses[1], label='Random Model')
+    plot_losses.grid()
+    plot_losses.legend()
+    plot_losses.set_yscale('log')
+    plt.tight_layout()
+    plt.savefig('./plots/%s_1h_deterministic_random_comparison.png' % prefix)
+
 if __name__ == '__main__':
-    benchmark_dataset(MNIST)
-    benchmark_dataset(FashionMNIST)
+    # benchmark_dataset(MNIST)
+    # benchmark_dataset(FashionMNIST)
     # validate_plateau_hypothesis(MNIST)
     # validate_plateau_hypothesis2(MNIST)
-    benchmark_dataset(MNIST, 0, '_without_penalty')
-    benchmark_dataset(FashionMNIST, 0, '_without_penalty')
-    benchmark_dataset(MNIST, 0, '_without_penalty_training', True)
-    benchmark_dataset(FashionMNIST, 0, '_without_penalty_training', True)
+    # benchmark_dataset(MNIST, 0, '_without_penalty')
+    # benchmark_dataset(FashionMNIST, 0, '_without_penalty')
+    # benchmark_dataset(MNIST, 0, '_without_penalty_training', True)
+    # benchmark_dataset(FashionMNIST, 0, '_without_penalty_training', True)
+    # compare_convergence(MNIST)
     pass

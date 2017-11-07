@@ -19,7 +19,7 @@ class MNIST_1h_flexible(nn.Module):
             x_0 = size
         super(MNIST_1h_flexible, self).__init__()
         self.size = size
-        self.k = wrap(Variable(torch.ones(1), requires_grad=False))
+        self.k = wrap(Variable(torch.ones(1)*0.4, requires_grad=False))
         self.x_0 = nn.Parameter(wrap(torch.ones(1) * x_0))
         self.hidden_layer = nn.Linear(28 * 28, size, bias=True)
         self.activation = nn.ReLU()
