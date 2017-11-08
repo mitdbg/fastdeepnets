@@ -12,7 +12,7 @@ FACTOR = np.log(EPSILON / (1 - EPSILON))
 class MNIST_1h_flexible_random(MNIST_1h_flexible):
 
     def get_scaler(self):
-        gray_zone_size = np.random.uniform(1, 30)
+        gray_zone_size = np.random.uniform(1, 20)
         k = float(-2 * FACTOR / gray_zone_size)
         return sigmoid(-k * (self.range - self.x_0))
 

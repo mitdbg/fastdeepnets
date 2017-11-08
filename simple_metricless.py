@@ -237,17 +237,6 @@ def benchmark_dataset(ds, l2_penalty=0.001, suffix='', test_train=False):
     simple_train([best_model], dl, EPOCHS)
     plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__, suffix)
 
-def compare_convergence(ds):
-    dl = get_dl(ds)
-    replicas = 30
-    r = range(replicas)
-    simple_models = [MNIST_1h_flexible(500, wrap, 0).cuda() for _ in r]
-    random_models = [MNIST_1h_flexible_random(500, wrap, 0).cuda() for _ in r]
-    all_models = simple_models + random_models
-    result = train(all_models, dl, lamb=0, epochs=EPOCHS * 2, l2_penalty=0)
-    sizes, gradients, losses = [x.reshape(-1, 2, replicas).mean(axis=2).T for x in result]
-    return sizes, gradients, losses
-
 def plot_convergence_comparison(sizes, gradients, losses, prefix):
     sizes = np.insert(sizes, 0, 0, axis=1)
     epochs = list(range(1, sizes.shape[1]))
@@ -281,6 +270,18 @@ def plot_convergence_comparison(sizes, gradients, losses, prefix):
     plt.tight_layout()
     plt.savefig('./plots/%s_1h_deterministic_random_comparison.png' % prefix)
 
+def compare_convergence(ds):
+    dl = get_dl(ds)
+    replicas = 30
+    r = range(replicas)
+    simple_models = [MNIST_1h_flexible(500, wrap, 0).cuda() for _ in r]
+    random_models = [MNIST_1h_flexible_random(500, wrap, 0).cuda() for _ in r]
+    all_models = simple_models + random_models
+    result = train(all_models, dl, lamb=0, epochs=EPOCHS * 2, l2_penalty=0)
+    sizes, gradients, losses = [x.reshape(-1, 2, replicas).mean(axis=2).T for x in result]
+    plot_convergence_comparison(sizes, gradients, losses, ds.__name__)
+
+
 if __name__ == '__main__':
     # benchmark_dataset(MNIST)
     # benchmark_dataset(FashionMNIST)
@@ -290,5 +291,6 @@ if __name__ == '__main__':
     # benchmark_dataset(FashionMNIST, 0, '_without_penalty')
     # benchmark_dataset(MNIST, 0, '_without_penalty_training', True)
     # benchmark_dataset(FashionMNIST, 0, '_without_penalty_training', True)
-    # compare_convergence(MNIST)
+    compare_convergence(MNIST)
+    compare_convergence(FashionMNIST)
     pass
