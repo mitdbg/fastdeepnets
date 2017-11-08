@@ -470,6 +470,8 @@ __There was a huge error in the implementation of flexible networks. The startin
 
 The new conclusion is that now the network is not converging to the same size for any size. In every case the size increases (which is what we would expect because there is no penalty on the size of the network) but eventually it get stuck in a local mimimum. A potential explaination is that the left part was trained therefore reducing the size of the newtork would have a bad impact on the loss and the right part was never activated therefore is still random. Eventually we will reach a point where adding neurons from the right part (random neurons) will also have a bad impact on the loss. Therefore the size does not change anymore.
 
+As we can see from the plot it seems that there is no correlation (even maybe an anti-correlation) between the starting size and the end accuracy. One possible explanation is that 15 epochs is not enough to train the larger netowrks. __More experiments will be needed to validate this hypothesis__
+
 # Try to get rid of the local minima
 
 ## Description
@@ -492,6 +494,19 @@ There are two potential solutions to this problem right now:
 
 - Results may vary a lot depending on the distribution
 - The possible values for the slope need to be bounded when we implement the optimized version (variable size matrices)
+
+### Interpretation and conclusion
+
+First let's take a look at the experiment we made:
+
+- Deterministic Model with a slope of `1` ("gray zone" approximatly 10)
+- Model with "gray zone" size uniformly distributed between 1 and 20, which meanse the expected "gray zone" is the same as the Deterministic model
+- Train 30 models of each to reduce the importance of the initialization
+- Train for 30 epochs
+- Observe the size of the network, the average gradient of the size per epoch and the average batch loss
+- For `MNIST` and `FashionMNIS`
+
+Now let's look at the results
 
 ## Random actiavtion
 
@@ -533,10 +548,11 @@ The goal is to avoid having garbage on the right side of the network
 
 - [x] Try the random activation method
   - __Gradient always zero__
-  - Will try to think how to solve this problem but I will focus on the other alternatives first
-- [ ] Try the random slope method
+  - Since this is pointless. Code was not even checked in the repository
+- [x] Try the random slope method
+  - Implemented in `models/MNIST_1h_flexible_random.py`
 - [ ] Try the two phase training method
-- [ ] Produce plots
+- [x] Produce plots
 - [ ] Interpret
 - [ ] Conclude
 
