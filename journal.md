@@ -493,6 +493,19 @@ There are two potential solutions to this problem right now:
 - Results may vary a lot depending on the distribution
 - The possible values for the slope need to be bounded when we implement the optimized version (variable size matrices)
 
+### Interpretation and conclusion
+
+First let's take a look at the experiment we made:
+
+- Deterministic Model with a slope of `1` ("gray zone" approximatly 10)
+- Model with "gray zone" size uniformly distributed between 1 and 20, which meanse the expected "gray zone" is the same as the Deterministic model
+- Train 30 models of each to reduce the importance of the initialization
+- Train for 30 epochs
+- Observe the size of the network, the average gradient of the size per epoch and the average batch loss
+- For `MNIST` and `FashionMNIS`
+
+Now let's look at the results
+
 ## Random actiavtion
 
 ### Pros
@@ -533,10 +546,11 @@ The goal is to avoid having garbage on the right side of the network
 
 - [x] Try the random activation method
   - __Gradient always zero__
-  - Will try to think how to solve this problem but I will focus on the other alternatives first
-- [ ] Try the random slope method
+  - Since this is pointless. Code was not even checked in the repository
+- [x] Try the random slope method
+  - Implemented in `models/MNIST_1h_flexible_random.py`
 - [ ] Try the two phase training method
-- [ ] Produce plots
+- [x] Produce plots
 - [ ] Interpret
 - [ ] Conclude
 
