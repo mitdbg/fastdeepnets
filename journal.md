@@ -470,6 +470,8 @@ __There was a huge error in the implementation of flexible networks. The startin
 
 The new conclusion is that now the network is not converging to the same size for any size. In every case the size increases (which is what we would expect because there is no penalty on the size of the network) but eventually it get stuck in a local mimimum. A potential explaination is that the left part was trained therefore reducing the size of the newtork would have a bad impact on the loss and the right part was never activated therefore is still random. Eventually we will reach a point where adding neurons from the right part (random neurons) will also have a bad impact on the loss. Therefore the size does not change anymore.
 
+As we can see from the plot it seems that there is no correlation (even maybe an anti-correlation) between the starting size and the end accuracy. One possible explanation is that 15 epochs is not enough to train the larger netowrks. __More experiments will be needed to validate this hypothesis__
+
 # Try to get rid of the local minima
 
 ## Description
