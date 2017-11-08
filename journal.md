@@ -508,6 +508,19 @@ First let's take a look at the experiment we made:
 
 Now let's look at the results
 
+#### MNIST
+
+![MNIST - comparison with random slope model](plots/MNIST_1h_deterministic_random_comparison.png?raw=true "MNIST - comparison with random slope model")
+
+#### FashionMNIST
+
+![FashionMNIST - comparison with random slope model](plots/MNIST_1h_deterministic_random_comparison.png?raw=true "FashionMNIST - comparison with random slope model")
+
+We can see couple of very interesting things on these plots:
+
+- Unlike we thought earlier the size of the network does not converge to some value but diverges in a logarithmic fashion.
+- Having random slope does not seem to be a greater idea. It makes the gradient more noisy and converge to infinity slower. Moreover loss is always higher.
+
 ## Random actiavtion
 
 ### Pros
