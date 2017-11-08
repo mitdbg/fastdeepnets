@@ -514,7 +514,7 @@ Now let's look at the results
 
 #### FashionMNIST
 
-![FashionMNIST - comparison with random slope model](plots/MNIST_1h_deterministic_random_comparison.png?raw=true "FashionMNIST - comparison with random slope model")
+![FashionMNIST - comparison with random slope model](plots/FashionMNIST_1h_deterministic_random_comparison.png?raw=true "FashionMNIST - comparison with random slope model")
 
 We can see couple of very interesting things on these plots:
 
