@@ -277,7 +277,7 @@ def compare_convergence(ds):
     simple_models = [MNIST_1h_flexible(500, wrap, 0).cuda() for _ in r]
     random_models = [MNIST_1h_flexible_random(500, wrap, 0).cuda() for _ in r]
     all_models = simple_models + random_models
-    result = train(all_models, dl, lamb=0, epochs=EPOCHS * 2, l2_penalty=0)
+    result = train(all_models, dl, lamb=0, epochs=EPOCHS * 4, l2_penalty=0)
     sizes, gradients, losses = [x.reshape(-1, 2, replicas).mean(axis=2).T for x in result]
     plot_convergence_comparison(sizes, gradients, losses, ds.__name__)
 
