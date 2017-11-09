@@ -437,8 +437,8 @@ As we saw in the previous task getting rid of the L2 regularization might be a p
 ## Delivrables
 
 - [x] Analyse the convergence properties of flexible networks without regularization
-- [ ] Analyse the weights of underlying layers to make sure that nothing weird is going on
-- [ ] Conclude about this method
+- [x] Analyse the weights of underlying layers to make sure that nothing weird is going on
+- [x] Conclude about this method
 
 ## Interpretation
 
@@ -514,7 +514,7 @@ Now let's look at the results
 
 #### FashionMNIST
 
-![FashionMNIST - comparison with random slope model](plots/MNIST_1h_deterministic_random_comparison.png?raw=true "FashionMNIST - comparison with random slope model")
+![FashionMNIST - comparison with random slope model](plots/FashionMNIST_1h_deterministic_random_comparison.png?raw=true "FashionMNIST - comparison with random slope model")
 
 We can see couple of very interesting things on these plots:
 
@@ -552,6 +552,10 @@ The goal is to avoid having garbage on the right side of the network
 
 - Two times more calculations (two forward and two backward passes)
 - Tedious to implement
+
+### Pre-Task
+
+Before going into the implementation of this method, there is a quick test we can do to check if there is a chance it will actually work. If we train a network until convergence and then we restart training with a size starting at zero, we should see the size increasing without any problem. This is a simpler version of the technique we propose here. Indeed, if the second part of the trianing was perfect in one iteration then we would end up in the same situation.
 
 |Start Date|End Date  |
 |----------|----------|
