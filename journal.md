@@ -553,13 +553,37 @@ The goal is to avoid having garbage on the right side of the network
 - Two times more calculations (two forward and two backward passes)
 - Tedious to implement
 
-### Pre-Task
+### Pre-Task - Compare evolution of size with a pretrained network
 
 Before going into the implementation of this method, there is a quick test we can do to check if there is a chance it will actually work. If we train a network until convergence and then we restart training with a size starting at zero, we should see the size increasing without any problem. This is a simpler version of the technique we propose here. Indeed, if the second part of the trianing was perfect in one iteration then we would end up in the same situation.
 
+#### Results of the pretask
+
+As we can see from the plots below:
+
+- The more we train the network before enabling the variable size, the lower the size it converges to
+  - One possible explanation to this is that: since it is easier to increase the activation of neurons by activating them than training the weights it is possible that the having pretrained weights reduce the need to tap into the new pool of neurons
+- The three netowrk eventually end up in the same state and the same loss on average. This is good because it means they can reach the same loss with fewer neurons
+- We observe high amount of noise after 30 epchs. Two explanations come to my mind:
+  - We reach the weird state of Adam optimizer when the loss start exploding when it is too low. Since we are averaging 30 neurons here the spikes in the loss might be hidden by the high number of experiments
+  - After a lot of training the network might be very susceptible to change in the number of neuron and since the learning rate for the number of neuron is much migher than the one for the weights, it is possible that it cause the noise.
+- Pretraining the netowrk converges to lower network size. It means that trying the right side faster will not help reaching infinite netowrk size.
+
+### Conclusion on the two phase training
+
+All these experiments brought a lots of insights but sadly this method will not be able to help as we saw in the Pre-Task. As a result we will not spend time implementing it.
+  
+#### MNIST Plots
+
+![MNIST - comparison with pretrained network](plots/MNIST_1h_flexible_behavior_on_pretrained.png?raw=true "MNIST - Comparision with pretrained network")
+
+#### FashionMNIST Plots
+
+__Being Rendered right now__
+
 |Start Date|End Date  |
 |----------|----------|
-|2017-11-06|          |
+|2017-11-06|2017-11-08|
 
 ## Delivrables
 
@@ -568,12 +592,40 @@ Before going into the implementation of this method, there is a quick test we ca
   - Since this is pointless. Code was not even checked in the repository
 - [x] Try the random slope method
   - Implemented in `models/MNIST_1h_flexible_random.py`
-- [ ] Try the two phase training method
+- [x] Try the two phase training method
 - [x] Produce plots
-- [ ] Interpret
-- [ ] Conclude
+- [x] Interpret
+- [x] Conclude
+
+## Interpretation
+
+As we can see from these three potential methods. None of them was able to solve the plateau problem.
+
+## Conclusion
+
+During these unsuccessful attempts at breaking the plateau. I thought of another factor that might be causing this problem. As we can see on the the plots above the gradient on the size is sometimes positive (negative on the plots but we show the direction of movement instead of the gradient because we are minimizing the loss). And it does not make sense to have positive gradients here because with no constraint adding more neuron can only eventually reduce the training loss. The only reason these gradient would be positive is because there are neurons in the gray zone that should have their value reduced. In this case it might be better to change the size instead of changing the weights. A way of checking this would be to pretrain a network and then freeze the weights and only train the size of the netowrk. This hypothesis would also explain why `FashionMNIST` is smaller than `MNIST`. Indeed, sice `FashionMNIST` is a much harder problem then it is possible that the decision about neurons might be much more noisy and if at an epoch the average decision about the gray zone is lower the absolute value of these neurons then the size of the network will be reduced.
+
+# Check if Adam is messing up with the training at very low loss
+
+## Description
+
+We saw repeteadly in previous experiments that after a large number of epochs. The loss starts to become very noisy. This is unexpected and we would like to understand why and try to solve it if possible
 
 
+|Start Date|End Date  |
+|----------|----------|
+|          |          |
+
+## Delivrables
+
+- [ ] Plot the min and max loss of multiple models during training
+- [ ] Compare with AdaMAX optimizer to see if that solves the problem
+- [ ] Interpretation
+- [ ] Conclusion
+
+# Try training only the size on a thoroughly trained network
+
+# Try to break the plateau
 
 # Evaluate Inference time influence of multiple neurons orderings
 
