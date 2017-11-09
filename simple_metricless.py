@@ -237,7 +237,7 @@ def benchmark_dataset(ds, l2_penalty=0.001, suffix='', test_train=False):
     simple_train([best_model], dl, EPOCHS)
     plot_frontier(powers, data, get_accuracy([best_model], dl2)[0], ds.__name__, suffix)
 
-def plot_convergence_comparison(sizes, gradients, losses, prefix):
+def plot_convergence_comparison(sizes, gradients, losses, prefix, labels, filename):
     sizes = np.insert(sizes, 0, 0, axis=1)
     epochs = list(range(1, sizes.shape[1]))
     figure = plt.figure(figsize=(10, 15))
@@ -245,16 +245,16 @@ def plot_convergence_comparison(sizes, gradients, losses, prefix):
     plot_sizes.set_title('Evolution of sizes')
     plot_sizes.set_xlabel('Epoch')
     plot_sizes.set_ylabel('Size of the network')
-    plot_sizes.plot([0] + epochs, sizes[0], label='Deterministic Model')
-    plot_sizes.plot([0] + epochs, sizes[1], label='Random Model')
+    for i, label in enumerate(labels):
+        plot_sizes.plot([0] + epochs, sizes[i], label=label)
     plot_sizes.grid()
     plot_sizes.legend()
     plot_gradients = figure.add_subplot(3, 1, 2)
     plot_gradients.set_title('Evolution of gradients')
     plot_gradients.set_xlabel('Epoch')
     plot_gradients.set_ylabel('Gradient on size')
-    plot_gradients.plot(epochs, gradients[0], label='Deterministic Model')
-    plot_gradients.plot(epochs, gradients[1], label='Random Model')
+    for i, label in enumerate(labels):
+        plot_gradients.plot(epochs, gradients[i], label=label)
     plot_gradients.grid()
     plot_gradients.legend()
     plot_gradients.set_yscale('log')
@@ -262,13 +262,13 @@ def plot_convergence_comparison(sizes, gradients, losses, prefix):
     plot_losses.set_title('Evolution of loss')
     plot_losses.set_xlabel('Epoch')
     plot_losses.set_ylabel('Batch loss')
-    plot_losses.plot(epochs, losses[0], label='Deterministic Model')
-    plot_losses.plot(epochs, losses[1], label='Random Model')
+    for i, label in enumerate(labels):
+        plot_losses.plot(epochs, losses[i], label=label)
     plot_losses.grid()
     plot_losses.legend()
     plot_losses.set_yscale('log')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_deterministic_random_comparison.png' % prefix)
+    plt.savefig('./plots/%s_1h_%s.png' % (prefix, filename))
 
 def compare_convergence(ds):
     dl = get_dl(ds)
@@ -279,8 +279,29 @@ def compare_convergence(ds):
     all_models = simple_models + random_models
     result = train(all_models, dl, lamb=0, epochs=EPOCHS * 4, l2_penalty=0)
     sizes, gradients, losses = [x.reshape(-1, 2, replicas).mean(axis=2).T for x in result]
-    plot_convergence_comparison(sizes, gradients, losses, ds.__name__)
+    labels = ['Deterministic Model', 'Random Model']
+    plot_convergence_comparison(sizes, gradients, losses, ds.__name__, labels, 'deterministic_random_comparison')
 
+def behavior_on_pretrained(ds):
+    dl = get_dl(ds)
+    replicas = 30
+    r = range(replicas)
+    pretraining_epochs = 10
+    evaluation_epochs = EPOCHS * 4
+    half_trained_models = [MNIST_1h_flexible(500, wrap, 500).cuda() for _ in r]
+    fully_trained_models = [MNIST_1h_flexible(500, wrap, 500).cuda() for _ in r]
+    fresh_models = [MNIST_1h_flexible(500, wrap, 0).cuda() for _ in r]
+    train(fully_trained_models, dl, lamb=0, epochs=pretraining_epochs, l2_penalty=0)
+    train(half_trained_models, dl, lamb=0, epochs=int(pretraining_epochs / 2), l2_penalty=0)
+    for m in half_trained_models + fully_trained_models:
+        m.x_0.data.zero_() # We reset everyone to zero neurons
+    all_models = fully_trained_models + half_trained_models + fresh_models
+    result = train(all_models, dl, lamb=0, epochs=evaluation_epochs, l2_penalty=0)
+    sizes, gradients, losses = [x.reshape(-1, 3, replicas).mean(axis=2).T for x in result]
+    labels = ['Pretrained %s epochs' % pretraining_epochs,
+              'Pretrained %s epochs' % int(pretraining_epochs / 2),
+              'Fresh Model']
+    plot_convergence_comparison(sizes, gradients, losses, ds.__name__, labels, 'flexible_behavior_on_pretrained')
 
 if __name__ == '__main__':
     # benchmark_dataset(MNIST)
@@ -291,6 +312,8 @@ if __name__ == '__main__':
     # benchmark_dataset(FashionMNIST, 0, '_without_penalty')
     # benchmark_dataset(MNIST, 0, '_without_penalty_training', True)
     # benchmark_dataset(FashionMNIST, 0, '_without_penalty_training', True)
-    compare_convergence(MNIST)
-    compare_convergence(FashionMNIST)
+    # compare_convergence(MNIST)
+    # compare_convergence(FashionMNIST)
+    behavior_on_pretrained(MNIST)
+    behavior_on_pretrained(FashionMNIST)
     pass
