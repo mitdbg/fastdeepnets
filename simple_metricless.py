@@ -7,10 +7,8 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 from torch.optim import Adam, SGD
-from torch.utils.data import DataLoader
 from torch.multiprocessing import Pool
 from torchvision.datasets import MNIST, FashionMNIST
-from torchvision import transforms
 from sklearn.model_selection import train_test_split
 import seaborn as sns
 import numpy as np
@@ -18,7 +16,9 @@ import matplotlib.pyplot as plt
 import scipy
 from algorithms.exp_norm_mixture_fit import fit as fit_exp_norm
 from algorithms.digamma_mixture_fit import fit as fit_digamma
-
+from utils.MNIST import get_dl
+from utils.wrapping import wrap, unwrap
+from utils.misc import tn
 from models.MNIST_1h_flexible import MNIST_1h_flexible
 from models.MNIST_1h_flexible_sorted import MNIST_1h_flexible_sorted
 from models.MNIST_1h_flexible_scaled import MNIST_1h_flexible_scaled
@@ -28,21 +28,6 @@ from variance_metric import get_activations, train as simple_train
 
 
 EPOCHS = 15
-
-transform = transforms.Compose([
-                       transforms.ToTensor(),
-                       transforms.Normalize((0.1307,), (0.3081,))
-])
-
-if torch.cuda.device_count() > 0:
-    wrap = lambda x: x.cuda(async=True) if torch.is_tensor(x) and x.is_pinned() else x.cuda()
-    unwrap = lambda x: x.cpu()
-else:
-    wrap = lambda x: x
-    unwrap = wrap
-
-def tn(x):
-    return x.cpu().numpy()[0]
 
 def train(models, dl, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
     criterion = nn.CrossEntropyLoss()
@@ -100,17 +85,6 @@ def get_accuracy(models, loader):
             accs[i] += (predicted.max(1)[1] == labels).float().mean()
     return np.array(accs) / len(loader)
 
-def get_dl(dataset, train=True):
-    return DataLoader(
-        dataset(
-            './datasets/%s/' % dataset.__name__,
-            train=train,
-            download=True,
-            transform=transform),
-        batch_size=128,
-        pin_memory=torch.cuda.device_count() > 0,
-        shuffle=True
-    )
 
 def plot_convergence(models, sizes, prefix, suffix):
     convergences = np.array([m.x_0.data.cpu().numpy()[0] for m in models])
