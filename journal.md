@@ -675,6 +675,57 @@ The challenges of this potential solution are:
 
 We have two strong potential ideas to solve our main problem. Fow now we will go with the second one because it does not involve the long process of finding a metric (try multiple, compare with the perfect baseline...).
 
+# Implement the first version of a *Sparsifier Network*
+
+## Description
+
+To test the potential solution we decided to go for we need to have a first draft of an implementation and run tests on it.
+
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-11-10|2017-11-10|
+
+## Delivrables
+
+- [x] Pytorch Implementation of a simple one layer sparsifier network
+  - Implemented in `models/MNIST_1h_sparsifier.py`
+- [x] Plots 
+- [ ] Interepretation
+- [ ] Conclusion
+
+## Interpretation
+
+The experiment we performed on the implementation of the sparsifier network is:
+
+- We picked models with a starting size of 500
+- Trained them 60 epochs with different factors on the L1 regularization term
+
+As we can see from the results on `MNIST`, the final size increase as the penalty decrease. Which makes sense. The models train very well. (They rapidly reach 100% testing accuracy). And the two last ones (roughly at 100 and 200 neurons) generalize better than the static network (the one with no penlaty).
+
+![MNIST - simple sparse network training results](/plots/MNIST_1h_stats_strict_sparsifier.png?raw=true "MNIST - simple sparse network training results")
+
+On `FashionMNIST` we can observe similary good results except that the accuracies are lower because the problem is harder. We also see that the netowrk with a penalty of 10^-4 is better at **fitting and generalizing** (The difference might be statistically not significant though).
+
+![FashionMNIST - simple sparse network training results](/plots/FashionMNIST_1h_stats_strict_sparsifier.png?raw=true "FashionMNIST - simple sparse network training results")
+
+Without any doubt, the most interesing observation we can make is that for the first time since this project started we can clearly see that `FashionMNIST` is more complex than `MNIST`. For a given penalty the `FashionMNIST` size is always higher than `MNIST`. This is a very good sign and a clear advantage for this technique
+
+As we can see from these two plots (`MNIST` and then `FashionMNIST`), the training process is smooth except at epoch 2. The reason for that is that this is the moment when some neuron liveness starts getting set to 0 and are therefore removed from the network. Some neurons downstream needed their values so they have to overcome the fact that they were killed
+
+![MNIST - sparsifier network training process](/plots/MNIST_1h_training_strict_sparsifier.png?raw=true "MNIST - sparsifier network training process")
+
+![FashionMNIST - sparsifier network training process](/plots/FashionMNIST_1h_training_strict_sparsifier.png?raw=true "FashionMNIST - sparsifier network training process")
+
+
+## Conclusion
+
+Even if this solution seems very promising, It only has the ability of shrinking models. It won't help us finding the optimal size for a network.
+
+Also one question remains unanswered: *Does the starting size influence the size after convergence ?* 
+
+
+
 
 # Evaluate Inference time influence of multiple neurons orderings
 
