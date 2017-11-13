@@ -744,7 +744,8 @@ We saw in the previous experiment that the proposed technique is very promising 
     2. Train one network M1 with a size of size `m`. Start with a very low penalty and increase it until the network is almost 0 size
     3. Generate a new random network `MC` of size `m` and train it to fit `labels - M1(input)`. Starting with low penalty, train until convergence
     4. Increase the penalty, train until convergence, if training accuracy is lower than `M1` keep the previous `MC` and set `M1 = M1 + MC` nad go to step 3 , otherwise repeat step 4
-- [ ] Implement in pytorch
+- [x] Implement in pytorch
+  - Implemented in `simple_sparsifier.py`
 - [ ] Generate plots
 - [ ] Interpretation
 - [ ] Conclusion
