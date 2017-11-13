@@ -625,7 +625,56 @@ We saw repeteadly in previous experiments that after a large number of epochs. T
 
 # Try training only the size on a thoroughly trained network
 
+*to do later*
+
 # Try to break the plateau
+
+## Observations
+
+As we saw in the previous experiments it seems reasonable to conjecture that the main problem of the technique is that the "gray zone" is compeltely arbitrary. It makes the optimization process extremely non-smooth and very important neurons might be at the right of the network. It has two consequences:
+
+- Either we end up killing them and we have a lower accuracy than what we really need
+- Either we keep them and as a result we have a size bigger than the optimal for the given problem
+
+In any case the solution is sub-optimal. Another big problem is that the size is:
+
+- __Starting point dependent__ (Especially when we have zero penalty)
+- __Penalty dependent__. In a sense it may seem normal, because we want to specify the trade-off between size and accuracy
+- __Problem dependent__. It is normal but in this case it is reversed. `FashionMNIST` ends up being smaller than `MNIST`
+
+## Potential Solutions
+
+I think the key to solve this problem is to make sure that we remove/insert the neurons in order of importance. I see two potential solutions:
+
+### Sorting the neurons according to a specific metric
+
+If we could do that that would mean that the gray-zone would contain the worst neurons (and potentially new neurons).
+
+The perfect metric would be *The difference in loss if we were to disable this neuron*. The problem is that evaluating this metric is way too expensive (an entire epoch of the validation set for each neuron). That means we need to find a proxy/approximation of this metric.
+
+The challenge of this idea are:
+
+- Finding a good approxmation of the metric
+- Finding a stable order (does not change too quickly so that neurons goes randomly from 0 to 1 activation all screw the downstream weights)
+- Make sure that the new neurons integrate well in the the network. Otherwise they would always stay out the network and it could not reach it's optimal size
+
+### Let the gradient descent "learn" the order
+
+The idea behind this solution is. *If we don't know which neurons are important, let's ask the network*. In the previous method (with the sigmoid multiplicative factor). We were generating a vector with zeros and ones (ones on the left and zeros on the right), 1 for a neuron that is alive, 0 for dead. We only had one parameter, *The number of neurons*. Here instead we would have one additional parameter for each neuron, *dead or alive*. And we would optimize them. 
+
+Of course if we let things this way, no neuron will be killed. But it makes sense. If we don't penalize the network he will use as many neurons as possible. We want to make sure that the useless ones are killed. The key idea is to apply regularization on this dead/alive vector. and to make sure that some neurons are killed we want some sparity inducing regularlization (L1 for example).
+
+In this situation we would not have any order in fact. Each neuron would be independent.
+
+The challenges of this potential solution are:
+
+- **How to know when to add new neurons ?**. Out of the box this solution only allows us to know which neurons to kill (when they reach 0) but, we don't know when/how to add more neurons to the network.
+- **What size should we start with**. Since we can only shrink the network. What is a good size to start with. If we undershoot we will not have the best network and if we overshoot we will spend significant time at the beginining of the training process working on useless neurons that will be killed eventually.
+
+## Conclusion
+
+We have two strong potential ideas to solve our main problem. Fow now we will go with the second one because it does not involve the long process of finding a metric (try multiple, compare with the perfect baseline...).
+
 
 # Evaluate Inference time influence of multiple neurons orderings
 
