@@ -8,13 +8,14 @@ MNIST_TRANSFORM = transforms.Compose([
 ])
 
 def get_dl(dataset, train=True):
-    return DataLoader(
-        dataset(
+    ds = dataset(
             './datasets/%s/' % dataset.__name__,
             train=train,
             download=True,
-            transform=MNIST_TRANSFORM),
-        batch_size=128,
+            transform=MNIST_TRANSFORM)
+    return DataLoader(
+        ds,
+        batch_size=128 if train else len(ds),
         pin_memory=torch.cuda.device_count() > 0,
         shuffle=True
     )

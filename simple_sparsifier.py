@@ -1,8 +1,11 @@
 import torch
+import copy
 from torch.optim import Adam
 from torch.nn import CrossEntropyLoss
 from torch.autograd import Variable
 from torchvision.datasets import MNIST, FashionMNIST
+from collections import defaultdict
+from io import BytesIO
 
 import numpy as np
 import  matplotlib.pyplot as plt
@@ -15,7 +18,7 @@ from utils.misc import tn
 
 EPOCHS = 15
 
-def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
+def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01, pre_out=None):
     try:
         lamb[len(models) - 1]
     except TypeError:
@@ -32,6 +35,8 @@ def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
     losses = []
     taccuracies = []
     accuracies = []
+    stopped = [False] * len(models)
+    best = [np.inf] * len(models)
     for e in range(0, epochs):
         print("Epoch %s" % e)
         gradient = np.zeros(len(models))
@@ -43,6 +48,8 @@ def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
             labels = wrap(Variable(labels, requires_grad=False))
             for mid, (model, optimizer) in enumerate(zip(models, optimizers)):
                 output = model(images)
+                if pre_out is not None:
+                    output += Variable(pre_out(images).data, requires_grad=False)
                 optimizer.zero_grad()
                 l = criterion(output, labels)
                 l2 = l + float(lamb[mid]) * model.loss()
@@ -56,6 +63,8 @@ def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
             labels = wrap(Variable(labels, requires_grad=False))
             for mid, (model, optimizer) in enumerate(zip(models, optimizers)):
                 output = model(images)
+                if pre_out is not None:
+                    output += Variable(pre_out(images).data, requires_grad=False)
                 acc = (output.max(1)[1] == labels).float().sum()
                 taccs[mid] += tn(acc.data)
         losses.append(los)
@@ -65,6 +74,26 @@ def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01):
     total_samples = len(dl.dataset)
     total_samples2 = len(dl2.dataset)
     return np.stack(sizes), np.stack(losses) / total_samples, np.stack(accuracies) / total_samples, np.stack(taccuracies) / total_samples2
+
+def evaluate_neuron_importance(model, dl):
+    def eval_loss():
+        total_loss = 0
+        criterion = CrossEntropyLoss()
+        for images, labels in dl:
+            images = wrap(Variable(images, requires_grad=False))
+            labels = wrap(Variable(labels, requires_grad=False))
+            output = model(images)
+            total_loss += tn(criterion(output, labels).data)
+        return total_loss
+
+    current_loss = eval_loss()
+    loss_differences = defaultdict(int)
+    for i, value in enumerate(model.filter.data.cpu().numpy().tolist()):
+        model.filter.data.index_fill_(0, (torch.ones(1) * i).long().cuda(), 0)
+        loss_differences[i] = current_loss - eval_loss()
+        model.filter.data.index_fill_(0, (torch.ones(1) * i).long().cuda(), value)
+    return loss_differences
+
 
 def plot_training(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs):
     order = np.argsort(lambdas)
@@ -132,6 +161,105 @@ def plot_end(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs
     plt.close()
     return final_training_acc
 
+def simple_train(model, dl, dl2, lamb=0.001, pre_out=None):
+    print(lamb)
+    total_samples = len(dl.dataset)
+    total_samples2 = len(dl2.dataset)
+    criterion = CrossEntropyLoss()
+    optimizer = Adam(model.parameters())
+    sizes = []
+    losses = []
+    taccuracies = []
+    accuracies = []
+    best = (-np.inf, -np.inf)
+    bn = None
+    patience = 1
+    def go(images):
+        output = model(images)
+        if pre_out is not None:
+            output += Variable(pre_out(images).data, requires_grad=False)
+        return output
+
+    while True:
+        print('epoch')
+        los = 0
+        accs = 0
+        taccs = 0
+        for i, (images, labels) in enumerate(dl):
+            images = wrap(Variable(images, requires_grad=False))
+            labels = wrap(Variable(labels, requires_grad=False))
+            output = go(images)
+            optimizer.zero_grad()
+            l = criterion(output, labels)
+            l2 = l + float(lamb) * model.loss()
+            l2.backward()
+            accs += tn((output.max(1)[1] == labels).float().sum().data)
+            los += tn(l.data) # Save the loss without the penalty
+            optimizer.step()
+        for i, (images, labels) in enumerate(dl2):
+            images = wrap(Variable(images, requires_grad=False))
+            labels = wrap(Variable(labels, requires_grad=False))
+            output = go(images)
+            taccs += tn((output.max(1)[1] == labels).float().sum().data)
+        losses.append(los)
+        accuracies.append(accs)
+        taccuracies.append(taccs / total_samples2)
+        sizes.append(tn(model.l0_loss().data))
+        next_score = (-sizes[-1], taccuracies[-1])
+        if best < next_score:
+            best = next_score
+            bm = copy.deepcopy(model)
+            patience = 1
+        else:
+            patience += 1
+            if patience >= 3:
+                break
+    return bm, best[1], np.stack(sizes), np.stack(losses) / total_samples, np.stack(accuracies) / total_samples, np.stack(taccuracies)
+
+def train_algo(model_gen, ds, l=1, size=50, f=10):
+    models = []
+    dl1 = get_dl(ds, True)
+    dl2 = get_dl(ds, False)
+    gbs = 0
+    l *= f
+    def preout(x):
+        values = [m(x) for m in models]
+        return sum(values[1:], values[0])
+    while l > 1e-9:
+        l /= f
+        model = model_gen()
+        pr = preout if len(models) > 0 else None
+        bm, bs, sizes, losses, accs, taccs = simple_train(model, dl1, dl2, lamb=l, pre_out=pr)
+        if sizes[-1] == 0 or bs < gbs:
+            continue
+        else:
+            print('temp - best score', bs)
+            while True:
+                l *= f
+                cm, cs, ss, ll, aa, taa = simple_train(bm, dl1, dl2, lamb=l, pre_out=pr)
+                if cs < bs:
+                    break
+                else:
+                    bm = cm
+                    bs = cs
+                    print('temp - best score', bs)
+            print('block score')
+            if bs > gbs:
+                models.append(bm)
+                print('current size', sum([tn(m.l0_loss().data) for m in models]))
+                gbs = bs
+            else:
+                return models
+    return models
+
+
+
+
+
+
+
+
+
 def simple_benchmark(ds, replicas=10, epochs=100):
     dl = get_dl(ds)
     dl2 = get_dl(ds, False)
@@ -148,6 +276,6 @@ def simple_benchmark(ds, replicas=10, epochs=100):
 
 if __name__ == '__main__':
     print('hello how are you')
-    simple_benchmark(MNIST, replicas=30, epochs=60)
-    simple_benchmark(FashionMNIST, replicas=30, epochs=60)
+    # simple_benchmark(MNIST, replicas=30, epochs=60)
+    # simple_benchmark(FashionMNIST, replicas=30, epochs=60)
 
