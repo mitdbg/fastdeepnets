@@ -252,13 +252,38 @@ def train_algo(model_gen, ds, l=1, size=50, f=10):
                 return models
     return models
 
+def plot_pareto(sizes, accs, prefix):
+    plt.figure(figsize=(5, 5))
+    plt.plot(sizes, accs * 100, color='C1', linewidth=4, marker='o', markerfacecolor='black', markersize=10, mew=2)
+    plt.ylabel('accuracy (%)')
+    plt.xlabel('Size of the netowrk')
+    plt.minorticks_on()
+    plt.title('%s -  Accuracy for different sizes' % prefix)
+    a = plt.gca()
+    a.yaxis.set_minor_locator(MultipleLocator(0.1))
+    a.yaxis.set_major_locator(MultipleLocator(1))
+    a.yaxis.grid(b=True, which='major', linestyle='-')
+    a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    a.xaxis.grid(b=True, which='major', linestyle='-')
+    a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    plt.tight_layout()
+    plt.savefig('./plots/%s_1h_sparse_pareto.png' % prefix)
+    plt.close()
 
-
-
-
-
-
-
+def gen_pareto(models, ds):
+    dl = get_dl(ds, False)
+    accs = []
+    for i, (images, labels) in enumerate(dl):
+        images = wrap(Variable(images, requires_grad=False))
+        labels = wrap(Variable(labels, requires_grad=False))
+        labels = labels.unsqueeze(0).expand(len(models), labels.size(0))
+        outputs = torch.cumsum(torch.stack([m(images) for m in models]), 0)
+        predictions = outputs.max(2)[1]
+        accs.append((labels == predictions).float().mean(1).data.cpu().numpy())
+    accs = np.stack(accs).mean(axis=0)
+    sizes = np.array([tn(m.l0_loss().data) for m in models]).cumsum()
+    plot_pareto(sizes, accs, ds.__name__)
+    return sizes, accs
 
 def simple_benchmark(ds, replicas=10, epochs=100):
     dl = get_dl(ds)
