@@ -91,11 +91,7 @@ class DynamicModule(Module):
 
         # Bias parameters
         if self.has_bias:
-            if self.out_features is None:
-                self.bias_blocks = ParameterList()
-            else:
-                bias = self.bias_initializer(torch.zeros(self.out_features))
-                self.bias_weights = Parameter(bias)
+            self.bias_blocks = ParameterList()
 
         # Filter Parameter
         if self.out_features is None:
@@ -140,8 +136,6 @@ class DynamicModule(Module):
         result.append(self.weight_blocks[block_id])
         if hasattr(self,'bias_blocks'):
             result.append(self.bias_blocks[block_id])
-        elif hasattr(self, 'bias_weights'):
-            result.append(self.bias_weights)
         if hasattr(self, 'filters_blocks'):
             result.append(self.filters_blocks[block_id])
         return (x for x in result if len(x) > 0)  # remove dead parameters
@@ -270,10 +264,7 @@ class DynamicModule(Module):
         for i, (inp, weights) in enumerate(zip(inputs, self.weight_blocks)):
             bias = None
             if self.has_bias:
-                if self.out_features is None:
-                    bias = self.bias_blocks[i]
-                else:
-                    bias = self.bias_weights
+                bias = self.bias_blocks[i]
             if len(weights) != 0:
                 result = self.compute_block(inp, weights, bias)
                 if hasattr(self, 'filters_blocks'): # Apply filter if needed
@@ -298,17 +289,28 @@ class DynamicModule(Module):
     def loss_factor(self):
         return float(np.array(self.weight_allocation).prod())
 
+    @property
+    def individual_filters(self):
+        return [relu(x) for x in self.filters_blocks if len(x) > 0]
+
     def full_filter(self):
-        individual_filters = [relu(x) for x in self.filters_blocks if len(x) > 0]
+        individual_filters = self.individual_filters
         if len(individual_filters) == 0:
             return Variable(self.wrap(torch.zeros(0)))
         return torch.cat(individual_filters)
 
-    @property
-    def l1_loss(self):
+    def l1_loss(self, last_block=False):
         if hasattr(self, 'filters_blocks') and len(self.filters_blocks) > 0:
-            return self.full_filter().sum() * self.loss_factor()
+            if last_block:
+                filter = self.filters_blocks[-1]
+            else:
+                filter = self.full_filter()
+            return relu(filter).sum() * self.loss_factor()
         return Variable(self.wrap(torch.zeros(1)), requires_grad=False)
+
+    @property
+    def block_features(self):
+        return [(x.data > 0).long().sum() for x in self.individual_filters]
 
     @property
     def num_output_features(self):
