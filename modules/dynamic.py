@@ -8,6 +8,43 @@ from torch.nn.modules.conv import _single, _pair, _triple
 from utils.misc import tn
 from torchvision.datasets import MNIST, FashionMNIST
 
+def remove_parameter(optimizer, parameter):
+    if optimizer is None:
+        return
+    for group in optimizer.param_groups:
+        group['params'] = [x for x in group['params'] if x is not parameter]
+    del optimizer.state[parameter]
+
+def get_statistics(optimizer, parameter):
+    if optimizer is None:
+        return
+    for stats in  optimizer.state[parameter].values():
+        if torch.is_tensor(stats) and stats.size() == parameter.size():
+            yield stats
+
+def apply_patch(optimizer, parameter, patch, transpose_dims=None):
+    if optimizer is None:
+        return
+    d = optimizer.state[parameter]
+    for stat_key in list(d.keys()):
+        value = d[stat_key]
+        if torch.is_tensor(value) and value.size() == parameter.size():
+            if transpose_dims is not None:
+                new_value = value.transpose(*transpose_dims)[patch]
+                new_value = new_value.transpose(*transpose_dims)
+            else:
+                new_value = value[patch]
+            d[stat_key] = new_value
+
+def update_reference(optimizer, old_ref, new_ref):
+    if optimizer is None:
+      return
+    for group in optimizer.param_groups:
+        group['params'] = [new_ref if x is old_ref else x for x in group['params']]
+    stats = optimizer.state[old_ref]
+    del optimizer.state[old_ref]
+    optimizer.state[new_ref] = stats
+
 def walk_graph_feature_ids(node):
     if hasattr(node, 'get_feature_ids'):
         return node.get_feature_ids()
@@ -89,6 +126,9 @@ class DynamicModule(Module):
         # Weight Parameters
         self.weight_blocks = ParameterList()
 
+        # The optimizer to keep updated as we resize the network
+        self.optimizer = None
+
         # Bias parameters
         if self.has_bias:
             self.bias_blocks = ParameterList()
@@ -108,6 +148,9 @@ class DynamicModule(Module):
 
     def set_device_id(self, device_id):
         self.device_id = device_id
+
+    def set_optimizer(self, optimizer):
+        self.optimizer = optimizer
 
     def wrap(self, tensor):
         if self.device_id == -1:
@@ -195,12 +238,16 @@ class DynamicModule(Module):
                 if len(patch) == 0: # dead block
                     new_feature_ids.append(empty.long())
                     new_weights = self.wrap(empty)
+                    remove_parameter(self.optimizer, weights)
                 else:
                     new_feature_ids.append(old_features[patch])
                     patch = self.wrap(patch)
                     last_dim = len(weights.size()) - 1
                     new_weights = weights.data.transpose(0, last_dim)[patch].transpose(0, last_dim)
-                new_weight_blocs.append(Parameter(new_weights))
+                    new_weights = Parameter(new_weights)
+                    apply_patch(self.optimizer, weights, patch, (0, last_dim))
+                    update_reference(self.optimizer, weights, new_weights)
+                new_weight_blocs.append(new_weights)
             self.weight_blocks = new_weight_blocs
             self.in_features_map = new_feature_ids
 
@@ -220,19 +267,28 @@ class DynamicModule(Module):
                     new_weights = empty
                     new_filter = empty
                     new_feature_ids.append(empty.long())
+                    remove_parameter(self.optimizer, weights)
+                    remove_parameter(self.optimizer, filter)
                     if self.has_bias:
                         new_bias = empty
+                        remove_parameter(self.optimizer, self.bias_blocks[i])
                 else:
                     new_feature_ids.append(old_features[patch.cpu()])
-                    new_weights = weights.data[patch]
-                    new_filter = filter.data[patch]
+                    new_weights = Parameter(weights.data[patch])
+                    new_filter = Parameter(filter.data[patch])
+                    apply_patch(self.optimizer, weights, patch)
+                    update_reference(self.optimizer, weights, new_weights)
+                    apply_patch(self.optimizer, filter, patch)
+                    update_reference(self.optimizer, filter, new_filter)
                     if self.has_bias:
                         bias = self.bias_blocks[i]
-                        new_bias = bias.data[patch]
-                new_weight_blocs.append(Parameter(new_weights))
-                new_filters_blocks.append(Parameter(new_filter))
+                        new_bias = Parameter(bias.data[patch])
+                        apply_patch(self.optimizer, bias, patch)
+                        update_reference(self.optimizer, bias, new_bias)
+                new_weight_blocs.append(new_weights)
+                new_filters_blocks.append(new_filter)
                 if new_bias is not None:
-                    new_bias_blocks.append(Parameter(new_bias))
+                    new_bias_blocks.append(new_bias)
 
             self.out_features_map = new_feature_ids
             self.filters_blocks = new_filters_blocks
