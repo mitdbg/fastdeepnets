@@ -242,7 +242,8 @@ class DynamicModule(Module):
                 else:
                     new_feature_ids.append(old_features[patch])
                     patch = self.wrap(patch)
-                    last_dim = len(weights.size()) - 1
+                    print('patch', patch)
+                    last_dim = 1
                     new_weights = weights.data.transpose(0, last_dim)[patch].transpose(0, last_dim)
                     new_weights = Parameter(new_weights)
                     apply_patch(self.optimizer, weights, patch, (0, last_dim))
@@ -479,14 +480,14 @@ class Conv2d(DynamicModule):
         return torch.nn.Conv2d.__repr__(self) + self.current_dimension_repr
 
 if __name__ == '__main__':
-    model = Linear(in_features=10).grow(10)
-    data = model.generate_input()
-    model2 = Linear().grow(5)
-    model2(model(data))
-    model.grow(10)
-    model2.grow(3)
-    model2(model(data))
-    model.filters_blocks[0].data.zero_()
-    model.garbage_collect()
-    model2.garbage_collect()
-    model2(model(data))
+    data = Variable(torch.randn(2, 3, 50, 50))
+    l1 = Conv2d(3, in_channels=3)
+    l1.grow(2)
+    l2 = Conv2d(3)
+    l2.grow(1)
+    model = nn.Sequential(l1, nn.MaxPool2d(3), l2)
+    model(data)
+    l1.filters_blocks[0][0].data.zero_()
+    l1.garbage_collect()
+    l2.garbage_collect()
+    model(data)
