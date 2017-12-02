@@ -505,27 +505,32 @@ class Flatten(DynamicModule):
         stride = int(np.array(input_shape[2:]).prod())
         r = torch.arange(0, stride).long()
         a = self.in_features_map * stride
-        self._out_feature_ids = (r.unsqueeze(0).repeat(self.in_features_map.size(0), 1).transpose(0, 1) + a).transpose(0, 1)
+        self._out_feature_ids = (r.unsqueeze(0).repeat(self.in_features_map.size(0), 1).transpose(0, 1) + a).transpose(0, 1).contiguous().view(-1)
 
 
     def compute(self, x):
         if self._out_feature_ids is None:
             raise AssertionError('empty model, call grow()')
         return x.view(x.size(0), -1)
+    
+    def __repr__(self):
+        return 'Flatten()'
 
 if __name__ == '__main__':
-    data = Variable(torch.randn(2, 3, 50, 50))
-    l1 = Conv2d(3, in_channels=3)
-    l1.grow(2)
-    l2 = Conv2d(3)
-    l2.grow(3)
+    data = Variable(torch.randn(2, 1, 50, 50))
+    l1 = Conv2d(5, in_channels=1)
+    l1.grow(100)
+    l2 = Conv2d(5)
+    l2.grow(100)
     flatten = Flatten()
     flatten.grow()
-    model = nn.Sequential(l1, nn.MaxPool2d(3), l2, flatten)
-    print(model[2](model[1](model[0](data))).size())
-    print(model(data).size())
-    l2.filters_blocks[0][0].data.zero_()
-    l1.garbage_collect()
-    l2.garbage_collect()
-    print(model(data).size())
-
+    l3 = Linear(out_features=10)
+    l3.grow(1000)
+    model = nn.Sequential(
+        l1,
+        nn.MaxPool2d(2),
+        l2,
+        nn.MaxPool2d(2),
+        flatten,
+        l3
+    )
