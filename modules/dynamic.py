@@ -234,7 +234,7 @@ class DynamicModule(Module):
             new_weight_blocs = ParameterList()
             for old_features, weights in zip(self.in_features_map, self.weight_blocks):
                 patch = compute_patch(old_features, feature_ids)
-                empty = torch.zeros(0)
+                empty = Parameter(torch.zeros(0))
                 if len(patch) == 0: # dead block
                     new_feature_ids.append(empty.long())
                     new_weights = self.wrap(empty)
@@ -263,7 +263,7 @@ class DynamicModule(Module):
                 patch = torch.nonzero(filter.data > 0).squeeze()
                 new_bias = None
                 if len(patch) == 0 or len(weights) == 0:
-                    empty = torch.zeros(0)
+                    empty = Parameter(torch.zeros(0))
                     new_weights = empty
                     new_filter = empty
                     new_feature_ids.append(empty.long())
