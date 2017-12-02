@@ -81,6 +81,54 @@ def default_initializer(tensor):
     return tensor.normal_()
 
 class DynamicModule(Module):
+    def __init__(self):
+        super(DynamicModule, self).__init__()
+        # State flags
+        self.collecting = False
+        self.growing = False
+        self.max_feature = 0
+
+        # Feature ids tracker
+        self.in_features_map = []
+        self.out_features_map = []
+
+
+    def grow(self, size=0):
+        if self.growing is not False:
+            raise AssertionError('Already growing, do at least one pass')
+        self.growing = size
+        return self
+
+    def garbage_collect(self):
+        if self.collecting is not False:
+            raise AssertionError('Already collecting, do at least one pass')
+        self.collecting = True
+        return self
+
+    def forward(self, x=None):
+        if x is None:
+            x = self.generate_input()
+        # Check if any resize operation scheduled
+        if self.collecting or self.growing is not False:
+            if self._in_feature_ids is None:
+                feature_ids = walk_graph_feature_ids(x)
+            else:
+                feature_ids = self._in_feature_ids
+
+            if self.collecting:
+                self.collect_now(feature_ids, x.size())
+            if self.growing is not False:
+                self.grow_now(feature_ids, x.size())
+
+        x = self.compute(x)
+
+        # Attach feature Ids to the graph
+        x = FeaturesIdProvider(self._out_feature_ids)(x)
+
+        return x
+
+
+class WeightedDynamicModule(DynamicModule):
 
     def __init__(
         self,
@@ -92,7 +140,7 @@ class DynamicModule(Module):
         reuse_features=True,
         bias=True
     ):
-        super(DynamicModule, self).__init__()
+        super(WeightedDynamicModule, self).__init__()
 
         # Saving parameters
         self.in_features = in_features
@@ -107,21 +155,12 @@ class DynamicModule(Module):
             # We have a fixed number of features out so we precompute it
             self._out_feature_ids = torch.arange(0, self.out_features).long()
         else:  # We will need to define it later
-            self._out_features_id = None
+            self._out_feature_ids = None
 
         if self.in_features is not None:
             self._in_feature_ids = torch.arange(0, self.in_features).long()
         else:
             self._in_feature_ids = None
-
-        # State flags
-        self.collecting = False
-        self.growing = False
-        self.max_feature = 0
-
-        # Feature ids tracker
-        self.in_features_map = []
-        self.out_features_map = []
 
         # Weight Parameters
         self.weight_blocks = ParameterList()
@@ -140,12 +179,6 @@ class DynamicModule(Module):
         # Device information
         self.device_id = -1 # CPU
 
-    def garbage_collect(self):
-        if self.collecting is not False:
-            raise AssertionError('Already collecting, do at least one pass')
-        self.collecting = True
-        return self
-
     def set_device_id(self, device_id):
         self.device_id = device_id
 
@@ -157,12 +190,6 @@ class DynamicModule(Module):
             return tensor.cpu()
         else:
             return tensor.cuda(self.device_id)
-
-    def grow(self, size=0):
-        if self.growing is not False:
-            raise AssertionError('Already growing, do at least one pass')
-        self.growing = size
-        return self
 
     def regenerate_out_feature_ids(self):
         if self.out_features is None:
@@ -183,7 +210,7 @@ class DynamicModule(Module):
             result.append(self.filters_blocks[block_id])
         return (x for x in result if len(x) > 0)  # remove dead parameters
 
-    def grow_now(self, feature_ids):
+    def grow_now(self, feature_ids, input_shape=None):
         # Compute the number of rows (outputs) in the weight matrix
         if self.out_features is None:
             rows = self.growing
@@ -224,7 +251,7 @@ class DynamicModule(Module):
         self.growing = False
         self.regenerate_out_feature_ids()
 
-    def collect_now(self, feature_ids):
+    def collect_now(self, feature_ids, input_shape=None):
         if not self.collecting:
             return
 
@@ -236,13 +263,12 @@ class DynamicModule(Module):
                 patch = compute_patch(old_features, feature_ids)
                 empty = Parameter(torch.zeros(0))
                 if len(patch) == 0: # dead block
-                    new_feature_ids.append(empty.long())
+                    new_feature_ids.append(empty.data.long())
                     new_weights = self.wrap(empty)
                     remove_parameter(self.optimizer, weights)
                 else:
                     new_feature_ids.append(old_features[patch])
                     patch = self.wrap(patch)
-                    print('patch', patch)
                     last_dim = 1
                     new_weights = weights.data.transpose(0, last_dim)[patch].transpose(0, last_dim)
                     new_weights = Parameter(new_weights)
@@ -267,7 +293,7 @@ class DynamicModule(Module):
                     empty = Parameter(torch.zeros(0))
                     new_weights = empty
                     new_filter = empty
-                    new_feature_ids.append(empty.long())
+                    new_feature_ids.append(empty.data.long())
                     remove_parameter(self.optimizer, weights)
                     remove_parameter(self.optimizer, filter)
                     if self.has_bias:
@@ -301,6 +327,9 @@ class DynamicModule(Module):
         self.collecting = False
 
     def compute(self, x):
+        if len(self.weight_blocks) == 0:
+            raise AssertionError('Empty Model, call model.grow(size)')
+
         # Generate input tensors
         inputs = []
         if len(self.in_features_map) == 0:
@@ -393,36 +422,11 @@ class DynamicModule(Module):
         x = torch.autograd.Variable(x, requires_grad=False)
         return self.wrap(x)
 
-    def forward(self, x=None):
-        if x is None:
-            x = self.generate_input()
-        # Check if any resize operation scheduled
-        if self.collecting or self.growing is not False:
-            if self._in_feature_ids is None:
-                feature_ids = walk_graph_feature_ids(x)
-            else:
-                feature_ids = self._in_feature_ids
-
-            if self.collecting:
-                self.collect_now(feature_ids)
-            if self.growing is not False:
-                self.grow_now(feature_ids)
-
-        if len(self.weight_blocks) == 0:
-            raise AssertionError('Empty Model, call model.grow(size)')
-
-        x = self.compute(x)
-
-        # Attach feature Ids to the graph
-        x = FeaturesIdProvider(self._out_feature_ids)(x)
-
-        return x
-
     @property
     def current_dimension_repr(self):
         return " [%s -> %s]" % (self.num_input_features, self.num_output_features)
 
-class Linear(DynamicModule):
+class Linear(WeightedDynamicModule):
 
     def __init__(self, in_features=None, out_features=None, bias=True, weight_initializer=default_initializer, bias_initializer=default_initializer, reuse_features=True):
         super(Linear, self).__init__(
@@ -443,7 +447,7 @@ class Linear(DynamicModule):
     def compute_block(self,x, weights, bias):
         return linear(x, weights, bias)
 
-class Conv2d(DynamicModule):
+class Conv2d(WeightedDynamicModule):
     def __init__(self, kernel_size,stride=1, in_channels=None, out_channels=None,
                  padding=0, dilation=1, groups=1, bias=True, reuse_features=True,
                  weight_initializer=default_initializer,
@@ -479,15 +483,49 @@ class Conv2d(DynamicModule):
         self.compute_dims()
         return torch.nn.Conv2d.__repr__(self) + self.current_dimension_repr
 
+class Flatten(DynamicModule):
+
+    def __init__(self):
+        super(Flatten, self).__init__()
+        self._out_feature_ids = None
+        self._in_feature_ids = None
+
+    def collect_now(self, feature_ids, input_shape):
+        if not self.collecting:
+            return
+        self.reset_features(feature_ids, input_shape)
+
+    def grow_now(self, feature_ids, input_shape):
+        if self.growing is False:
+            return
+        self.reset_features(feature_ids, input_shape)
+
+    def reset_features(self, feature_ids, input_shape):
+        self.in_features_map = feature_ids.clone().long()
+        stride = int(np.array(input_shape[2:]).prod())
+        r = torch.arange(0, stride).long()
+        a = self.in_features_map * stride
+        self._out_feature_ids = (r.unsqueeze(0).repeat(self.in_features_map.size(0), 1).transpose(0, 1) + a).transpose(0, 1)
+
+
+    def compute(self, x):
+        if self._out_feature_ids is None:
+            raise AssertionError('empty model, call grow()')
+        return x.view(x.size(0), -1)
+
 if __name__ == '__main__':
     data = Variable(torch.randn(2, 3, 50, 50))
     l1 = Conv2d(3, in_channels=3)
     l1.grow(2)
     l2 = Conv2d(3)
-    l2.grow(1)
-    model = nn.Sequential(l1, nn.MaxPool2d(3), l2)
-    model(data)
-    l1.filters_blocks[0][0].data.zero_()
+    l2.grow(3)
+    flatten = Flatten()
+    flatten.grow()
+    model = nn.Sequential(l1, nn.MaxPool2d(3), l2, flatten)
+    print(model[2](model[1](model[0](data))).size())
+    print(model(data).size())
+    l2.filters_blocks[0][0].data.zero_()
     l1.garbage_collect()
     l2.garbage_collect()
-    model(data)
+    print(model(data).size())
+
