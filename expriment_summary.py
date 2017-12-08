@@ -11,12 +11,6 @@ from glob import glob
 # Experiments that did not have them
 DEFAULT_EXTRA_PARAMS = ['compression']
 
-def reject_outliers(sr, iq_range=0.5):
-    pcnt = (1 - iq_range) / 2
-    qlow, median, qhigh = sr.dropna().quantile([pcnt, 0.50, 1-pcnt])
-    iqr = qhigh - qlow
-    return sr[ (sr - median).abs() <= iqr]
-
 def summarize_experiment(experiment, extra_params):
     val_acc = experiment[experiment.measure == 'val_acc']
     best_val = val_acc.sort_values(by='value', ascending=False).iloc[0]
@@ -30,8 +24,9 @@ def summarize_experiment(experiment, extra_params):
     if missing_values > 0:
         values += DEFAULT_EXTRA_PARAMS[-missing_values:]
     result = pd.DataFrame([values], columns=keys)
-    if 'lambda' not in result.columns:
-        return None
+    if min(experiment[experiment.measure == 'lambda'].epoch) == 0: # Solve bug
+        test = experiment[experiment.epoch==epoch-1].groupby('measure').mean()
+        result['lambda'] = pd.Series([test.loc['lambda'].value])
     return result
 
 def merge_all_experiments(experiments):
@@ -62,10 +57,10 @@ def plot_experiment(experiment, prefix, mode):
     test_acc = x[x.measure == 'test_acc']
     val_acc = x[x.measure == 'val_acc']
     best_val_acc_idx = val_acc.value.argmax()
-    best_batch = val_acc.loc[best_val_acc_idx].batch
-    best_val_acc = val_acc[val_acc.batch == best_batch].iloc[0].value
-    best_test_acc = test_acc[test_acc.batch == best_batch].iloc[0].value
-    best_capacity = capacities[capacities.batch == best_batch].iloc[0].value
+    s = summarize_experiment(x, infos).iloc[0]
+    best_val_acc = s.val_acc
+    best_test_acc = s.test_acc
+    best_capacity = s.capacity
     fig = plt.figure(figsize=(10, 5))
     a = fig.gca()
     a.grid()
@@ -117,10 +112,13 @@ def plot_algorithm_comparison(summaries, dataset_name, mode='classification', me
     if metric != 'val_acc':
         factor1 = 1
 
+    other = len(second_summaries[metric]) > 0
     sns.kdeplot(factor1 * first_summaries[metric], factor2 * first_summaries.test_acc, cmap=cmap_first, shade_lowest=False,shade=True, alpha=0.8, label=False)
-    sns.kdeplot(factor1 * second_summaries[metric], factor2 * second_summaries.test_acc, cmap=cmap_second, shade_lowest=False,shade=True, alpha=0.5, label=False)
+    if other:
+        sns.kdeplot(factor1 * second_summaries[metric], factor2 * second_summaries.test_acc, cmap=cmap_second, shade_lowest=False,shade=True, alpha=0.5, label=False)
     plt.scatter(factor1 * first_summaries[metric], factor2 * first_summaries.test_acc, alpha=1, color=sns.color_palette(cmap_first)[1], edgecolors='0.3', label=None)
-    plt.scatter(factor1 * second_summaries[metric], factor2 * second_summaries.test_acc, alpha=0.5, color=sns.color_palette(cmap_second)[1], edgecolors='0.3', label=None)
+    if other:
+        plt.scatter(factor1 * second_summaries[metric], factor2 * second_summaries.test_acc, alpha=0.5, color=sns.color_palette(cmap_second)[1], edgecolors='0.3', label=None)
     a = plt.gca()
     if mode == 'classification':
         plt.ylabel('Testing accuracy (%)')
@@ -169,11 +167,14 @@ def plot_dataset(dataset_name, mode='classification'):
     ids, experiments = get_experiments(dataset_name)
     summaries = get_summary(experiments)
     best = best_experiment(summaries, experiments, mode=mode)
-    pairs = find_closest_experiments(summaries)
     plot_experiment(best, dataset_name, mode)
     plot_algorithm_comparison(summaries, dataset_name, mode, metric='val_acc')
     plot_algorithm_comparison(summaries, dataset_name, mode, metric='capacity')
-    plot_compression_improvements(pairs, dataset_name, mode)
+    try:
+        pairs = find_closest_experiments(summaries)
+        plot_compression_improvements(pairs, dataset_name, mode)
+    except:
+        pass # Pass if correspondig are not generated
 
 def find_closest_experiments(summaries, first='compression', second='static'):
     first_summaries = summaries[summaries.algorithm == first].sort_values('val_acc', ascending=False).drop_duplicates(['capacity'])
@@ -215,8 +216,9 @@ def plot_compression_improvements(pairs, dataset_name, mode='classification'):
 
 
 if __name__ == '__main__':
-    plot_dataset('MNIST')
-    plot_dataset('FashionMNIST')
-    plot_dataset('Add10', mode='regression')
-    plot_dataset('Airfoil', mode='regression')
+    # plot_dataset('MNIST')
+    # plot_dataset('FashionMNIST')
+    plot_dataset('Poker')
+    # plot_dataset('Add10', mode='regression')
+    # plot_dataset('Airfoil', mode='regression')
     pass

@@ -65,7 +65,7 @@ DATASETS = {
         'get_test_dl': lambda: get_Poker(PokerDataset(train=False), train=False),
         'weights': poker_weights,
         'mode': 'classification',
-        'lambda_shift': 1
+        'lambda_shift': 0.1
     }
 }
 

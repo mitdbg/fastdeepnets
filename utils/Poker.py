@@ -29,7 +29,7 @@ class PokerDataset(Dataset):
         inputs =  d[0:-1]
         return inputs, int(d[-1])
 
-def get_dl(ds, train=True, bs=50):
+def get_dl(ds, train=True, bs=1000):
     return DataLoader(
         ds,
         batch_size=bs if train else len(ds),

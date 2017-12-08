@@ -203,8 +203,8 @@ def compress_train(model, dl, dl2, dl3, lamb, lamb_decay=2**(1/10), weight_decay
     try:
         start = time()
         while time() - start < max_time * 60:
-            stats.log('lambda', lamb)
             stats.next_epoch()
+            stats.log('lambda', lamb)
             with stats.time('train_epoch'):
                 a = forward(model, dl, lamb, opt, stats=stats, mode=mode, weight=weight)
                 stats.log('mean_train_acc', a)
