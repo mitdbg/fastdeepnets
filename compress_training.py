@@ -5,6 +5,7 @@ from torchvision.datasets import MNIST, FashionMNIST
 from utils.MNIST import get_dl as get_MNIST
 from utils.Add10 import Add10Dataset, get_dl as get_Add10
 from utils.Airfoil import AirfoilDataset, get_dl as get_Airfoil
+from utils.Poker import PokerDataset, get_dl as get_Poker, weights as poker_weights
 from utils.misc import PreloadedDataloader
 from models.MultiLayerDynamicPerceptron import MultiLayerDynamicPerceptron
 from uuid import uuid4
@@ -56,6 +57,15 @@ DATASETS = {
         'mode': 'regression',
         'lambda_shift': 1e4,
         'reference': 12.34
+    },
+    'Poker': {
+        'features_in': 85,
+        'features_out': 10,
+        'get_train_dl': lambda: get_Poker(PokerDataset()),
+        'get_test_dl': lambda: get_Poker(PokerDataset(train=False), train=False),
+        'weights': poker_weights,
+        'mode': 'classification',
+        'lambda_shift': 1
     }
 }
 
@@ -84,7 +94,9 @@ if __name__ == "__main__":
         ).cuda()
         grow(model)
         stats = compress_train(model, train_set, val_set,
-            test_set, lamb, lamb_deca, 0, 5, mode = DATASETS[DS]['mode'])
+            test_set, lamb, lamb_deca, 0, 5, mode = DATASETS[DS]['mode'],
+            weight=DATASETS[DS].get('weights', None)
+            )
         logs = stats.logs
         summary = (params, logs)
         torch.save(summary, open(filename, 'wb'))

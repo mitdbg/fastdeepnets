@@ -69,9 +69,9 @@ def grow(model, factor=2):
     m.garbage_collect()
     model() # fake pass
 
-def forward(model, dl, lamb=0, optimizer=None, mode='classification', stats=None):
+def forward(model, dl, lamb=0, optimizer=None, mode='classification', stats=None, weight=None):
     if mode == 'classification':
-        criterion = CrossEntropyLoss(size_average=True)
+        criterion = CrossEntropyLoss(weight=weight, size_average=True)
     else:
         criterion = MSELoss(size_average=False)
     acc_sum = 0
@@ -196,7 +196,7 @@ def simple_train(model, lr, dl, dl2, o, m):
     except:
         return accs, taccs
 
-def compress_train(model, dl, dl2, dl3, lamb, lamb_decay=2**(1/10), weight_decay=1e-6, max_time=5, mode='classification'):
+def compress_train(model, dl, dl2, dl3, lamb, lamb_decay=2**(1/10), weight_decay=1e-6, max_time=5, mode='classification', weight=None):
     opt = Adam(model.parameters(), weight_decay=weight_decay)
     stats = TrainingStats()
     set_optimizer(model, opt)
@@ -206,7 +206,7 @@ def compress_train(model, dl, dl2, dl3, lamb, lamb_decay=2**(1/10), weight_decay
             stats.log('lambda', lamb)
             stats.next_epoch()
             with stats.time('train_epoch'):
-                a = forward(model, dl, lamb, opt, stats=stats, mode=mode)
+                a = forward(model, dl, lamb, opt, stats=stats, mode=mode, weight=weight)
                 stats.log('mean_train_acc', a)
             if has_collapsed(model):
                 break
@@ -214,10 +214,10 @@ def compress_train(model, dl, dl2, dl3, lamb, lamb_decay=2**(1/10), weight_decay
                 garbage_collect(model)
                 model()
             with stats.time('eval_val'):
-                b = forward(model, dl2, mode=mode)
+                b = forward(model, dl2, mode=mode, weight=weight)
                 stats.log('val_acc', b)
             with stats.time('eval_test'):
-                c = forward(model, dl3, mode=mode)
+                c = forward(model, dl3, mode=mode, weight=weight)
                 stats.log('test_acc', c)
             lamb /= lamb_decay
             # print(a, b, c, get_capacities(model))
