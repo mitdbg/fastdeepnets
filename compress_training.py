@@ -8,6 +8,7 @@ from utils.Airfoil import AirfoilDataset, get_dl as get_Airfoil
 from utils.Poker import PokerDataset, get_dl as get_Poker, weights as poker_weights
 from utils.misc import PreloadedDataloader
 from models.MultiLayerDynamicPerceptron import MultiLayerDynamicPerceptron
+from models.DynamicCNN import DynamicCNN
 from uuid import uuid4
 from sys import argv
 
@@ -21,6 +22,12 @@ SIZES_PER_LAYER = {
     2: 6000,
     3: 4000,
     4: 2500
+}
+SIZES_PER_LAYER_CNN = {
+    1: 100,
+    2: 50,
+    3: 65,
+    4: 25
 }
 ITERATIONS = range(6)
 DATASETS = {
@@ -66,7 +73,16 @@ DATASETS = {
         'weights': poker_weights,
         'mode': 'classification',
         'lambda_shift': 0.1
-    }
+    },
+    'CNNMNIST': {
+        'features_in': (1, 28, 28),
+        'features_out': 10,
+        'get_train_dl': lambda: get_MNIST(MNIST, 32),
+        'get_test_dl': lambda: get_MNIST(MNIST, False),
+        'mode': 'classification',
+        'lambda_shift': 1e-1,
+        'reference': 0.984
+    },
 }
 
 if __name__ == "__main__":
@@ -82,16 +98,30 @@ if __name__ == "__main__":
     print(len(param_generator))
     for params in param_generator:
         lamb, lamb_deca, layers, _ = params
-        initial_size = SIZES_PER_LAYER[layers]
+        f_in = DATASETS[DS]['features_in']
+        f_out = DATASETS[DS]['features_out']
+        if hasattr(f_in, '__len__'): # This is a tuple, so a picture => CNN
+            initial_size = SIZES_PER_LAYER_CNN[layers]
+        else:
+            initial_size = SIZES_PER_LAYER[layers]
         print(params, initial_size)
         id = uuid4()
         filename = path_template % (DS, id)
-        model = MultiLayerDynamicPerceptron(
-            layers,
-            in_features=DATASETS[DS]['features_in'],
-            out_features=DATASETS[DS]['features_out'],
-            initial_size=initial_size
-        ).cuda()
+        if hasattr(f_in, '__len__'): # This is a tuple, so a picture => CNN
+            model = DynamicCNN(
+                layers,
+                in_features=f_in,
+                out_features=f_out,
+                conv_initial_size=initial_size
+            )
+        else:
+            model = MultiLayerDynamicPerceptron(
+                layers,
+                in_features=f_in,
+                out_features=f_out,
+                initial_size=initial_size
+            )
+        model = model.cuda()
         grow(model)
         stats = compress_train(model, train_set, val_set,
             test_set, lamb, lamb_deca, 0, 5, mode = DATASETS[DS]['mode'],

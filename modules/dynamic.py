@@ -93,16 +93,23 @@ class DynamicModule(Module):
         self.out_features_map = []
         self.additional_dims = ()
 
+        # The optimizer to keep updated as we resize the network
+        self.optimizer = None
 
     def grow(self, size=0):
         if self.growing is not False:
-            raise AssertionError('Already growing, do at least one pass')
+            # raise AssertionError('Already growing, do at least one pass')
+            pass
         self.growing = size
         return self
 
+    def set_optimizer(self, optimizer):
+        self.optimizer = optimizer
+
     def garbage_collect(self):
         if self.collecting is not False:
-            raise AssertionError('Already collecting, do at least one pass')
+            # raise AssertionError('Already collecting, do at least one pass')
+            pass
         self.collecting = True
         return self
 
@@ -166,9 +173,6 @@ class WeightedDynamicModule(DynamicModule):
         # Weight Parameters
         self.weight_blocks = ParameterList()
 
-        # The optimizer to keep updated as we resize the network
-        self.optimizer = None
-
         # Bias parameters
         if self.has_bias:
             self.bias_blocks = ParameterList()
@@ -182,9 +186,6 @@ class WeightedDynamicModule(DynamicModule):
 
     def set_device_id(self, device_id):
         self.device_id = device_id
-
-    def set_optimizer(self, optimizer):
-        self.optimizer = optimizer
 
     def wrap(self, tensor):
         if self.device_id == -1:
@@ -513,7 +514,7 @@ class Flatten(DynamicModule):
         if self._out_feature_ids is None:
             raise AssertionError('empty model, call grow()')
         return x.view(x.size(0), -1)
-    
+
     def __repr__(self):
         return 'Flatten()'
 

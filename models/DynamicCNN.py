@@ -5,7 +5,7 @@ from modules.dynamic import Linear, Conv2d, Flatten
 
 class DynamicCNN(nn.Module):
  
-    def __init__(self, conv_layers, in_features=(1, 28,28), out_features=10, pool_size=2, conv_kernel=2, conv_initial_size=50, activation=nn.ReLU, device_id=0):
+    def __init__(self, conv_layers, in_features=(1, 28,28), out_features=10, pool_size=2, conv_kernel=3, conv_initial_size=50, activation=nn.ReLU, device_id=0):
         super(DynamicCNN, self).__init__()
         layers = []
         self.in_features=in_features

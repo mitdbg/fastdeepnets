@@ -856,7 +856,7 @@ Since it seems compression training on sparsifier networks works very well, we w
   - all added in `/modules/dynamic.py`
 - [x] Basic dynamic CNN architecture (conv, pool, conv pool ..., flatten, fully connected)
   - Implemented in `/models/DynmicCNN.py`
-- [ ] Update the framework to supprt CNNs
+- [x] Update the framework to supprt CNNs
 - [ ] Evaluate on `MNIST`
 - [ ] Evaluate on `FashionMNIST`
 - [ ] Evaluate on `CIFAR10`

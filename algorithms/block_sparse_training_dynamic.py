@@ -33,7 +33,7 @@ def get_block_paramteters(model, block=-1):
 def get_capacities(model):
     c = []
     for m in get_dynamic(model):
-        if m.out_features is None:
+        if hasattr(m ,'out_features') and m.out_features is None:
             c.append(m.num_output_features)
     return c
 
@@ -47,7 +47,7 @@ def get_capacity(model):
     return sum(get_capacities(model), 0)
 
 def get_l1_loss(model):
-    losses = [x.l1_loss(True) for x in get_dynamic(model)]
+    losses = [x.l1_loss(True) for x in get_dynamic(model) if hasattr(x, 'l1_loss')]
     if len(losses) == 0:
         return None
     return torch.cat(losses).sum()
@@ -121,8 +121,6 @@ def train_until_convergence(model, train_dl, val_dl, lamb, patience=3, min_epoch
     best_model = None
     best_score = (-np.inf, 0)
     early_stop = 0
-
-    print('lambda', lamb)
 
     optimizer = Adam(model.parameters())
     set_optimizer(model, optimizer)
