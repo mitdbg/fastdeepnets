@@ -746,7 +746,11 @@ We saw in the previous experiment that the proposed technique is very promising 
     4. Increase the penalty, train until convergence, if training accuracy is lower than `M1` keep the previous `MC` and set `M1 = M1 + MC` nad go to step 3 , otherwise repeat step 4
 - [x] Implement in pytorch
   - Implemented in `simple_sparsifier.py`
-- [ ] Generate plots
-- [ ] Interpretation
-- [ ] Conclusion
+- [x] Conclusion
+
+## Conclusion
+
+  Numerous experiments on the Add10 dataset showed that this strategy had a severe drawback. With the first block, the network learns a crude approximation. It is fine except that the network has only a few weights to optimize. And the convergence is really slow. Intuitively I think that since there are only a few weights they all need to have a very good value to achieve good performance. Ultimately it requires more parameter updates than when there are more weights. Convergence speed is only one of the two problems we faced. The second one, much more problematic is the following. The underlying assumption behind this whole idea of growing by blocks is that the residuals of the sum of all previous blocks can be modeled with less neurons that the original problem. This assumption did not hold at all for Add10. The residuals after the first block were much more complex than the original function (because the residuals are defined on intervals).
+  
+  The conclusion here is that growing (at least this way) is definitely not a good idea. Since it seems very complicated or even impossible to grow the networks, Starting with extremely large networks might be a valid path to follow. Indeed since neurons are usually killed quickly, the slowdown should only occur in the first few epochs
 
