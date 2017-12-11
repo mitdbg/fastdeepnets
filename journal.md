@@ -771,12 +771,12 @@ Since we saw that increasing the network usually yield bad local optimum for com
   - Implemented a statistics object to monitor training
   - `/compress_training.py` run evaluations of multiple models with different parameters
   - `/fixed_training.py` train normal networks with sized the compress training converged to
-- [x] Evaluate `MNIST`
-- [x] Evaluate `FashionMNIST`
-- [x] Evaluate `Add10`
-- [x] Evaluate `Airfoil`
-- [x] Evaluate `Poker`
-- [ ] Evaluate `Census`
+- [x] Evaluate on `MNIST`
+- [x] Evaluate on `FashionMNIST`
+- [x] Evaluate on `Add10`
+- [x] Evaluate on `Airfoil`
+- [x] Evaluate on `Poker`
+- [ ] Evaluate on `Census`
 - [ ] Conclusion
 
 ## Quick Methodology
@@ -856,9 +856,29 @@ Since it seems compression training on sparsifier networks works very well, we w
   - all added in `/modules/dynamic.py`
 - [x] Basic dynamic CNN architecture (conv, pool, conv pool ..., flatten, fully connected)
   - Implemented in `/models/DynmicCNN.py`
-- [ ] Update the framework to supprt CNNS
+- [ ] Update the framework to supprt CNNs
 - [ ] Evaluate on `MNIST`
 - [ ] Evaluate on `FashionMNIST`
 - [ ] Evaluate on `CIFAR10`
-- [ ] Evaluate on `HASYv2
+- [ ] Evaluate on `HASYv2`
 - [ ] Conclusion
+
+# Solve the memory consumption problem
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-12-09|          |
+
+## Description 
+
+For now the current implementation requires a very large amount of memory. To make it practical and be able to run efficiently CNNs we need to find a way to consume less memory
+
+## Delivrables
+
+- [x] Identify the cause(s) of the (very) high memory consumption
+  - Even if CNNs do not use a lot of parameters (because the kernels are reused on the entire image), we need to store the activations at the end of each layer to compute the gradients. This is the main source of memory consumption (>90%). Since we start with very large number of neurons (=channels in the context of CNNs) the memory used for activation (especially in the first layers) is very important
+  - Compared to classic CNNs, we have the filter vector that we are multiplying with the outputs. We are interested in the gradients in respect with this vector too. As a result PyTorch saves the activations to compute these trivial gradients, effectively doubling the memory consumption
+- [ ] Propose solutions
+  - There is no real solution for the first problem, if we have a lot of channels, we need to save a lot of activations. We could have better algorithms for convolution but it should be part of CuDNN. The only solution is to reduce the batch size. But since the number of channels will eventually decrease we can at that time increase the batch size.
+  - Since the values around the filter vector are very fast and easy to compute, we could compute the gradients by hand to avoir storing trivial activations and have the same memory consumption as a classical CNN.
+- [ ] Implement solutions
