@@ -758,7 +758,7 @@ We saw in the previous experiment that the proposed technique is very promising 
 
 |Start Date|End Date  |
 |----------|----------|
-|2017-11-13|2017-11-13|
+|2017-11-13||
 
 ## Description
 
@@ -837,3 +837,28 @@ These results for Fully connected are very promising. We can note that:
 - They perform better than static networks for a __fixed training time__
 
 Now it makes sense to see how the system performs on convolutionla neural networks.
+
+# Evaluate on CNNs
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-12-01|          |
+
+## Description
+
+Since it seems compression training on sparsifier networks works very well, we would like to see if also performs well on convolutional neural networks
+
+## Delivrables
+
+- [x] Implement the necessary components for CNNS
+  - Main CNN blocks
+  - Flatten layer with feature ids to have a dynamic boundary between the convolutional part and the fully connected part
+  - all added in `/modules/dynamic.py`
+- [x] Basic dynamic CNN architecture (conv, pool, conv pool ..., flatten, fully connected)
+  - Implemented in `/models/DynmicCNN.py`
+- [ ] Update the framework to supprt CNNS
+- [ ] Evaluate on `MNIST`
+- [ ] Evaluate on `FashionMNIST`
+- [ ] Evaluate on `CIFAR10`
+- [ ] Evaluate on `HASYv2
+- [ ] Conclusion
