@@ -746,7 +746,139 @@ We saw in the previous experiment that the proposed technique is very promising 
     4. Increase the penalty, train until convergence, if training accuracy is lower than `M1` keep the previous `MC` and set `M1 = M1 + MC` nad go to step 3 , otherwise repeat step 4
 - [x] Implement in pytorch
   - Implemented in `simple_sparsifier.py`
-- [ ] Generate plots
-- [ ] Interpretation
+- [x] Conclusion
+
+## Conclusion
+
+  Numerous experiments on the Add10 dataset showed that this strategy had a severe drawback. With the first block, the network learns a crude approximation. It is fine except that the network has only a few weights to optimize. And the convergence is really slow. Intuitively I think that since there are only a few weights they all need to have a very good value to achieve good performance. Ultimately it requires more parameter updates than when there are more weights. Convergence speed is only one of the two problems we faced. The second one, much more problematic is the following. The underlying assumption behind this whole idea of growing by blocks is that the residuals of the sum of all previous blocks can be modeled with less neurons that the original problem. This assumption did not hold at all for Add10. The residuals after the first block were much more complex than the original function (because the residuals are defined on intervals).
+  
+  The conclusion here is that growing (at least this way) is definitely not a good idea. Since it seems very complicated or even impossible to grow the networks, Starting with extremely large networks might be a valid path to follow. Indeed since neurons are usually killed quickly, the slowdown should only occur in the first few epochs
+
+# Evaluate the system with very large starting sizes on multiple datasets
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-11-13||
+
+## Description
+
+Since we saw that increasing the network usually yield bad local optimum for complex functions we will see how the sparifier networks perform in the shrink only regime.
+
+## Delivrables
+
+- [x] Implement evaluation framework
+  - `/algorithms/block_sparse_training.py` contains the training algorithm
+  - Implemented a statistics object to monitor training
+  - `/compress_training.py` run evaluations of multiple models with different parameters
+  - `/fixed_training.py` train normal networks with sized the compress training converged to
+- [x] Evaluate on `MNIST`
+- [x] Evaluate on `FashionMNIST`
+- [x] Evaluate on `Add10`
+- [x] Evaluate on `Airfoil`
+- [x] Evaluate on `Poker`
+- [ ] Evaluate on `Census`
 - [ ] Conclusion
 
+## Quick Methodology
+
+We used compress training on networks of size ranging from 1 to 4 layers with different `lambda` and `lambda_decay` parameters. The starting size were as big as we could fit in the GPU. We logged everything piece of information (timings, losses, accuracies...) in the `/experiments` folder. Both fixed and compressed networks were train 5 minutes only on the same hardware (nVidia P100).
+
+## `MNIST`
+
+![MNIST - Validation acc. vs Testing acc.](/plots/MNIST_test_val_acc_compression_static_comparison.png?raw=true "MNIST - Training acc. vs validation acc.")
+
+
+![MNIST - Capacity acc. vs Testing acc.](/plots/MNIST_test_capacity_compression_static_comparison.png?raw=true "MNIST - Capacity s validation acc.")
+
+![MNIST - Testing acc diff. between Compress and static training](/plots/MNIST_compression_training_improvements.png?raw=true "MNIST - Testing acc diff. between Compress and static training")
+
+
+## `FashionMNIST`
+
+![FashionMNIST - Validation acc. vs Testing acc.](/plots/FashionMNIST_test_val_acc_compression_static_comparison.png?raw=true "FashionMNIST - Training acc. vs validation acc.")
+
+
+![FashionMNIST - Capacity acc. vs Testing acc.](/plots/FashionMNIST_test_capacity_compression_static_comparison.png?raw=true "FashionMNIST - Capacity s validation acc.")
+
+![FashionMNIST - Testing acc diff. between Compress and static training](/plots/FashionMNIST_compression_training_improvements.png?raw=true "FashionMNIST - Testing acc diff. between Compress and static training")
+
+## `Add10`
+
+![Add10 - Validation acc. vs Testing acc.](/plots/Add10_test_val_acc_compression_static_comparison.png?raw=true "Add10 - Training acc. vs validation acc.")
+
+
+![Add10 - Capacity acc. vs Testing acc.](/plots/Add10_test_capacity_compression_static_comparison.png?raw=true "Add10 - Capacity s validation acc.")
+
+![Add10 - Testing acc diff. between Compress and static training](/plots/Add10_compression_training_improvements.png?raw=true "Add10 - Testing acc diff. between Compress and static training")
+
+## `Airfoil`
+
+![Airfoil - Validation acc. vs Testing acc.](/plots/Airfoil_test_val_acc_compression_static_comparison.png?raw=true "Airfoil - Training acc. vs validation acc.")
+
+
+![Airfoil - Capacity acc. vs Testing acc.](/plots/Airfoil_test_capacity_compression_static_comparison.png?raw=true "Airfoil - Capacity s validation acc.")
+
+![Airfoil - Testing acc diff. between Compress and static training](/plots/Airfoil_compression_training_improvements.png?raw=true "Airfoil - Testing acc diff. between Compress and static training")
+
+## `Poker`
+
+![Poker - Validation acc. vs Testing acc.](/plots/Poker_test_val_acc_compression_static_comparison.png?raw=true "Poker - Training acc. vs validation acc.")
+
+
+![Poker - Capacity acc. vs Testing acc.](/plots/Poker_test_capacity_compression_static_comparison.png?raw=true "Poker - Capacity s validation acc.")
+
+![Poker - Testing acc diff. between Compress and static training](/plots/Poker_compression_training_improvements.png?raw=true "Poker - Testing acc diff. between Compress and static training")
+
+## Conclusion
+
+These results for Fully connected are very promising. We can note that:
+
+- Netowrks converge with size that seems to make sense because they perform well. (Size indeed make sense but we won't show all plots on this journal to keep the lenght reasonable)
+- They perform better than static networks for a __fixed training time__
+
+Now it makes sense to see how the system performs on convolutionla neural networks.
+
+# Evaluate on CNNs
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-12-01|          |
+
+## Description
+
+Since it seems compression training on sparsifier networks works very well, we would like to see if also performs well on convolutional neural networks
+
+## Delivrables
+
+- [x] Implement the necessary components for CNNS
+  - Main CNN blocks
+  - Flatten layer with feature ids to have a dynamic boundary between the convolutional part and the fully connected part
+  - all added in `/modules/dynamic.py`
+- [x] Basic dynamic CNN architecture (conv, pool, conv pool ..., flatten, fully connected)
+  - Implemented in `/models/DynmicCNN.py`
+- [ ] Update the framework to supprt CNNs
+- [ ] Evaluate on `MNIST`
+- [ ] Evaluate on `FashionMNIST`
+- [ ] Evaluate on `CIFAR10`
+- [ ] Evaluate on `HASYv2`
+- [ ] Conclusion
+
+# Solve the memory consumption problem
+
+|Start Date|End Date  |
+|----------|----------|
+|2017-12-09|          |
+
+## Description 
+
+For now the current implementation requires a very large amount of memory. To make it practical and be able to run efficiently CNNs we need to find a way to consume less memory
+
+## Delivrables
+
+- [x] Identify the cause(s) of the (very) high memory consumption
+  - Even if CNNs do not use a lot of parameters (because the kernels are reused on the entire image), we need to store the activations at the end of each layer to compute the gradients. This is the main source of memory consumption (>90%). Since we start with very large number of neurons (=channels in the context of CNNs) the memory used for activation (especially in the first layers) is very important
+  - Compared to classic CNNs, we have the filter vector that we are multiplying with the outputs. We are interested in the gradients in respect with this vector too. As a result PyTorch saves the activations to compute these trivial gradients, effectively doubling the memory consumption
+- [ ] Propose solutions
+  - There is no real solution for the first problem, if we have a lot of channels, we need to save a lot of activations. We could have better algorithms for convolution but it should be part of CuDNN. The only solution is to reduce the batch size. But since the number of channels will eventually decrease we can at that time increase the batch size.
+  - Since the values around the filter vector are very fast and easy to compute, we could compute the gradients by hand to avoir storing trivial activations and have the same memory consumption as a classical CNN.
+- [ ] Implement solutions
