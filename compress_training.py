@@ -25,11 +25,11 @@ SIZES_PER_LAYER = {
 }
 SIZES_PER_LAYER_CNN = {
     1: 100,
-    2: 50,
+    2: 75,
     3: 65,
     4: 25
 }
-ITERATIONS = range(6)
+ITERATIONS = range(5)
 DATASETS = {
     'MNIST': {
         'features_in': 28*28,
@@ -77,11 +77,12 @@ DATASETS = {
     'CNNMNIST': {
         'features_in': (1, 28, 28),
         'features_out': 10,
-        'get_train_dl': lambda: get_MNIST(MNIST, 32),
+        'get_train_dl': lambda: get_MNIST(MNIST, True),
         'get_test_dl': lambda: get_MNIST(MNIST, False),
         'mode': 'classification',
         'lambda_shift': 1e-1,
-        'reference': 0.984
+        'reference': 0.9905,
+        'time': 15
     },
 }
 
@@ -123,8 +124,9 @@ if __name__ == "__main__":
             )
         model = model.cuda()
         grow(model)
+        time = DATASETS[DS].get('time', 5)
         stats = compress_train(model, train_set, val_set,
-            test_set, lamb, lamb_deca, 0, 5, mode = DATASETS[DS]['mode'],
+            test_set, lamb, lamb_deca, 0, time, mode = DATASETS[DS]['mode'],
             weight=DATASETS[DS].get('weights', None)
             )
         logs = stats.logs

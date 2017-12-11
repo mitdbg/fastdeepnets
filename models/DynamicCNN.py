@@ -22,6 +22,10 @@ class DynamicCNN(nn.Module):
             layers.append(pool)
             in_features = None
         layers.append(Flatten())
+        prefinal = Linear(weight_initializer=kaiming_uniform)
+        prefinal.set_device_id(device_id)
+        prefinal.initial_size=500
+        layers.append(prefinal)
         last = Linear(out_features=out_features, weight_initializer=kaiming_uniform, bias_initializer=normal)
         last.set_device_id(device_id)
         layers.append(last)

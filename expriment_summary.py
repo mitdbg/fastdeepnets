@@ -224,9 +224,9 @@ def plot_compression_improvements(pairs, dataset_name, mode='classification'):
 
 
 if __name__ == '__main__':
-    plot_dataset('MNIST')
-    plot_dataset('FashionMNIST')
-    plot_dataset('Poker')
-    plot_dataset('Add10', mode='regression')
-    plot_dataset('Airfoil', mode='regression')
+    # plot_dataset('MNIST')
+    # plot_dataset('FashionMNIST')
+    # plot_dataset('Poker')
+    # plot_dataset('Add10', mode='regression')
+    # plot_dataset('Airfoil', mode='regression')
     pass
