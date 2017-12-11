@@ -60,9 +60,10 @@ def has_collapsed(model):
 
 def grow(model, factor=2):
     for m in get_dynamic(model):
-        if m.out_features is None:
+        if hasattr(m, 'out_features') and m.out_features is None:
             sizes = m.block_features
-            next_size = max([x * factor for x in sizes] + [model.initial_size])
+            initial_size = m.initial_size if hasattr(m, 'initial_size') else model.initial_size
+            next_size = max([x * factor for x in sizes] + [initial_size])
             m.grow(next_size)
         else:
             m.grow()

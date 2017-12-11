@@ -91,6 +91,7 @@ class DynamicModule(Module):
         # Feature ids tracker
         self.in_features_map = []
         self.out_features_map = []
+        self.additional_dims = ()
 
 
     def grow(self, size=0):
@@ -414,10 +415,10 @@ class WeightedDynamicModule(DynamicModule):
             return 0
         return len(set().union(*(set(x.numpy()) for x in self.in_features_map)))
 
-    def generate_input(self, additional_dims=()):
+    def generate_input(self):
         if self.in_features is None:
             raise ValueError('fake pass needs input or in_feature defined')
-        size = (1, self.in_features) + additional_dims
+        size = (1, self.in_features) + self.additional_dims
         x = torch.rand(*size)
         x = torch.autograd.Variable(x, requires_grad=False)
         return self.wrap(x)

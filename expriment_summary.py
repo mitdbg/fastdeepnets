@@ -92,16 +92,25 @@ def plot_experiment(experiment, prefix, mode):
     plt.savefig('./plots/%s_compressor_accuracies_size.png' % prefix)
     plt.close()
 
+
+def remove_outliers(summaries, dataset_name):
+    outlier_limit = (-np.inf, np.inf)
+    if dataset_name == 'Add10':
+        outlier_limit = (0, 1.3)
+    elif dataset_name == 'Airfoil':
+        outlier_limit = (0, 25)
+    elif dataset_name == 'Poker':
+        outlier_limit = (0.95, 1)
+    tac = np.abs(summaries.test_acc)
+    return summaries[np.bitwise_and(tac >= outlier_limit[0], tac <= outlier_limit[1])]
+
+
 def plot_algorithm_comparison(summaries, dataset_name, mode='classification', metric='val_acc', first='compression', other='static'):
     cmap_first = 'Greens'
     cmap_second = 'Reds'
-    outlier_limit = np.inf
-    if dataset_name == 'Add10':
-        outlier_limit = 1.3
-    elif dataset_name == 'Airfoil':
-        outlier_limit = 25
-    first_summaries = summaries[np.bitwise_and(summaries.algorithm == first, np.abs(summaries.test_acc) < outlier_limit)]
-    second_summaries = summaries[np.bitwise_and(summaries.algorithm == other, np.abs(summaries.test_acc) < outlier_limit)]
+
+    first_summaries = summaries[summaries.algorithm == first]
+    second_summaries = summaries[summaries.algorithm == other]
     plt.figure()
     if mode == 'classification':
         factor1 = 100
@@ -120,19 +129,19 @@ def plot_algorithm_comparison(summaries, dataset_name, mode='classification', me
     if other:
         plt.scatter(factor1 * second_summaries[metric], factor2 * second_summaries.test_acc, alpha=0.5, color=sns.color_palette(cmap_second)[1], edgecolors='0.3', label=None)
     a = plt.gca()
+    a.yaxis.set_minor_locator(AutoMinorLocator())
+    a.xaxis.set_minor_locator(AutoMinorLocator())
     if mode == 'classification':
         plt.ylabel('Testing accuracy (%)')
         if metric == 'val_acc':
             plt.xlabel('Validation accuracy (%)')
-            a.yaxis.set_minor_locator(MultipleLocator(0.1))
-            a.yaxis.set_major_locator(MultipleLocator(1))
-            a.xaxis.set_minor_locator(MultipleLocator(0.1))
-            a.xaxis.set_major_locator(MultipleLocator(1))
+            # a.yaxis.set_minor_locator(MultipleLocator(0.1))
+            # a.yaxis.set_major_locator(MultipleLocator(1))
+            # a.xaxis.set_minor_locator(MultipleLocator(0.1))
+            # a.xaxis.set_major_locator(MultipleLocator(1))
         elif metric == 'capacity':
             plt.xlabel('Capacity in neurons')
     else:
-        a.yaxis.set_minor_locator(AutoMinorLocator())
-        a.xaxis.set_minor_locator(AutoMinorLocator())
         plt.ylabel('Testing MSE')
         if metric == 'val_acc':
             plt.xlabel('Validation MSE')
@@ -165,7 +174,7 @@ def plot_algorithm_comparison(summaries, dataset_name, mode='classification', me
 
 def plot_dataset(dataset_name, mode='classification'):
     ids, experiments = get_experiments(dataset_name)
-    summaries = get_summary(experiments)
+    summaries = remove_outliers(get_summary(experiments), dataset_name)
     best = best_experiment(summaries, experiments, mode=mode)
     plot_experiment(best, dataset_name, mode)
     plot_algorithm_comparison(summaries, dataset_name, mode, metric='val_acc')
@@ -210,15 +219,14 @@ def plot_compression_improvements(pairs, dataset_name, mode='classification'):
     a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
     a.yaxis.grid(b=True, which='major', linestyle='-')
     a.xaxis.grid(b=True, which='major', linestyle='-')
-    plt.show()
     plt.savefig('./plots/%s_compression_training_improvements.png' % dataset_name)
     plt.close()
 
 
 if __name__ == '__main__':
-    # plot_dataset('MNIST')
-    # plot_dataset('FashionMNIST')
+    plot_dataset('MNIST')
+    plot_dataset('FashionMNIST')
     plot_dataset('Poker')
-    # plot_dataset('Add10', mode='regression')
-    # plot_dataset('Airfoil', mode='regression')
+    plot_dataset('Add10', mode='regression')
+    plot_dataset('Airfoil', mode='regression')
     pass

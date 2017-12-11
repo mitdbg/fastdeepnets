@@ -15,6 +15,7 @@ def forward(model, dl, lamb=0, optimizer=None):
     acc_sum = 0
     tot = 0
     for i, (images, labels) in enumerate(dl):
+        print(i)
         images = wrap(Variable(images, requires_grad=False))
         labels = wrap(Variable(labels, requires_grad=False))
         output = model(images)
