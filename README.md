@@ -1,6 +1,6 @@
 # fastdeepnets
 
-The progress of the project can be followed in the in [__project journal__](https://github.com/mitdbg/fastdeepnets/blob/master/journal.md).
+The progress of the project can be followed in the in [__project journal__](https://github.com/mitdbg/fastdeepnets/blob/master/journal.md)(Chronological order).
 
 ## Goal
 
