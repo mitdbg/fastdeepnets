@@ -26,6 +26,7 @@ class DynamicCNN(nn.Module):
         prefinal.set_device_id(device_id)
         prefinal.initial_size=500
         layers.append(prefinal)
+        layers.append(activation())
         last = Linear(out_features=out_features, weight_initializer=kaiming_uniform, bias_initializer=normal)
         last.set_device_id(device_id)
         layers.append(last)

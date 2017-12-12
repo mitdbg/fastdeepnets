@@ -5,17 +5,26 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from utils.wrapping import wrap
 
-testing_raw = np.asarray(pd.read_csv('./datasets/Poker/testing.csv').values)
-training_raw = np.asarray(pd.read_csv('./datasets/Poker/training.csv').values)
+testing_data = None
+training_data = None
+weights = None
 
-encoder = OneHotEncoder(categorical_features=list(range(10))).fit(testing_raw)
+def load_data():
+    global testing_data, training_data, weights
+    if weights == None:
+        testing_raw = np.asarray(pd.read_csv('./datasets/Poker/testing.csv').values)
+        training_raw = np.asarray(pd.read_csv('./datasets/Poker/training.csv').values)
 
-testing_data = np.asarray(encoder.transform(testing_raw).todense().astype('float32'))
-training_data = np.asarray(encoder.transform(training_raw).todense().astype('float32'))
-weights = wrap(torch.from_numpy(1 / np.bincount(training_data[:, -1].astype('int64')))).float()
+        encoder = OneHotEncoder(categorical_features=list(range(10))).fit(testing_raw)
+
+        testing_data = np.asarray(encoder.transform(testing_raw).todense().astype('float32'))
+        training_data = np.asarray(encoder.transform(training_raw).todense().astype('float32'))
+        weights = wrap(torch.from_numpy(1 / np.bincount(training_data[:, -1].astype('int64')))).float()
+
 
 class PokerDataset(Dataset):
     def __init__(self, train=True):
+        load_data()
         if train:
             self.data = training_data
         else:
@@ -36,3 +45,8 @@ def get_dl(ds, train=True, bs=1000):
         pin_memory=torch.cuda.device_count() > 0,
         shuffle=True
     )
+
+if __name__ == '__main__':
+    print(weights)
+    load_data()
+    print(weights)
