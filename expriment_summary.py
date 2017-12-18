@@ -89,8 +89,8 @@ def plot_experiment(experiment, prefix, mode):
     a.xaxis.grid(b=True, which='major', linestyle='-')
     a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
     plt.title('%s - Best Model (%s layer(s), %s neurons, v=%s, t=%s)' % (prefix, infos[2], int(best_capacity), -best_val_acc, -best_test_acc))
-    plt.savefig('./plots/%s_compressor_accuracies_size.png' % prefix)
-    plt.close()
+    # plt.savefig('./plots/%s_compressor_accuracies_size.png' % prefix)
+    # plt.close()
 
 
 def remove_outliers(summaries, dataset_name):

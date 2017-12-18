@@ -204,20 +204,24 @@ def compress_train(model, dl, dl2, dl3, lamb, lamb_decay=2**(1/10), weight_decay
         while time() - start < max_time * 60:
             stats.next_epoch()
             stats.log('lambda', lamb)
+            model.train()
             with stats.time('train_epoch'):
                 a = forward(model, dl, lamb, opt, stats=stats, mode=mode, weight=weight)
                 stats.log('mean_train_acc', a)
+            model.eval()
             if has_collapsed(model):
                 break
             with stats.time('gc'):
-                garbage_collect(model)
-                model()
+                # garbage_collect(model)
+                # model()
+                pass
             with stats.time('eval_val'):
                 b = forward(model, dl2, mode=mode, weight=weight)
                 stats.log('val_acc', b)
             with stats.time('eval_test'):
                 c = forward(model, dl3, mode=mode, weight=weight)
                 stats.log('test_acc', c)
+            print(a, b, c, get_capacities(model))
             lamb /= lamb_decay
             # print(a, b, c, get_capacities(model))
     except:

@@ -5,13 +5,13 @@ from modules.dynamic import Linear, DynamicModule
 
 class MultiLayerDynamicPerceptron(nn.Module):
  
-    def __init__(self, hidden_layers, in_features=28*28, out_features=10, initial_size = 10, activation=nn.ReLU, device_id=0):
+    def __init__(self, hidden_layers, in_features=28*28, out_features=10, initial_size = 10, activation=nn.ReLU, device_id=0, k=1):
         super(MultiLayerDynamicPerceptron, self).__init__()
         self.initial_size = initial_size
         layers = []
         self.in_features = in_features
         for _ in range(hidden_layers):
-            layer = Linear(in_features=in_features, weight_initializer=kaiming_uniform, bias_initializer=normal)
+            layer = Linear(in_features=in_features, weight_initializer=kaiming_uniform, bias_initializer=normal, k=k)
             layer.set_device_id(device_id)
             layers.append(layer)
             layers.append(activation())

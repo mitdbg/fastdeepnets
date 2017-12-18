@@ -2,11 +2,13 @@ import torch
 import numpy as np
 from torch import nn
 from torch.nn.functional import linear, relu, conv2d
-from torch.nn import Module, Parameter, ParameterList
+from torch.nn import Module, Parameter, ParameterList, ModuleList
 from torch.autograd import Function, Variable
 from torch.nn.modules.conv import _single, _pair, _triple
 from utils.misc import tn
 from torchvision.datasets import MNIST, FashionMNIST
+
+EPSILON = 1e-5
 
 def remove_parameter(optimizer, parameter):
     if optimizer is None:
@@ -146,7 +148,8 @@ class WeightedDynamicModule(DynamicModule):
         weight_initializer=default_initializer,
         bias_initializer=default_initializer,
         reuse_features=True,
-        bias=True
+        bias=True,
+        k=0
     ):
         super(WeightedDynamicModule, self).__init__()
 
@@ -158,6 +161,7 @@ class WeightedDynamicModule(DynamicModule):
         self.bias_initializer = bias_initializer
         self.reuse_features = reuse_features
         self.has_bias = bias
+        self.k = k
 
         if self.out_features is not None:
             # We have a fixed number of features out so we precompute it
@@ -180,6 +184,8 @@ class WeightedDynamicModule(DynamicModule):
         # Filter Parameter
         if self.out_features is None:
             self.filters_blocks = ParameterList()
+            self.jump_counts = ModuleList()
+            self.previous_filter_sign = []
 
         # Device information
         self.device_id = -1 # CPU
@@ -246,6 +252,8 @@ class WeightedDynamicModule(DynamicModule):
         if hasattr(self, 'filters_blocks'):
             filter = self.wrap(torch.ones(rows))
             self.filters_blocks.append(Parameter(filter))
+            self.jump_counts.append(self.wrap(nn.BatchNorm1d(rows)))
+            self.previous_filter_sign.append(self.wrap(torch.ones(rows).int()))
 
         if self.out_features is None:
             new_feature_ids = []
@@ -286,15 +294,20 @@ class WeightedDynamicModule(DynamicModule):
             new_weight_blocs = ParameterList()
             new_filters_blocks = ParameterList()
             new_bias_blocks = ParameterList()
+            new_jcs = []
+            new_pfss = []
             source = zip(self.out_features_map,
-                self.weight_blocks, self.filters_blocks)
-            for i, (old_features, weights, filter) in enumerate(source):
-                patch = torch.nonzero(filter.data > 0).squeeze()
+                self.weight_blocks, self.filters_blocks,
+                self.jump_counts, self.previous_filter_sign)
+            for i, (old_features, weights, filter, jc, pfs) in enumerate(source):
+                patch = torch.nonzero(torch.abs(filter.data) > EPSILON).squeeze()
                 new_bias = None
                 if len(patch) == 0 or len(weights) == 0:
                     empty = Parameter(torch.zeros(0))
                     new_weights = empty
                     new_filter = empty
+                    new_jc = empty.data.int()
+                    new_pfs = empty.data.int()
                     new_feature_ids.append(empty.data.long())
                     remove_parameter(self.optimizer, weights)
                     remove_parameter(self.optimizer, filter)
@@ -305,6 +318,8 @@ class WeightedDynamicModule(DynamicModule):
                     new_feature_ids.append(old_features[patch.cpu()])
                     new_weights = Parameter(weights.data[patch])
                     new_filter = Parameter(filter.data[patch])
+                    new_jc = jc[patch]
+                    new_pfs = pfs[patch]
                     apply_patch(self.optimizer, weights, patch)
                     update_reference(self.optimizer, weights, new_weights)
                     apply_patch(self.optimizer, filter, patch)
@@ -315,6 +330,8 @@ class WeightedDynamicModule(DynamicModule):
                         apply_patch(self.optimizer, bias, patch)
                         update_reference(self.optimizer, bias, new_bias)
                 new_weight_blocs.append(new_weights)
+                new_jcs.append(new_jc)
+                new_pfss.append(new_pfs)
                 new_filters_blocks.append(new_filter)
                 if new_bias is not None:
                     new_bias_blocks.append(new_bias)
@@ -322,6 +339,8 @@ class WeightedDynamicModule(DynamicModule):
             self.out_features_map = new_feature_ids
             self.filters_blocks = new_filters_blocks
             self.weight_blocks = new_weight_blocs
+            self.jump_counts = new_jcs
+            self.previous_filter_sign = new_pfss
             if hasattr(self, 'bias_blocks'):
                 self.bias_blocks = new_bias_blocks
 
@@ -357,9 +376,11 @@ class WeightedDynamicModule(DynamicModule):
                 result = self.compute_block(inp, weights, bias)
                 if hasattr(self, 'filters_blocks'): # Apply filter if needed
                     filter = self.filters_blocks[i]
+                    bn = self.jump_counts[i]
                     last_dim = len(result.size()) - 1
+                    result = bn(result)
                     result = result.transpose(1, last_dim)
-                    result = result * relu(filter)
+                    result = result * filter
                     result = result.transpose(1, last_dim)
                 results.append(result)
 
@@ -379,7 +400,7 @@ class WeightedDynamicModule(DynamicModule):
 
     @property
     def individual_filters(self):
-        return [relu(x) for x in self.filters_blocks if len(x) > 0]
+        return [x * Variable(torch.abs(x.data) > EPSILON).float() for x in self.filters_blocks if len(x) > 0]
 
     def full_filter(self):
         individual_filters = self.individual_filters
@@ -393,7 +414,7 @@ class WeightedDynamicModule(DynamicModule):
                 filter = self.filters_blocks[-1]
             else:
                 filter = self.full_filter()
-            return relu(filter).sum() * self.loss_factor()
+            return torch.abs(filter).sum() * self.loss_factor()
         return Variable(self.wrap(torch.zeros(1)), requires_grad=False)
 
     @property
@@ -401,12 +422,18 @@ class WeightedDynamicModule(DynamicModule):
         return [(x.data > 0).long().sum() for x in self.individual_filters]
 
     @property
+    def used_neurons(self):
+        jc = torch.cat(self.jump_counts)
+        return (torch.pow(float(self.k), jc.float()) > 1e-3).sum()
+
+    @property
     def num_output_features(self):
         if self.out_features is not None:
             return self.out_features
         if len(self.filters_blocks) == 0:
             return 0
-        return (self.full_filter().data > 0).long().sum()
+        return (self.full_filter().data >= 0).long().sum()
+
 
     @property
     def num_input_features(self):
@@ -419,7 +446,7 @@ class WeightedDynamicModule(DynamicModule):
     def generate_input(self):
         if self.in_features is None:
             raise ValueError('fake pass needs input or in_feature defined')
-        size = (1, self.in_features) + self.additional_dims
+        size = (5, self.in_features) + self.additional_dims
         x = torch.rand(*size)
         x = torch.autograd.Variable(x, requires_grad=False)
         return self.wrap(x)
@@ -430,7 +457,7 @@ class WeightedDynamicModule(DynamicModule):
 
 class Linear(WeightedDynamicModule):
 
-    def __init__(self, in_features=None, out_features=None, bias=True, weight_initializer=default_initializer, bias_initializer=default_initializer, reuse_features=True):
+    def __init__(self, in_features=None, out_features=None, bias=True, weight_initializer=default_initializer, bias_initializer=default_initializer, reuse_features=True, k=None):
         super(Linear, self).__init__(
             in_features=in_features,
             out_features=out_features,
@@ -438,7 +465,8 @@ class Linear(WeightedDynamicModule):
             bias_initializer=bias_initializer,
             weight_allocation=(),
             bias=bias,
-            reuse_features=reuse_features
+            reuse_features=reuse_features,
+            k=k
         )
 
     def __repr__(self):
