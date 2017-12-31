@@ -114,6 +114,8 @@ class BatchNorm1d(DynamicModule):
             self.implementation.running_mean)
         self.implementation.running_var = operation(
             self.implementation.running_var)
+        self.implementation.num_features = (
+            self.output_features.feature_count)
 
     def forward(self, *args):
         # Basic forwarding to the actual implementation
