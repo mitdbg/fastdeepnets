@@ -3,7 +3,8 @@ from typing import Any, Callable
 from torch import LongTensor
 from torch.nn import (
     Linear as SimpleLinear,
-    BatchNorm1d as SimpleBatchNorm1d
+    BatchNorm1d as SimpleBatchNorm1d,
+    Conv2d as SimpleConv2d
 )
 
 from dynnet.interfaces import DynamicModule, GarbageCollectionLog, FeatureBag
@@ -218,5 +219,27 @@ class BatchNorm1d(BaseDynamicLayer):
             self.output_features.feature_count)
 
 
+class Conv2d(BaseDynamicLayer):
+    """We will reuse the docstring from pytorch"""
+
+    def __init__(self, *args, **kwargs):
+        # Use need to choose the number of defaut starting features for
+        # each fully connected layer
+        assert 'out_channels' in kwargs, (
+            "For Conv layers, out_channels needs to be defined")
+        out_features = kwargs['out_channels']
+        output_features = FeatureBag(out_features)
+        del kwargs['out_channels']
+        super(Conv2d, self).__init__(factory=SimpleConv2d,
+                                     in_feature_arg_name="in_channels",
+                                     out_feature_arg_name="out_channels",
+                                     in_feature_dim=1,
+                                     out_feature_dim=0,
+                                     output_features=output_features,
+                                     *args, **kwargs)
+
+
+# Fill documentation
 BatchNorm1d.__doc__ = SimpleBatchNorm1d.__doc__
 Linear.__doc__ = SimpleLinear.__doc__
+Conv2d.__doc__ = SimpleConv2d.__doc__

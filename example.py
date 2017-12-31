@@ -1,4 +1,4 @@
-from dynnet.layers import Linear, Input, BatchNorm1d
+from dynnet.layers import Linear, Input, BatchNorm1d, Conv2d
 from dynnet.filters import SimpleFilter
 from dynnet.graph import Graph
 import torch
@@ -39,3 +39,12 @@ gc_log.update_optimizer(optim)
 
 forward(graph, {inp: x}, fc2, optim)
 print(graph)
+
+graph2 = Graph()
+inp2 = graph2.add(Input, 3)()
+conv1 = graph2.add(Conv2d, out_channels=20, kernel_size=3)(inp2)
+x2 = Variable(torch.rand(2, 3, 5, 5))
+print(graph2)
+result, = graph2({inp2: x2}, conv1)
+print(result)
+
