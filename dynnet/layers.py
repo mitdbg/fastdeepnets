@@ -1,7 +1,10 @@
 """This package contains simple neural network layers"""
 from typing import Any
 from torch import LongTensor
-from torch.nn import Linear as SimpleLinear
+from torch.nn import (
+    Linear as SimpleLinear,
+    BatchNorm1d as SimpleBatchNorm1d
+)
 
 from dynnet.interfaces import DynamicModule, GarbageCollectionLog, FeatureBag
 from dynnet.operations import IndexSelectOperation
@@ -30,6 +33,94 @@ class Input(DynamicModule):
 
     def __repr__(self):
         return "Input(%s)" % self.output_features.feature_count
+
+
+class BatchNorm1d(DynamicModule):
+    """Applies Batch Normalization over a 2d or 3d input that is seen as a
+    mini-batch.
+
+    .. math::
+
+        y = \frac{x - mean[x]}{ \sqrt{Var[x] + \epsilon}} * gamma + beta
+
+    The mean and standard-deviation are calculated per-dimension over
+    the mini-batches and gamma and beta are learnable parameter vectors
+    of size C (where C is the input size).
+
+    During training, this layer keeps a running estimate of its computed mean
+    and variance. The running sum is kept with a default momentum of 0.1.
+
+    During evaluation, this running mean/variance is used for normalization.
+
+    Args:
+        num_features: num_features from an expected input of size
+            `batch_size x num_features [x width]`
+        eps: a value added to the denominator for numerical stability.
+            Default: 1e-5
+        momentum: the value used for the running_mean and running_var
+            computation. Default: 0.1
+        affine: a boolean value that when set to true, gives the layer
+            learnable affine parameters.
+
+    Shape:
+        - Input: :math:`(N, C)` or :math:`(N, C, L)`
+        - Output: :math:`(N, C)` or :math:`(N, C, L)` (same shape as input)
+
+    Examples:
+        >>> # With Learnable Parameters
+        >>> m = nn.BatchNorm1d(100)
+        >>> # Without Learnable Parameters
+        >>> m = nn.BatchNorm1d(100, affine=False)
+        >>> input = autograd.Variable(torch.randn(20, 100))
+        >>> output = m(input)
+    """
+
+    def __init__(self, *args, **kwargs):
+        graph = kwargs['graph']
+        input_features = kwargs['input_features']
+        assert len(input_features) == 1, (
+            "BatchNorm1d only supports 1 parent")
+        del kwargs['graph']
+        del kwargs['input_features']
+        super(BatchNorm1d, self).__init__(graph=graph,
+                                          input_features=input_features,
+                                          output_features=input_features[0])
+        self.implementation = SimpleBatchNorm1d(
+            num_features=input_features[0].feature_count,
+            *args, **kwargs)
+
+    def garbage_collect(self, log: GarbageCollectionLog):
+        pass  # This layer never remove features
+
+    def remove_input_features(self, remaining_features: LongTensor,
+                              input_index: Any,
+                              log: GarbageCollectionLog) -> None:
+        assert input_index == 0, "We are only aware of one parent"
+        # Reuse logic (the input and the output features are the
+        # same
+        self.remove_output_features(remaining_features, log)
+
+    def remove_output_features(self, remaining_features: LongTensor,
+                               log: GarbageCollectionLog) -> None:
+        operation = IndexSelectOperation(remaining_features, 0)
+        self.implementation.weight = log.change_parameter(
+            self.implementation.weight, operation)
+        if self.implementation.bias is not None:
+            self.implementation.bias = log.change_parameter(
+                self.implementation.bias, operation)
+        # The operations on the buffer do not need te be logged, they
+        # are purely internals to the module
+        self.implementation.running_mean = operation(
+            self.implementation.running_mean)
+        self.implementation.running_var = operation(
+            self.implementation.running_var)
+
+    def forward(self, *args):
+        # Basic forwarding to the actual implementation
+        return self.implementation(*args)
+
+    def __repr__(self):
+        return "Dyn%s" % self.implementation
 
 class NaiveWrapper(DynamicModule):
     """This class wraps classic Pytorch modules into dynamic ones
