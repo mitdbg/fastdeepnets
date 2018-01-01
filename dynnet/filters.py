@@ -1,7 +1,7 @@
 """This module implements different algorithms for feature selection"""
 
 from typing import Any
-from torch import ones, nonzero, LongTensor
+from torch import ones, nonzero, LongTensor, ByteTensor
 from torch.nn import Parameter
 from torch.nn.functional import relu
 
@@ -41,8 +41,17 @@ class SimpleFilter(DynamicModule):
         operation = IndexSelectOperation(remaining_features, 0)
         self.weight = log.change_parameter(self.weight, operation)
 
+    def get_alive_features(self) -> ByteTensor:
+        """Mask containing ones when alive
+
+        Returns
+        -------
+        The binary mask
+        """
+        return (self.weight.data > 0).cpu().squeeze()
+
     def garbage_collect(self, log: GarbageCollectionLog):
-        non_zero_features = nonzero(self.weight.data > 0).cpu().squeeze()
+        non_zero_features = nonzero(self.get_alive_features()).squeeze()
         self.output_features.remove_features(self, non_zero_features, log)
         # The input and the output feature bag is the same object
         # There is no need to update it
