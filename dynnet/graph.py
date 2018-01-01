@@ -18,7 +18,7 @@ class Graph(ModuleList):
     Attributes
     ----------
 
-    children
+    _children
         A map that gives the children of a given module
 
     parents
@@ -27,7 +27,7 @@ class Graph(ModuleList):
 
     def __init__(self):
         super(Graph, self).__init__()
-        self.children: Dict[DynamicModule,
+        self._children: Dict[DynamicModule,
                             List[DynamicModule]] = defaultdict(list)
         self.parents: Dict[DynamicModule,
                            List[DynamicModule]] = defaultdict(list)
@@ -95,7 +95,7 @@ class Graph(ModuleList):
             if parents is not None:
                 self.parents[module] = parents
                 for parent in parents:
-                    self.children[parent].append(module)
+                    self._children[parent].append(module)
             return module
         return create
 
