@@ -26,12 +26,9 @@ class IndexSelectOperation(TensorOperation):
         if self.dimension != 0:
             tensor = tensor.transpose(self.dimension, 0)
         if tensor.is_cuda:
-            print('start_cuda')
             indices = self.indices.cuda(tensor.get_device())
-            print('end_cuda')
         else:
             indices = self.indices
-        print('apply')
         tensor = tensor[indices]
         if self.dimension != 0:
             tensor = tensor.transpose(0, self.dimension)

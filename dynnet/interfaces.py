@@ -218,7 +218,7 @@ class FeatureBag():
             # We are effectively not modifing the features
             return
         # Remove the useless features
-        self.latest_features &= remaining_features
+        self.latest_features = remaining_features & self.latest_features
 
         self.propagate_changes(log)
 
