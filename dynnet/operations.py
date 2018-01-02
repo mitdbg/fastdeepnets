@@ -20,12 +20,8 @@ class IndexSelectOperation(TensorOperation):
         self.dimension: int = dimension
 
     def __call__(self, tensor: Tensor):
-        try:
-            assert tensor.size(self.dimension) > self.indices.size(0), (
-                "The operation should remove at least one feature")
-        except AssertionError:
-            print(tensor, self.indices)
-            raise
+        assert tensor.size(self.dimension) > self.indices.size(0), (
+            "The operation should remove at least one feature")
         if self.dimension != 0:
             tensor = tensor.transpose(self.dimension, 0)
         if tensor.is_cuda:

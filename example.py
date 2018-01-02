@@ -2,7 +2,7 @@ from dynnet.layers import Linear, Input, BatchNorm1d, Conv2d
 from dynnet.filters import SimpleFilter
 from dynnet.graph import Graph
 import torch
-from torch.nn import Dropout
+from torch.nn import Dropout, MaxPool2d
 from torch.autograd import Variable
 from torch.optim import Adam
 
@@ -17,6 +17,13 @@ def forward(graph, mapping, target, optimizer):
 
 # Fake input
 x = Variable(torch.rand(3, 15))
+xx = Variable(torch.rand(3, 3, 16, 16))
+
+simple = Graph()
+i = simple.add(Input, 3, 16, 16)()
+o = simple.add(MaxPool2d, kernel_size=2)(i)
+
+
 
 graph = Graph()
 inp = graph.add(Input, 15)()
@@ -41,10 +48,9 @@ forward(graph, {inp: x}, fc2, optim)
 print(graph)
 
 graph2 = Graph()
-inp2 = graph2.add(Input, 3)()
+inp2 = graph2.add(Input, 3, 5, 5)()
 conv1 = graph2.add(Conv2d, out_channels=20, kernel_size=3)(inp2)
 x2 = Variable(torch.rand(2, 3, 5, 5))
 print(graph2)
 result, = graph2({inp2: x2}, conv1)
-print(result)
 

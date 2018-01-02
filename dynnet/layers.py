@@ -1,13 +1,16 @@
 """This package contains simple neural network layers"""
 from typing import Any, Callable
 from torch import LongTensor
+from torch.autograd import Variable
 from torch.nn import (
     Linear as SimpleLinear,
     BatchNorm1d as SimpleBatchNorm1d,
     Conv2d as SimpleConv2d
 )
 
-from dynnet.interfaces import DynamicModule, GarbageCollectionLog, FeatureBag
+from dynnet.interfaces import (
+    DynamicModule, GarbageCollectionLog, FeatureBag, MirrorFeatureBag
+)
 from dynnet.operations import IndexSelectOperation
 
 
@@ -17,16 +20,35 @@ class Input(DynamicModule):
     Its sole use is to provide feature ids to layers down the graph
     """
 
-    def __init__(self, input_count, graph=None, input_features=None):
+    def __init__(self, *dimensions,
+                 graph=None, input_features=None):
+        """Create an Input layer
+
+        Parameters
+        ----------
+
+        dimensions
+            A list of dimensions for this input
+        graph
+            The computation graph it belongs to
+        input_features
+            The list of parent features
+        """
         assert not input_features, "Input layer should have no parent"
-        feature_bag = FeatureBag(input_count)
+        feature_bag = FeatureBag(*dimensions)
 
         super(Input, self).__init__(input_features=input_features,
                                     output_features=feature_bag,
                                     graph=graph)
 
     def forward(self, value):
-        """This layer does no do anything"""
+        """This layer does no do anything except checking dimensions"""
+        expected_dims = ((self.output_features.feature_count,) + (
+            self.output_features.additional_dims))
+        dimensions = value.size()[1:]
+        assert expected_dims == dimensions, (
+            "Invalid dimensions for Input layer, got %s, expected %s" % (
+                dimensions, expected_dims))
         return value  # Just forwarding the values
 
     def garbage_collect(self, log: GarbageCollectionLog):
@@ -44,6 +66,9 @@ class NaiveWrapper(DynamicModule):
     have state that depends on the size of the inputs needs to be
     properly implemented (especially their garbage collection routine)
 
+    We infer the output size doing a forward pass, It might incur a small
+    performance penalty on very complex layers
+
     These layers also only support a single parent
     """
 
@@ -54,10 +79,19 @@ class NaiveWrapper(DynamicModule):
             "NaiveWrapper only supports 1 parent")
         del kwargs['graph']
         del kwargs['input_features']
+        implementation = factory(*args, **kwargs)
+        sample_input = input_features[0].sample_typical_input()
+        # We make it volatile because we won't be doing backprop on it
+        sample_output = implementation(Variable(sample_input,
+                                                volatile=True))
+        # We discard the batch size and the meaningful feature
+        sample_output_size = sample_output.size()[2:]
+        output_features = MirrorFeatureBag(input_features[0],
+                                           *sample_output_size)
         super(NaiveWrapper, self).__init__(graph=graph,
                                            input_features=input_features,
-                                           output_features=input_features[0])
-        self.implementation = factory(*args, **kwargs)
+                                           output_features=output_features)
+        self.implementation = implementation
 
     def garbage_collect(self, log: GarbageCollectionLog):
         pass  # This layer never remove features
@@ -91,7 +125,6 @@ class BaseDynamicLayer(DynamicModule):
                  out_feature_arg_name: str,
                  in_feature_dim: int,
                  out_feature_dim: int,
-                 output_features: FeatureBag,
                  *args, **kwargs):
         self.in_feature_dim = in_feature_dim
         self.out_feature_dim = out_feature_dim
@@ -100,21 +133,40 @@ class BaseDynamicLayer(DynamicModule):
         graph = kwargs['graph']
         input_features = kwargs['input_features']
         assert len(input_features) == 1, "Simple Layers accept 1&1 parent"
-        # Use need to choose the number of defaut starting features for
-        # each fully connected layer
-        super(BaseDynamicLayer, self).__init__(graph=graph,
-                                               output_features=output_features,
-                                               input_features=input_features)
+
         # Keeping only the relevant arguments for the real implementation
         del kwargs['graph']
         del kwargs['input_features']
         # Pass the known arguments to the constructor
         kwargs[in_feature_arg_name] = input_features[0].feature_count
-        kwargs[out_feature_arg_name] = output_features.feature_count
+        kwargs[out_feature_arg_name] = kwargs[out_feature_arg_name]
+
+        implementation = factory(*args, **kwargs)
+
+        input_features = input_features[0]
+        sample_input = input_features.sample_typical_input()
+        sample_output = implementation(Variable(sample_input,
+                                                volatile=True))
+        additional_dims = sample_output.size()[2:]
+        # If the features are supposed to be the same we mirror the
+        # feature bag
+        if in_feature_dim == out_feature_dim:
+            output_features = MirrorFeatureBag(input_features,
+                                               *additional_dims)
+        # If they are independant we instantiate a new feature bag
+        else:
+            output_features = FeatureBag(sample_output.size(1),
+                                     *additional_dims)
+
+        # Use need to choose the number of defaut starting features for
+        # each fully connected layer
+        super(BaseDynamicLayer, self).__init__(graph=graph,
+                                               output_features=output_features,
+                                               input_features=[input_features])
 
         # Instantiating a Linear layer
         # Using composition instead of inheritance
-        self.implementation = factory(*args, **kwargs)
+        self.implementation = implementation
 
     def garbage_collect(self, log: GarbageCollectionLog):
         pass  # This layer never remove features
@@ -166,15 +218,14 @@ class Linear(BaseDynamicLayer):
         # each fully connected layer
         assert 'out_features' in kwargs, (
             "For Linear layers, out_features needs to be defined")
-        out_features = kwargs['out_features']
-        output_features = FeatureBag(out_features)
-        del kwargs['out_features']
+        assert len(kwargs['input_features']) == 1, (
+            "Only one input allowed for Linear Layers"
+        )
         super(Linear, self).__init__(factory=SimpleLinear,
                                      in_feature_arg_name="in_features",
                                      out_feature_arg_name="out_features",
                                      in_feature_dim=1,
                                      out_feature_dim=0,
-                                     output_features=output_features,
                                      *args, **kwargs)
 
 
@@ -191,7 +242,6 @@ class BatchNorm1d(BaseDynamicLayer):
                                           out_feature_arg_name="num_features",
                                           in_feature_dim=0,
                                           out_feature_dim=0,
-                                          output_features=input_features[0],
                                           *args, **kwargs)
 
     def remove_input_features(self, remaining_features: LongTensor,
@@ -227,15 +277,11 @@ class Conv2d(BaseDynamicLayer):
         # each fully connected layer
         assert 'out_channels' in kwargs, (
             "For Conv layers, out_channels needs to be defined")
-        out_features = kwargs['out_channels']
-        output_features = FeatureBag(out_features)
-        del kwargs['out_channels']
         super(Conv2d, self).__init__(factory=SimpleConv2d,
                                      in_feature_arg_name="in_channels",
                                      out_feature_arg_name="out_channels",
                                      in_feature_dim=1,
                                      out_feature_dim=0,
-                                     output_features=output_features,
                                      *args, **kwargs)
 
 

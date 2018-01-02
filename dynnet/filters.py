@@ -21,6 +21,8 @@ class SimpleFilter(DynamicModule):
         self.weight = Parameter(ones(features.feature_count) * starting_value)
 
     def forward(self, x):
+        # Size checks
+        super(SimpleFilter, self).forward(x)
         dims = len(x.size())
         x = x.transpose(1, dims - 1)
         x = x * relu(self.weight)
