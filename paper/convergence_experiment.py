@@ -17,13 +17,24 @@ MNIST_TRANSFORM = [
     transforms.ToTensor(),
     transforms.Normalize((0.1307,), (0.3081,))
 ]
+FashionMNIST_TRANSFORM= [
+    transforms.ToTensor(),
+    transforms.Normalize((0.2860), (0.3530,))
+]
+
 
 def preload_dataset(dataset, train, batch_size):
+    if dataset == MNIST:
+        trans = MNIST_TRANSFORM
+    elif dataset == FashionMNIST:
+        trans = FashionMNIST_TRANSFORM
+    else:
+        assert False, 'Unknown datset'
     ds = dataset(
             '../datasets/%s/' % dataset.__name__,
             train=train,
             download=True,
-            transform=transforms.Compose(MNIST_TRANSFORM))
+            transform=transforms.Compose(trans))
     # load everything
     dummy_dl = DataLoader(ds, batch_size=10000000, shuffle=False)
     inputs, labels = next(iter(dummy_dl))
