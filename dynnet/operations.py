@@ -6,7 +6,7 @@ from torch import Tensor, LongTensor
 class IndexSelectOperation(TensorOperation):
     """Operation that selects only the given indices on a given dimension"""
 
-    def __init__(self, indices: LongTensor, dimension: int=0):
+    def __init__(self, indices: LongTensor, dimension: int = 0):
         """Create the operation
 
         Parameters
@@ -20,9 +20,12 @@ class IndexSelectOperation(TensorOperation):
         self.dimension: int = dimension
 
     def __call__(self, tensor: Tensor):
-        tensor_sum = tensor.long().sum()
-        assert tensor.size(0) > tensor_sum, (
-            "The operation should remove at least one feature")
+        try:
+            assert tensor.size(self.dimension) > self.indices.size(0), (
+                "The operation should remove at least one feature")
+        except AssertionError:
+            print(tensor, self.indices)
+            raise
         if self.dimension != 0:
             tensor = tensor.transpose(self.dimension, 0)
         if tensor.is_cuda:
