@@ -310,11 +310,11 @@ class Flatten(DynamicModule):
                               log: GarbageCollectionLog) -> None:
         assert input_index == 0, "We are only aware of one parent"
         diff = int(np.array(self.input_features[0].additional_dims).prod())
-        indicies = arange(0, diff).long.unsqueeze(1)
+        indicies = arange(0, diff).long().unsqueeze(1)
         indicies = indicies.repeat(1, remaining_features.size(0))
         indicies += remaining_features * diff
         indicies = indicies.view(-1)
-        self.output_features.remove_features(indicies, log)
+        self.output_features.remove_features(self, indicies, log)
 
     def remove_output_features(self, remaining_features: LongTensor,
                                log: GarbageCollectionLog) -> None:
@@ -323,9 +323,9 @@ class Flatten(DynamicModule):
         # removes output features. So you should not do it but we cannot always
         # catch bad user behavior. We can only do a very simple check: that
         # the output size is equivalent to the input size
-        expected_features = self.input_features.feature_count
+        expected_features = self.input_features[0].feature_count
         expected_features *= (
-            np.array(self.input_features.additional_dims).prod())
+            np.array(self.input_features[0].additional_dims).prod())
         assert remaining_features.size(0) == expected_features, (
             "You are not allowed to change the number of ouput size of a" +
             "Flatten layer, it means we would have to remove more than asked")
