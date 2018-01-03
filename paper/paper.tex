@@ -81,7 +81,7 @@ When designing Neural Netowrks, finding the apropriate size (width and depth) is
 \section{The Filter Layer}
 \subsection{Motivation}
 
-The method described in [ref] grows and shrink the network over time. Though it seems to be an attractive property to have, during our experiments and according to their results, models are very slow to train and sometimes converge to suboptimal solutions. Their method also required a new optimizer \textit{AdaRad}. Our goal was to provide a solution that can easily be integrated in existing machine learning systems and provide similar convergence speed and accuracy. Therefore, designing a new layer that only allow seemed to be best approach.
+The method described in [ref] grows and shrink the network over time. Though it seems to be an attractive property to have, during our experiments and according to their results, models are very slow to train and sometimes converge to suboptimal solutions. Their method also required a new optimizer \textit{AdaRad}. Our goal was to provide a solution that can easily be integrated in existing machine learning systems and provide similar convergence speed and accuracy. Therefore, designing a new layer that only allow shrinking seemed to be best approach.
 
 \subsection{Definition}
 
@@ -128,7 +128,7 @@ To demonstrate that the approach is viable, we will first show that Shrinking Ne
 
 \subsection{Comparison between Shrinking and classic Networks}
 
-To demonstrate the value of ShrinkNets in the context of hyper-parameter optimization we set up the following experiment: We consider a \textit{LeNet-5} architecture and assume we do not know the number of channels and neurons. We try to find the best architecture by performing random search on the parameters that define the size. For classic neural networks these parameters are the number of channels for the first two layers and the number of hidden units of the linear layer. For ShrinkNets there is only one parameter $\lambda$. We sampled 50 models of each and trained them, picked the best epoch using the validation accuracy and measured their accuracy on the testing set. Since ShrinkNets can be considered to be regularized in some sense, to make the comparison fair we also considered static networks with an $L2$ regularization factor (also drawn randomly). We summarized the accuracy we obtained on \autoref{hyper_opt_res}. [Should we explain the results]
+To demonstrate the value of ShrinkNets in the context of hyper-parameter optimization we set up the following experiment: We consider two different architecture, a three hidden layer feed forward network and a \textit{LeNet-5} [ref]. We assume we do not know the number of channels and neurons and we want to find the best architecture by performing random search on the parameters that define the size. For classic neural networks these parameters are the number of channels and/or neurons; for ShrinkNets there is only one parameter $\lambda$. We sampled 50 models of each and trained them, picked the best epoch according to the validation accuracy and measured their performance on the testing set. Since ShrinkNets can be considered to be regularized in some sense, to make the comparison fair we also considered static networks with an $L2$ regularization factor (also drawn randomly). We summarized the accuracy we obtained on \autoref{hyper_opt_res}. [Should we explain the results]
 
 \section{Future work}
 
