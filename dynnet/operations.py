@@ -31,4 +31,7 @@ class IndexSelectOperation(TensorOperation):
         tensor = tensor[indices]
         if self.dimension != 0:
             tensor = tensor.transpose(0, self.dimension)
+         # This is better to have contiguous memory areas
+         # Some CuDNN features require that
+        tensor = tensor.contiguous()
         return tensor
