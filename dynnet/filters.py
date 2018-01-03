@@ -23,10 +23,15 @@ class SimpleFilter(DynamicModule):
     def forward(self, x):
         # Size checks
         super(SimpleFilter, self).forward(x)
-        dims = len(x.size())
-        x = x.transpose(1, dims - 1)
-        x = x * relu(self.weight)
-        x = x.transpose(1, dims - 1)
+        # We are doing this weird expand-based implementation because
+        # This is the only implementation that keeps the output
+        # contiguous in memory (and therefore does not involve reordering
+        # it later
+        weight = self.weight.unsqueeze(0)
+        for _ in range(len(self.output_features.additional_dims)):
+            weight = weight.unsqueeze(2)
+        weight = weight.expand(x.size())
+        x = x * relu(weight)
         return x
 
     def remove_input_features(self, remaining_features: LongTensor,
