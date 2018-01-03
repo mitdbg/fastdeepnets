@@ -1,6 +1,7 @@
 """This package contains simple neural network layers"""
 from typing import Any, Callable
-from torch import LongTensor
+import numpy as np
+from torch import LongTensor, arange
 from torch.autograd import Variable
 from torch.nn import (
     Linear as SimpleLinear,
@@ -156,7 +157,7 @@ class BaseDynamicLayer(DynamicModule):
         # If they are independant we instantiate a new feature bag
         else:
             output_features = FeatureBag(sample_output.size(1),
-                                     *additional_dims)
+                                         *additional_dims)
 
         # Use need to choose the number of defaut starting features for
         # each fully connected layer
@@ -283,6 +284,57 @@ class Conv2d(BaseDynamicLayer):
                                      in_feature_dim=1,
                                      out_feature_dim=0,
                                      *args, **kwargs)
+
+class Flatten(DynamicModule):
+
+    def __init__(self, *args, **kwargs):
+        input_features = kwargs['input_features']
+        assert len(input_features) == 1, (
+            "The View layer only accepts one and exactly one parent")
+        input_features = input_features[0]
+        total_features = (input_features.feature_count *
+                          np.array(input_features.additional_dims).prod())
+        output_features = FeatureBag(total_features)
+        graph = kwargs['graph']
+        super(Flatten, self).__init__(input_features=[input_features],
+                                      output_features=output_features,
+                                      graph=graph)
+
+    def forward(self, x):
+        # Check input dimensions
+        super(Flatten, self).forward(x)
+        return x.view(x.size(0), -1)
+
+    def remove_input_features(self, remaining_features: LongTensor,
+                              input_index: Any,
+                              log: GarbageCollectionLog) -> None:
+        assert input_index == 0, "We are only aware of one parent"
+        diff = int(np.array(self.input_features[0].additional_dims).prod())
+        indicies = arange(0, diff).long.unsqueeze(1)
+        indicies = indicies.repeat(1, remaining_features.size(0))
+        indicies += remaining_features * diff
+        indicies = indicies.view(-1)
+        self.output_features.remove_features(indicies, log)
+
+    def remove_output_features(self, remaining_features: LongTensor,
+                               log: GarbageCollectionLog) -> None:
+        # It is impossible to remove features bottom down. I wanted to
+        # raise an exception here but the removal of input feature actually
+        # removes output features. So you should not do it but we cannot always
+        # catch bad user behavior. We can only do a very simple check: that
+        # the output size is equivalent to the input size
+        expected_features = self.input_features.feature_count
+        expected_features *= (
+            np.array(self.input_features.additional_dims).prod())
+        assert remaining_features.size(0) == expected_features, (
+            "You are not allowed to change the number of ouput size of a" +
+            "Flatten layer, it means we would have to remove more than asked")
+        # We are just checking that the request acutally does nothing
+        # (We only want this function to be called as a result of a input
+        # feature removal
+
+    def __repr__(self):
+        return "Flatten()"
 
 
 # Fill documentation
