@@ -256,19 +256,20 @@ to integrate new layers in the library. We even provide automatic wrapping
 for layers from pytorch if they have no internal state. For more complex ones,
 we provide utilitaries that makes the implementation very concise.
 
-
 \section{Evaluation}
 \subsection{Convergence}
 
 To demonstrate that the approach is viable, we will first show that Shrinking
-Networks converge. For this experiment we trained a one hidden layer neural
-network with one filter layer to control the number of hidden units. We
+Networks converge properly. For this experiment we trained a one hidden layer
+neural network with one filter layer to control the number of hidden units. We
 initialized the models with $10000$ neurons and trained them on \texttt{MNIST}
-using different regularization factors ($\lambda$). We summarized the results in
-\autoref{convergence_plot}. [Should we explain the results ?] \srm{Yes, you need
-to explain in detail -- what does this show?  How does it prove that your
-approach works / is a good idea?}
-
+using different regularization factors ($\lambda$). We summarized the results
+in \autoref{convergence_plot}. We can see on this plot is that
+for a given $\lambda$ the number of hidden units seems to always converge to
+some value. It has two implications: it seems that $\lambda$ is, as we would think,
+a proxy of the network size (bigger $\lambda$ imply smaller networks). Secondly,
+it indicates that the spikes we see in the regular spikes we see in the loss that occur when neurons are disabled will eventually disapear because the number of neurons reach a plateau. \gl{I feel we should give a conclusion for this paragraph but
+I am not sure what to say}
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.5\textwidth]{convergence}
@@ -276,30 +277,45 @@ approach works / is a good idea?}
 \end{center}
 \end{figure}
 
+
+\subsection{Relevance in the context of hyper-parameter optimization}
+
+\gl{I rewrote the entire section}
+
+One of our main goal is to help finding neural network architectures that
+perform reasonably well faster than existing techniques. For simplicity,
+we will try to see how ShrinkNets perform when doing random search. However,
+we believe that the results generalize to more complex methods, most of them
+might actually benefit a lot from the reduction in the dimensionality of the
+hyper-parameter space.
+
+\par To isolate the effect of ShrinkNets we will consider very simple architectures
+We will be using multi-layer perceptrons (with three hidden layers) and
+convolutional neural networks (With the LeNet-5 architecture). For this experiment
+we will assume we have no information about the size except an upper bound of
+$50$ channels per convolutional layer and $5000$ neuron for fully connected layers.
+We try to find the appropriate size of the network using classical neural networks
+and ShrinkNets. To make sure that we are as fair as possible and since one might
+argue that ShrinkNets is also regularizing the network in addition to finding the
+size, we will also considered regualrized classic networks using the most commonly
+used technique the $L_2$ penalty [ref].
+\par The experiment consist in sampling parameters randomly for each class of
+network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation accuracy and evaluate it
+on the testing set. We repeat the process for 50 models. This evaluation was done
+on \texttt{MNIST} [ref], \texttt{FashionMNIST} [ref] and \texttt{CIFAR10} [ref]. The distribution of the testing accuracy we obtained is summarized on \autoref{hyper_opt_res}.
+
+We can see that the distributions for ShrinkNets are consistently better than the
+others for all datasets and both architectures. It shows that by training fewer
+networks, we are likely to obtain on-par or even better models which effectively
+reduces the cost of hyper-parameter optimization. In some cases the best ShrinkNets
+models outperforms the best model of the other techniques.
+
 \begin{figure}
 \begin{center}
   \includegraphics[width=0.5\textwidth]{hyper_opt}
 \caption{Distributions of the testing accuracy for different training methods, datasets and architectures using random search\label{hyper_opt_res}}
 \end{center}
 \end{figure}
-
-\subsection{Comparison between Shrinking and classic Networks}
-
-To demonstrate the value of ShrinkNets in the context of hyper-parameter
-optimization we set up the following experiment: We consider two different
-architectures, a three hidden layer feed forward network and a \textit{LeNet-5}
-[ref]. We do not know the number of channels and neurons and we want to find the
-best architecture by performing random search on the parameters that define the
-size. For classic neural networks these parameters are the number of channels
-and/or neurons; for ShrinkNets there is only one parameter, $\lambda$. We
-sampled 50 models of each and trained them, picked the best epoch according to
-the validation accuracy and measured their performance on the testing set. Since
-ShrinkNets can be considered to be regularized in some sense, to make the
-comparison fair we also considered static networks with an $L2$ regularization
-factor (also drawn randomly) \srm{L2 regularization over what?}. We summarized
-the accuracy we obtained on \autoref{hyper_opt_res}. [Should we explain the
-results] \srm{Yes, need to describe in detail -- how does this prove that your
-method works/ is a good idea?  What are the key takeaways?}
 
 \section{Related Work}
 
