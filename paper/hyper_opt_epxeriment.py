@@ -1,18 +1,20 @@
 import torch
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
-from torch.nn import ReLU, CrossEntropyLoss
+from torch.nn import ReLU, CrossEntropyLoss, MaxPool2d
 from torch.nn.functional import relu
 from torch.autograd import Variable
 from torch.optim import Adam
 from torchvision import transforms
 from torchvision.datasets import MNIST, FashionMNIST, CIFAR10
 from dynnet.graph import Graph
-from dynnet.layers import Input, Linear
 from dynnet.filters import SimpleFilter
 from sklearn.model_selection import train_test_split
 from uuid import uuid4
 import sys
+from dynnet.layers import (
+    Input, Linear, Conv2d, Flatten
+)
 
 SEED = 0
 COUNT = 50
@@ -29,8 +31,8 @@ SIZES = {
     CIFAR10: (3, 32, 32)
 }
 REGULARIZATIONS = {
-    MNIST: [1, 5],
-    FashionMNIST: [1, 5],
+    MNIST: [2, 5],
+    FashionMNIST: [2, 5],
     CIFAR10: [2, 6]
 }
 
@@ -74,10 +76,12 @@ def prepare_loaders(dataset, batch_sizes):
 
 def init_model(model):
     for parameter in model.parameters():
-        if len(parameter.size()) == 2:
+        if len(parameter.size()) > 1:
             torch.nn.init.xavier_normal(parameter.data, gain=np.sqrt(2))
-        else:
-            parameter.data.uniform_(0, 1)
+    for l in model:
+        if isinstance(l, SimpleFilter):
+            l.weight.data.uniform_(0, 1)
+
 
 def create_dynamic_model(start_size=5000, size=(1, 28, 28), conv=False):
     graph = Graph()
@@ -88,16 +92,50 @@ def create_dynamic_model(start_size=5000, size=(1, 28, 28), conv=False):
             l = graph.add(SimpleFilter)(l)
             l = graph.add(ReLU)(l)
         graph.add(Linear, out_features=10)(l)
+    else:
+        l = graph.add(Input, *size)()
+        l = graph.add(Conv2d, out_channels=start_size[0], kernel_size=5)(l)
+        l = graph.add(SimpleFilter)(l)
+        l = graph.add(ReLU)(l)
+        l = graph.add(MaxPool2d, kernel_size=2)(l)
+        l = graph.add(Conv2d, out_channels=start_size[1], kernel_size=5)(l)
+        l = graph.add(SimpleFilter)(l)
+        l = graph.add(ReLU)(l)
+        l = graph.add(MaxPool2d, kernel_size=2)(l)
+        l = graph.add(Flatten)(l)
+        l = graph.add(Linear, out_features=start_size[2])(l)
+        l = graph.add(SimpleFilter)(l)
+        l = graph.add(ReLU)(l)
+        l = graph.add(Linear, out_features=10)(l)
     init_model(graph)
     return graph.cuda()
 
+class TorchFlatten(torch.nn.Module):
+    def forward(self, input):
+        return input.view(input.size(0), -1)
+    def __repr__(self):
+        return "Flatten()"
+
 def create_static_model(capacities=(200, 200, 200), size=(1, 28, 28), conv=False):
     layers = []
-    capacities = (int(np.array(size).prod()),) + capacities
-    for i in range(3):
-        layers.append(torch.nn.Linear(capacities[i], capacities[i + 1]))
+    if conv:
+        layers.append(torch.nn.Conv2d(size[0], capacities[0], 5))
         layers.append(torch.nn.ReLU())
-    layers.append(torch.nn.Linear(capacities[-1], 10))
+        layers.append(torch.nn.MaxPool2d(2))
+        layers.append(torch.nn.Conv2d(capacities[0], capacities[1], 5))
+        layers.append(torch.nn.ReLU())
+        layers.append(torch.nn.MaxPool2d(2))
+        layers.append(TorchFlatten())
+        input_count = int(capacities[1] * (((size[2] - 4) / 2) - 4) / 2 * (((size[1] - 4) / 2) - 4) / 2)
+        layers.append(torch.nn.Linear(input_count, capacities[2]))
+        layers.append(torch.nn.ReLU())
+        layers.append(torch.nn.Linear(capacities[2], 10))
+    else:
+        capacities = (int(np.array(size).prod()),) + capacities
+        for i in range(3):
+            layers.append(torch.nn.Linear(capacities[i], capacities[i + 1]))
+            layers.append(torch.nn.ReLU())
+        layers.append(torch.nn.Linear(capacities[-1], 10))
     model = torch.nn.Sequential(*layers)
     init_model(model)
     return model.cuda()
@@ -113,18 +151,25 @@ def regularized_loss(graph, prediction, labels, lamb):
         return loss, loss
     return loss, loss + lamb * relu(torch.cat(filter_weights)).sum()
 
-def compute_network_size(graph):
-    if isinstance(graph, Graph):
-        return sum([m.get_alive_features().float().sum() for m in graph if isinstance(m, SimpleFilter)])
+def compute_network_size(graph, conv=False, parts=False):
+    if not conv:
+        if isinstance(graph, Graph):
+            t = ([m.get_alive_features().float().sum() for m in graph if isinstance(m, SimpleFilter)])
+            return sum(t)
+        else:
+            total = 0
+            sizes = []
+            for layer in graph.modules():
+                if isinstance(layer, torch.nn.Linear):
+                    sizes.append(layer.in_features)
+                    sizes.append(layer.out_features)
+            total += sum(sizes[1:-1]) / 2
+            return total
     else:
-        total = 0
-        sizes = []
-        for layer in graph.modules():
-            if isinstance(layer, torch.nn.Linear):
-                sizes.append(layer.in_features)
-                sizes.append(layer.out_features)
-        total += sum(sizes[1:-1]) / 2
-        return total
+        res = 0
+        for p in graph.parameters():
+            res += p.data.view(-1).size(0)
+        return res
 
 
 def forward(graph, dataloader, lamb=0, conv=False, optimizer=None):
@@ -142,7 +187,7 @@ def forward(graph, dataloader, lamb=0, conv=False, optimizer=None):
         _, loss = regularized_loss(graph, prediction, labels, lamb)
         discrete_prediction = prediction.max(1)[1]
         accuracy = (discrete_prediction == labels).float().data.mean()
-        size = compute_network_size(graph)
+        size = compute_network_size(graph, conv)
         accs.append(accuracy)
         sizes.append(size)
         if optimizer is not None:
@@ -178,12 +223,18 @@ def train(graph, dataset=MNIST, wd=0, batch_size=256,
         if isinstance(graph, Graph):
             log = graph.garbage_collect()
             log.update_optimizer(optimizer)
+            pass
     return np.array([train_accs, val_accs, test_accs, all_sizes])
 
-def sample_static_sizes():
+def sample_static_sizes(conv=False):
     r = []
-    for i in range(3):
+    if conv:
+        for i in range(2):
+            r.append(int(np.random.uniform(1, 50)))
         r.append(int(2.0 ** np.random.uniform(4, 12)))
+    else:
+        for i in range(3):
+            r.append(int(2.0 ** np.random.uniform(4, 12)))
     return tuple(r)
 
 def store_training(prefix, params, logs):
@@ -196,13 +247,17 @@ def sample_regularization(dataset):
 
 def hyper_opt_static(dataset, bs, conv=False):
     for i in range(COUNT):
-        sizes = sample_static_sizes()
+        sizes = sample_static_sizes(conv)
         params = {
             'sizes': sizes
         }
+        print(params)
         model = create_static_model(sizes, SIZES[dataset], conv)
         log = train(model, dataset, batch_size=bs, conv=conv)
-        store_training("%s_static" % dataset.__name__, params, log)
+        p = dataset.__name__
+        if conv:
+            p = "conv_" + p
+        store_training("%s_static" % p, params, log)
 
 def hyper_opt_shrink(dataset, bs, conv=False):
     for i in range(COUNT):
@@ -210,24 +265,39 @@ def hyper_opt_shrink(dataset, bs, conv=False):
         params = {
             'lamb': lamb
         }
-        print(lamb)
-        model = create_dynamic_model(5000, SIZES[dataset], conv)
+        print(params)
+        start_sizes = 500
+        if conv:
+            start_sizes = (50, 50, 5000)
+        model = create_dynamic_model(start_sizes, SIZES[dataset], conv)
         log = train(model, dataset, batch_size=bs, conv=conv, lamb=lamb)
-        store_training("%s_shrink" % dataset.__name__, params, log)
+        p = dataset.__name__
+        if conv:
+            p = "conv_" + p
+        store_training("%s_shrink" % p, params, log)
 
 def hyper_opt_decay(dataset, bs, conv=False):
     for i in range(COUNT):
-        sizes = sample_static_sizes()
+        sizes = sample_static_sizes(conv)
         decay = sample_regularization(dataset)
         params = {
             'sizes': sizes,
             'decay': decay
         }
+        print(params)
         model = create_static_model(sizes, SIZES[dataset], conv)
         log = train(model, dataset, batch_size=bs, conv=conv, wd=decay)
-        store_training("%s_decay" % dataset.__name__, params, log)
+        p = dataset.__name__
+        if conv:
+            p = "conv_" + p
+        store_training("%s_decay" % p, params, log)
 
 dataset = DATASETS.get(sys.argv[-1])
-# hyper_opt_static(dataset, 256)
-hyper_opt_shrink(dataset, 256)
-# hyper_opt_decay(dataset, 256)
+mode =sys.argv[-2]
+conv = sys.argv[-3] == 'conv'
+if mode == 'static':
+    hyper_opt_static(dataset, 256, conv=conv)
+elif mode == 'decay':
+    hyper_opt_decay(dataset, 256, conv=conv)
+elif mode == 'shrink':
+    hyper_opt_shrink(dataset, 256, conv=conv)
