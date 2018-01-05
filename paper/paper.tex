@@ -38,18 +38,24 @@
 \begin{document}
 \title{ShrinkNets}
 
-\author{Guillaume Leclerc}
-\authornote{Visiting Student}
-\MITAffiliation
-\email{leclerc@mit.edu}
+\author{Guillaume Leclerc, Raul Castro Fernandez, Samuel Madden}
+\affiliation{%
+  \institution{Massachussets Institute of Technology}
+}
+\email{[leclerc, raulcf, madden]@mit.edu}
 
-\author{Raul Castro Fernandez}
-\MITAffiliation
-\email{raulcf@csail.mit.edu}
-
-\author{Samuel Madden}
-\MITAffiliation
-\email{madden@csail.mit.edu}
+%\author{Guillaume Leclerc}
+%\authornote{Visiting Student}
+%\MITAffiliation
+%\email{leclerc@mit.edu}
+%
+%\author{Raul Castro Fernandez}
+%\MITAffiliation
+%\email{raulcf@csail.mit.edu}
+%
+%\author{Samuel Madden}
+%\MITAffiliation
+%\email{madden@csail.mit.edu}
 
 
 % The default list of authors is too long for headers.
@@ -64,37 +70,62 @@
 
 \section{Introduction}
 
-When designing Neural Networks, finding the appropriate size (width and depth)
-is key. In particular, these hyper parameters have a strong correlation with
-over/underfitting \srm{give reference} \gl{I did some litterature review and
-  actually this statement is quite controversial, should we rephrase ?}. We
-have no reliable way to find them but decades of experimentation led to some
-heuristics ~\cite{Bengio2012a} that try to prune that immense space of possible
-network sizes and suggest range of values to explore. To select the best
-candidates , researchers have used strategies such as random search \gl{Should
-  we also move the references here if we remove the pargraph from the related
-  work ?}, meta-gradient descent ~\cite{Pedregosa2016} , gaussian processes
-~\cite{Bergstra2011a}, and Parzen Estimators ~\cite{Bergstra2011a} to reduce
-find good parameters without exhaustively exploring the entire hyper-parameter
-space. Although these strategies help with finding a good set of
-hyper-parameters, they still require a compute-intensive search of the space.
+When designing Neural Networks, finding the appropriate size
+%, number of layers
+%and number of neuros per layer, 
+%(width and depth)
+is key. It consists of determining the number of layers and neurons per layer
+that lead to the best accuracy.
+%In particular, these hyper parameters have a strong correlation with
+%over/underfitting \srm{give reference} \gl{I did some litterature review and
+%actually this statement is quite controversial, should we rephrase ?}. 
+Unfortunately, we have no reliable way to find the best parameters. Decades of
+experimentation led to search strategies and heuristics~\cite{Bengio2012a} that prune
+the immense space of possible network sizes and suggest range of values to
+explore. Examples of search strategies are
+%To select the best candidates, researchers have used strategies such
+%as 
+random search,
+%\gl{Should we also move the references here if we remove the
+%pargraph from the related work ?}, 
+meta-gradient descent~\cite{Pedregosa2016},
+gaussian processes~\cite{Bergstra2011a}, and Parzen Estimators~\cite{Bergstra2011a}. 
+%to find good parameters without exhaustively
+%exploring the entire hyper-parameter space. 
+Although these strategies help with
+finding a good set of hyper-parameters, they still require a compute-intensive
+search of the space.
 
 %However, we are still bound to use costly and sometimes complex methods to
 %find reasonable values for these hyper-parameters.
 
 In this paper we present a method to automatically find an appropriate network
-size from a single parameter, drastically reducing the hyper-parameter
-dimensionality. The key idea is to \emph{learn} the right network size at the
-same time that the network is learning the main task. For example, for an image
-classification task, with our approach we can provide the training data to a
-network---without sizing it a priori---and expect to end up with a network that
-has learnt the task without overfitting \gl{too strong, we do not really have
-  any guarantee on the generalization, how about changing it to: to end up with
-  a network that learnt a tradeoff between size and accuracy}. This approach
-has two main benefits. First, we do no longer need to choose a network size
-before training.  Second, the final network size will be appropriate for the
-task at hand, and not larger \gl{Should we talk about the fact that it automatically gets rid of dead neurons ?}. This is important because oversized networks have
-a lower inference throughput and higher  memory footprint.
+size, thus
+%from a single parameter, 
+drastically reducing the hyper-parameter optimization time.
+%dimensionality. 
+The key idea is to
+\emph{learn} the right network size at the same time that the network is
+learning the main task. For example, for an image classification task, with our
+approach we can provide the training data to a network---without sizing it a
+priori---and expect to end up with a network that has learnt to classify images
+with an accuracy similar to a manually engineered network.
+%\gl{too strong, we do not really have
+%  any guarantee on the generalization, how about changing it to: to end up with
+%  a network that learnt a tradeoff between size and accuracy}. 
+This approach has two main benefits. First, we do no longer need to choose a
+network size before training. Second, the final network size will be
+appropriate for the task at hand, and not larger. 
+%Because the sizing occurs
+%dynamically, while the
+%network is training, we remove the useless neurons 
+%implement a new mechanism that removes
+%the deactivated neurons to  
+%\gl{Should we talk about the
+%fact that it automatically gets rid of dead neurons ?}. 
+This is important
+because oversized networks have a lower inference throughput and higher memory
+footprint.
 
 Our approach has two main challenges. First, on how to dynamically size the
 network during training. Second, on how to find a loss function that optimizes
@@ -145,25 +176,32 @@ next:
 %\subsection{Definition}
 
 \textbf{Filter Layers: } They have weights in the range $[0,+\infty]$ and are placed after
-linear and convolutional layers of traditional deep networks \gl{This is how I
-  used it but with the new implementation we can be more creative and put them
-  anywhere, should we say "usually placed" insdead ?}. The \textit{Filter
-  Layer} takes an input of size $\left(B \times C \times D_1 \times \dots
-  \times D_n\right)$, where $B$ is the batch size, $C$ the number of features
-(or channels), and $D$ any additional dimension. This structure makes it
-compatible with fully connected layers with $n=0$ or convolutional layers with
-$n=2$. Their crucial property is a parameter $\theta \in \mathbb{R}^C$, defined
-as follows:
+linear and convolutional layers of traditional deep networks.
+%\gl{This is how I
+%  used it but with the new implementation we can be more creative and put them
+%  anywhere, should we say "usually placed" insdead ?}. 
+The \textit{Filter Layer} takes an input of size $\left(B \times C \times D_1
+\times \dots \times D_n\right)$, where $B$ is the batch size, $C$ the number of
+features (or channels, in the case of convolutional layers), and $D$ any additional dimension. This structure makes
+it compatible with fully connected layers with $n=0$ or convolutional layers
+with $n=2$. Their crucial property is a parameter $\theta \in \mathbb{R}^C$,
+defined as follows:
 
 \begin{equation} Filter(I;\theta) = I \circ \max(0, \theta) \end{equation}
 
-Where $\circ$ is the Hadamard product (pointwise multiplication \gl{Should we
-  keep only one of them to be more concise ?}), and $\theta$ is expanded in all
+Where $\circ$ is the 
+%Hadamard product (
+pointwise multiplication,
+%\gl{Should we
+%  keep only one of them to be more concise ?}), 
+and $\theta$ is expanded in all
 dimensions except the second one to match the input size. It is easy to see
 that if for any $k$, if $\theta_k \leq 0$, the $k^{\text{th}}$ feature/channel
-will forever be $0$. When this happens, we say the Filter layer disables the
+will forever be $0$. When this happens, we say the Filter layer deactivates the
 neuron. These disabled neurons/channels can be removed from the network without
-changing its output (we describe how we perform this removal below). We explain
+changing its output. Before explaining how that is achieved, we 
+% (we describe how we perform this removal below). We 
+explain
 next how the weights of the Filter Layer are adjusted during training.
 
 %We can use this property to devise a training procedure.
@@ -198,66 +236,115 @@ next how the weights of the Filter Layer are adjusted during training.
 %insert \textit{Filter Layers}  (usually after every linear or convolutional
 %layer except the last one) and we sample their weight from the
 %$\text{Uniform}(0, 1)$ distribution. 
-we could train it directly and it
-would be equivalent to a normal neural network. However, our goal is to find the
-smallest network with reasonable performance. We achieve that by introducing
-sparsity in the parameters of the \textit{Filter Layers}. Indeed, having a negative component in the $\theta$ parameter of the filter layer permamently disable its associated feature \gl{Maybe redundant ? we talked about that in the previous paragraph}
-. To obtain this sparsity, we simply redefine the loss function:
+we could train it directly and it would be equivalent to a normal neural
+network. However, our goal is to find the smallest network with reasonable
+performance. We achieve that by introducing sparsity in the parameters of the
+\textit{Filter Layers}, thus forcing the deactivation of neurons.
+%. Indeed, having a negative component in the $\theta$
+%parameter of the filter layer permamently disable its associated feature
+%\gl{Maybe redundant ? we talked about that in the previous paragraph} . 
+To obtain this sparsity, we simply redefine the loss function:
 
 \begin{equation}
   L'(x,y;\theta) = L(x, y) + \lambda|\theta|
 \end{equation}
 
-This choice come from the Lasso loss ~\cite{Tibshirani1996} and we use it for the same reason:
-it introduces sparsity. The bigger the $\lambda$ the more entries in $\theta$
-are set to zero, and since zero entries in $\theta$ correspond to dead neurons,
-lambda effectively control the number of neurons/channels in the entire
-network.
-Next, we explain how to implement ShrinkNets efficiently.
+The additional term $\lambda|\theta|$ introduces sparsity (see Lasso
+loss~\cite{Tibshirani1996}).
+%This choice comes from the Lasso loss ~\cite{Tibshirani1996} and we use it for
+%the same reason: it introduces sparsity. 
+The $\lambda$ parameter adjusts how aggressive the network deactivates neurons,
+with larger values indicating more aggressive deactivation. 
+%The bigger the $\lambda$ the more
+%entries in $\theta$ are set to zero, and 
+Because the entries in $\theta$ with a value of $0$
+correspond to dead neurons, $\lambda$ effectively controls the number of
+neurons/channels in the entire network.  
+Next, we explain how to implement
+ShrinkNets efficiently.
 
-\textbf{Software architecture\footnote{The code is available as Python/PyTorch
-    library on \url{http://github.com/mitdbg/fastdeepnets} \gl{Should we rename
-      the repository ?}}: }\textit{Filter Vectors} can easily be implemented in
-a few lines of code in many existing deep learning frameworks. However, in
-ShrinkNets, we assume that we start with obviously oversized networks. If
-disabled neurons are not quickly removed, the overhead might cause the training
-process to be significantly slower than classic neural networks. This is why we
-want to support what we call garbage collection: removing the weights in the
-layers that are responsible (or using) features that are disabled.  \par To be
-able to catpure this relationship between layers, we augmented \textit{Pytorch}
-~\cite{paszke2017automatic} (the framework we used as the
-foundation of our implementation) with a graph structure very similar to the
-one available in Keras ~\cite{chollet2015keras}.  In this graph, edges are
-effectively event hubs responsible for propagating \textit{feature removal}
-events to its endpoints. ShrinkNet layers are designed to emit and react to
-these events but also propagate the event further if has an impact at the other
-endpoint of the layer (input or output) \gl{What I mean here is: if the event
-  comes from the output, it might be propagated to the inputs, and the other
-  way around}.  \par This event-based implementation coordinated by edges makes
-it very easy to integrate new layers in the library.  We even provide automatic
-wrapping for layers from \textit{PyTorch} if they have no internal state. For
-more complex ones, we provide utilitaries that
-makes the implementation very concise.
+\textbf{Dynamic Network Resizing}
+It is possible to reduce the overhead of the training process by removing
+neurons as soon as they become deactivated.
+%If
+%disabled neurons are not quickly removed, the overhead might cause the training
+%process to be significantly slower than classic neural networks. 
+For that, we implemented a \emph{neural garbage collection} mechanism which
+prunes deactivated neurons on-the-fly, therefore reducing the processing time
+and memory overhead. To support this feature, it is crucial to understand the
+information flow between neurons and layers in the neural network. We achieve
+this by representing such information flow as a graph, in which edges indicate
+what action each node, i.e., neuron, must take. 
 
 \section{Evaluation}
-\subsection{Convergence}
 
-To demonstrate that the approach is viable, we will first show that Shrinking
-Networks converge properly. For this experiment we trained a one hidden layer
+We have implemented ShrinkNets, including the \emph{garbage collection}
+mechanism on top of \textit{PyTorch}~\cite{paszke2017automatic}, and we have
+made the software open source.\footnote{The code is available as Python/PyTorch
+library on \url{http://github.com/mitdbg/fastdeepnets} 
+%\gl{Should we rename the repository ?}
+}. We have then used our implementation to evaluate two crucial aspects of
+ShrinkNets, which we present next.
+
+%This is why we
+%want to support what we call garbage collection: removing the weights in the
+%layers that are responsible (or using) features that are disabled.  \par To be
+%able to catpure this relationship between layers, we augmented \textit{Pytorch}
+%~\cite{paszke2017automatic} (the framework we used as the
+%foundation of our implementation) with a graph structure very similar to the
+%one available in Keras ~\cite{chollet2015keras}.  In this graph, edges are
+%effectively event hubs responsible for propagating \textit{feature removal}
+%events to its endpoints. ShrinkNet layers are designed to emit and react to
+%these events but also propagate the event further if has an impact at the other
+%endpoint of the layer (input or output) \gl{What I mean here is: if the event
+%  comes from the output, it might be propagated to the inputs, and the other
+%  way around}.  \par This event-based implementation coordinated by edges makes
+%it very easy to integrate new layers in the library.  We even provide automatic
+%wrapping for layers from \textit{PyTorch} if they have no internal state. For
+%more complex ones, we provide utilitaries that
+%makes the implementation very concise.
+
+%\textbf{Software architecture
+%\footnote{The code is available as Python/PyTorch library on \url{http://github.com/mitdbg/fastdeepnets} \gl{Should we rename
+%      the repository ?}
+%}
+%: }\textit{Filter Vectors} can easily be implemented in
+%a few lines of code in many existing deep learning frameworks. However, in
+%ShrinkNets, we assume that we start with obviously oversized networks. 
+%
+
+
+\subsection{Does ShrinkNet converge?}
+
+%To demonstrate that the approach is viable, we will first show that Shrinking
+%Networks converge properly. For this experiment 
+We trained a one hidden layer
 neural network with one filter layer to control the number of hidden units. We
 initialized the models with $10000$ neurons and trained them on \texttt{MNIST}
-~\cite{Lecun1998} using different regularization factors ($\lambda$). We
-summarized the results in \autoref{convergence_plot}. We can see on this plot
-is that for a given $\lambda$ the number of hidden units seems to always
-converge to some value. It has two implications: it seems that $\lambda$ is, as
-we would think, a proxy of the network size (bigger $\lambda$ imply smaller
-networks). Secondly, it indicates that the  the regular spikes we see in the
-loss function that occur when neurons are disabled will eventually disappear
-because the number of neurons reach a plateau. \gl{I feel we should give a
-  conclusion for this paragraph but I am not sure what to say}
+~\cite{Lecun1998} using different values for $\lambda$.
+Figure~\autoref{convergence_plot} shows that
+%We
+%summarized the results in \autoref{convergence_plot}. We can see on this plot
+%is that for a given $\lambda$ the number of hidden units seems to always
+%converge to some value. It has two implications: it seems that 
+$\lambda$ works as a proxy for the network size,
+% as
+%we would think, a proxy of the network size 
+with bigger $\lambda$ implying smaller
+networks. More importantly, the figure helps us confirm that despite the regular
+spikes---which are caused by the dynamic disabling of neurons---ShrinkNets
+eventually converge.
+%we see in the
+%loss function that occur when neurons are disabled will eventually disappear
+%because the number of neurons reach a plateau. 
+%\gl{I feel we should give a
+%  conclusion for this paragraph but I am not sure what to say}
+
+\ra{stopped here}
+
 \begin{figure}
 \begin{center}
-\includegraphics[width=0.5\textwidth]{convergence}
+\includegraphics[width=0.9\columnwidth]{convergence}
 \caption{Evolution of the number of hidden units and loss over time on the \texttt{MNIST} dataset for different $\lambda$ values \label{convergence_plot}}
 \end{center}
 \end{figure}
@@ -296,7 +383,7 @@ models even outperforms the best model of the other techniques.
 
 \begin{figure}
 \begin{center}
-  \includegraphics[width=0.5\textwidth]{hyper_opt}
+  \includegraphics[width=0.9\columnwidth]{hyper_opt}
 \caption{Distributions of the testing accuracy for different training methods, datasets and architectures using random search\label{hyper_opt_res}}
 \end{center}
 \end{figure}
