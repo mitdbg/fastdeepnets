@@ -81,10 +81,6 @@ space.
 %However, we are still bound to use costly and sometimes complex methods to
 %find reasonable values for these hyper-parameters.
 
-\srm{In this paper, we describe ... -- need to give a high level idea of
-  solution, and its benefits.  Would be good to give your system/approach a
-  name.}
-
 In this paper we present a method to automatically find an appropriate network
 size from a single parameter, drastically reducing the hyper-parameter
 dimensionality. The key idea is to \emph{learn} the right network size at the
@@ -117,9 +113,6 @@ challenges:
 
 \section{ShrinkNets}
 
-\srm{Describe our key approach at a high level -- i.e., add a new layer to the
-network, called the {\it filter layer}, which ... }
-
 Our approach consists of starting the training process for the task of interest
 with an explicitly oversized network. Then, as training progresses, we learn
 which neurons are not contributing to learning the main task and remove them
@@ -150,9 +143,7 @@ next:
 
 %\subsection{Definition}
 
-\textbf{Filter Layer: } 
-
-Filter layers have weights in the range $[0,+\infty]$ and are placed after
+\textbf{Filter Layers: } They have weights in the range $[0,+\infty]$ and are placed after
 linear and convolutional layers of traditional deep networks \gl{This is how I
   used it but with the new implementation we can be more creative and put them
   anywhere, should we say "usually placed" insdead ?}. The \textit{Filter
@@ -161,12 +152,12 @@ linear and convolutional layers of traditional deep networks \gl{This is how I
 (or channels), and $D$ any additional dimension. This structure makes it
 compatible with fully connected layers with $n=0$ or convolutional layers with
 $n=2$. Their crucial property is a parameter $\theta \in \mathbb{R}^C$, defined
-as follows: \srm{Need to define B, C, D} \gl{=> done}.  
+as follows:
 
 \begin{equation} Filter(I;\theta) = I \circ \max(0, \theta) \end{equation}
 
-Where $\circ$ is the Hadamard product (pointwise multiplication) \gl{Should we
-  keep only one of them to be more concise ?}, and $\theta$ is expanded in all
+Where $\circ$ is the Hadamard product (pointwise multiplication \gl{Should we
+  keep only one of them to be more concise ?}), and $\theta$ is expanded in all
 dimensions except the second one to match the input size. It is easy to see
 that if for any $k$, if $\theta_k \leq 0$, the $k^{\text{th}}$ feature/channel
 will forever be $0$. When this happens, we say the Filter layer disables the
@@ -175,9 +166,6 @@ changing its output (we describe how we perform this removal below). We explain
 next how the weights of the Filter Layer are adjusted during training.
 
 %We can use this property to devise a training procedure.
-
-\srm{Give an English description of what this formalism
-achieves -- what does the filter layer do, why is it significant.}
 
 %To train networks we need start with a substantially oversized network, then we
 %insert \textit{Filter Layers}  (usually after every linear or convolutional
@@ -221,40 +209,33 @@ sparsity in the parameters of the \textit{Filter Layers}. Indeed, having a negat
 
 This choice come from the Lasso loss [ref] and we use it for the same reason:
 it introduces sparsity. The bigger the $\lambda$ the more entries in $\theta$
-are set to zer, and since zeros entries in $\theta$ correspond to dead neurons,
+are set to zer0, and since zero entries in $\theta$ correspond to dead neurons,
 lambda effectively control the number of neurons/channels in the entire
-network. \srm{Again give some intuitive description of what is novel /
-  important about this choice of loss function and learning process.  It's hard 
-  to understand what is interesting/important about what you have done without
-  you explicitly calling it out.} \gl{Is it better this way ?}
-
+network.
 Next, we explain how to implement ShrinkNets efficiently.
 
-\section{Software architecture}
-
-\ra{this can be shorter. I'd add it as a third paragraph above, immediately
-above the eval}
-
-\gl{Here is a shorter (clearer ?) version:}
-
-\par \textit{Filter Vectors} can easily be implemented in a few lines of code
-in many existing deep learning frameworks. However, in ShrinkNets we assume
-that we start with obviously oversized networks. If disabled neurons are not
-quickly removed, the overhead might caused the training process to be
-significantly slower than classic neural networks. This is why we want to
-support what we call garbage collection: removing the weights in the layers
-that are responsible(or using) features that are disabled.
-\par To be able to catpure this relationship between layers we agumented
-\textit{Pytorch} (the framework we used as the foundation of our implementation)
-with a graph structure very similar to the one available in Keras [ref].
-In this graph edges are effectively event hubs responsible for propagating
-\textit{feature removal} events to subscribing layers. ShrinkNet layers are
-agumented to emit and react to these events but also propagate the event
-further if has an impact at the other endpoint of the layer (input or output).
-\par This event-based implementation coordinated by edges makes it very easy
-to integrate new layers in the library. We even provide automatic wrapping
-for layers from pytorch if they have no internal state. For more complex ones,
-we provide utilitaries that makes the implementation very concise.
+\textbf{Software architecture\footnote{The code is available as Python/PyTorch
+    library on \url{http://github.com/mitdbg/fastdeepnets} \gl{Should we rename
+      the repository ?}}: }\textit{Filter Vectors} can easily be implemented in
+a few lines of code in many existing deep learning frameworks. However, in
+ShrinkNets, we assume that we start with obviously oversized networks. If
+disabled neurons are not quickly removed, the overhead might cause the training
+process to be significantly slower than classic neural networks. This is why we
+want to support what we call garbage collection: removing the weights in the
+layers that are responsible (or using) features that are disabled.  \par To be
+able to catpure this relationship between layers, we agumented \textit{Pytorch}
+(the framework we used as the foundation of our implementation) with a graph
+structure very similar to the one available in Keras [ref].  In this graph,
+edges are effectively event hubs responsible for propagating \textit{feature
+  removal} events to its endpoints. ShrinkNet layers are designed to emit and
+react to these events but also propagate the event further if has an impact at
+the other endpoint of the layer (input or output) \gl{What I mean here is: if
+  the event comes from the output, it might be propagated to the inputs, and
+  the other way around}.  \par This event-based implementation coordinated by
+edges makes it very easy to integrate new layers in the library. We even
+provide automatic wrapping for layers from \textit{PyTorch} if they have no
+internal state. For more complex ones, we provide utilitaries that makes the
+implementation very concise.
 
 \section{Evaluation}
 \subsection{Convergence}
@@ -280,27 +261,26 @@ I am not sure what to say}
 
 \subsection{Relevance in the context of hyper-parameter optimization}
 
-\gl{I rewrote the entire section}
-
 One of our main goal is to help finding neural network architectures that
-perform reasonably well faster than existing techniques. For simplicity,
-we will try to see how ShrinkNets perform when doing random search. However,
-we believe that the results generalize to more complex methods, most of them
-might actually benefit a lot from the reduction in the dimensionality of the
-hyper-parameter space.
+perform reasonably well faster than existing techniques. For simplicity, we
+will try to see how ShrinkNets perform when doing random search over a sub set
+of the hyper-parameter space (we will fix everything except the size-related
+parameters). However, we believe that the results generalize to more complex
+methods, most of them might actually benefit a lot from the reduction of the
+dimensionality of the hyper-parameter space.
 
-\par To isolate the effect of ShrinkNets we will consider very simple architectures
-We will be using multi-layer perceptrons (with three hidden layers) and
-convolutional neural networks (With the LeNet-5 architecture). For this experiment
-we will assume we have no information about the size except an upper bound of
-$50$ channels per convolutional layer and $5000$ neuron for fully connected layers.
-We try to find the appropriate size of the network using classical neural networks
-and ShrinkNets. To make sure that we are as fair as possible and since one might
-argue that ShrinkNets is also regularizing the network in addition to finding the
-size, we will also considered regualrized classic networks using the most commonly
-used technique the $L_2$ penalty [ref].
+\par To isolate the effect of ShrinkNets we will consider two very simple
+architectures: multi-layer perceptrons (with three hidden layers) and the
+\textit{LeNet-5} model. For this experiment we assume we have no prior
+information about the size except an upper bound of $50$ channels per
+convolutional layer and $5000$ neuron for fully connected layers.  We try to
+find the appropriate size of the network using classical neural networks and
+ShrinkNets. To make sure that we are as fair as possible and since one might
+argue that ShrinkNets is also regularizing the network in addition to finding
+the size, we will also considered regularized classic networks using the most
+commonly used technique: the $L_2$ penalty [ref].
 \par The experiment consist in sampling parameters randomly for each class of
-network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation accuracy and evaluate it
+network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation set and evaluate it
 on the testing set. We repeat the process for 50 models. This evaluation was done
 on \texttt{MNIST} [ref], \texttt{FashionMNIST} [ref] and \texttt{CIFAR10} [ref]. The distribution of the testing accuracy we obtained is summarized on \autoref{hyper_opt_res}.
 
@@ -308,7 +288,7 @@ We can see that the distributions for ShrinkNets are consistently better than th
 others for all datasets and both architectures. It shows that by training fewer
 networks, we are likely to obtain on-par or even better models which effectively
 reduces the cost of hyper-parameter optimization. In some cases the best ShrinkNets
-models outperforms the best model of the other techniques.
+models even outperforms the best model of the other techniques.
 
 \begin{figure}
 \begin{center}
@@ -319,65 +299,38 @@ models outperforms the best model of the other techniques.
 
 \section{Related Work}
 
-\ra{I'd remove this paragraph because we used it in the motivation already}
-\par In the literature we can see different ways of approaching this issue. The
-first one is to select parameters, train the model, evaluate it, repeat and pick
-the best one. There are many different ways of selecting parameters: random
-search [ref], grid search [ref], meta gradient descent [ref], Parsen trees[ref],
-Gaussian processes [ref] etc... but they all suffer from one major drawback: we
-have to train and evaluate a very large number of models; and even if some
-algorithms allow parallel evaluations [ref] to reduce the overall training time,
-the hardware and energy cost is still very significant.  
-
-\ra{I'd argue these techniques are aimed to improve inference time and not to
-avoid hyper-parameter optimization}
-\par To reduce the number of models trained, another approach is to train a
-slightly bigger model and after convergence, remove as many parameters as
-possible without impacting the performance of the model. Notable contributions
-are Optimal Brain Damage [ref], Deep Compression [ref], and Group sparsity [ref]
-(this one is especially related to this article). These techniques are very
-interesting but they still require a reasonable network size to start with, so
-they usually have to be combined with classic hyper-optimization techniques.  
-
-\srm{How is this shrinking
-approach different than previous approaches like Optimal Brain Damage, Deep
-Compression,e tc?} 
-
-\par However, some recent contributions like Non-Parametric Neural Netowrks
-[ref] and [ref] try to learn the network size (width for the former and depth
-for the latter) during the training process and without any prior assumption
-about the network size. \ra{revise next}This method dynamically grows and shrinks the network
-over time. Though this seems to be an attractive property to have, during our
-experiments and according to their results, models are very slow to train and
-sometimes converge to suboptimal solutions. Their method also requires a new
-optimizer \textit{AdaRad}. \ra{explain how difficult is to get the optimizer
-stable. that's a drawback of the method} \ra{Instead, ShrinkNets work out of the
-box with existing libraries and does not need any changes to the optimizer.}
-
-\srm{Give a short sentence about how our approach is
-different than these previous approaches.} 
-
-\section{Future work}
-
-\ra{this can be shorted, and used as conclusions}
-
-\par Even though the firsts results this technique yields seem promising, there
-are many area that we could explore to improve it. In the current implementation
-we only "learn" the number of features (neurons or channels). We could try to
-augment it with dynamic number of layers as seen in [ref] to be able to
-determine the entire architecture.  \par We saw on Figure \ref{convergence_plot}
-that the loss temporarily suffers from the removal of neurons. It is likely that
-the loss would be more stable if the number of neurons converged faster or
-neurons disappeared slower. For this reason we plan to explore proximal gradient
-methods to optimize the filter vectors and/or randomize neuron removals.  \par
-During our evaluation we picked small datasets mainly to be able to train many
-models and have statistically significant distributions. With more computation
-resources and time, we could see if it generalizes to bigger datasets and other
-architectures like \texttt{ResNet} [ref] (small modifications to the existing
-code base are required to support them)
+\par There are many methods in the litterature that try to simplify the neural
+network structure. Most of them focuses on removing connections (eg: [ref],
+[ref]).  However, most hardware (GPU's, TPUS, TensorCores) do not really
+leverage sparsity in the connections efficiently. On the other side, ShrinkNets
+and some others [ref] and [ref] try to remove entire neuron instead of
+connections. This is very usefull because it reduces the size of the matrices,
+producing speed-up on every device. ShrinkNets improves on [ref] because it
+removes neurons during training, speeding up the rest of the process and beats
+[ref] on convergence speed and because it does not need to change the
+optimizer. To the best of our knowledge this is also the first contribution
+that tries to learn the number of channels of a convolutional neural network.
 
 \section{Conclusion}
-Do the conclusion at the end
+
+In this paper we presented a novel technique to guess a resonable network size
+based on single parameter $\lambda$ that control the tradeof between loss and
+the size. We demonstrated that it works both on fully connected networks and
+convolutional neural networks.  Even though the firsts results seem promising,
+there are many ways we could improve. In the current
+implementation we only "learn" the number of features (neurons or channels). We
+could try to augment it with dynamic number of layers as seen in [ref] to be
+able to determine the entire architecture. \par We saw on Figure
+\ref{convergence_plot} that the loss temporarily suffers from the removal of
+neurons. It is likely that the loss would be more stable if the number of
+neurons converged faster or neurons disappeared slower. For this reason we plan
+to explore proximal gradient methods to optimize the filter vectors and/or
+randomize neuron removals. \par During our evaluation we picked small datasets
+mainly to be able to train many models and have statistically significant
+distributions. With more computation resources and time, we could see if it
+generalizes to bigger datasets and other architectures like \texttt{ResNet}
+[ref] (small modifications to the existing code base are required to support
+them)
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{sample-bibliography}
