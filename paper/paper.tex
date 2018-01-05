@@ -67,16 +67,17 @@
 When designing Neural Networks, finding the appropriate size (width and depth)
 is key. In particular, these hyper parameters have a strong correlation with
 over/underfitting \srm{give reference} \gl{I did some litterature review and
-  actually this statement is quite controversial, should we rephrase ?}. The
-main problem is that we have no reliable way to find them [ref]. Decades of
-experimentation led to some heuristics [ref] that try to prune that immense
-space of possible network sizes.  For example, researchers have used strategies
-such as random search \gl{Should we also move the references here if we remove
-  the pargraph from the related work ?}, meta-gradient descent and parser trees
-to reduce find good parameters without exhaustively exploring the entire
-hyper-parameter space. Although these strategies help with finding a good set
-of hyper-parameters, they still require a compute-intensive search of the
-space.
+  actually this statement is quite controversial, should we rephrase ?}. We
+have no reliable way to find them but decades of experimentation led to some
+heuristics ~\cite{Bengio2012a} that try to prune that immense space of possible
+network sizes and suggest range of values to explore. To select the best
+candidates , researchers have used strategies such as random search \gl{Should
+  we also move the references here if we remove the pargraph from the related
+  work ?}, meta-gradient descent ~\cite{Pedregosa2016} and Parzen Estimators
+~\cite{Bergstra2011a} to reduce find good parameters without exhaustively
+exploring the entire hyper-parameter space. Although these strategies help with
+finding a good set of hyper-parameters, they still require a compute-intensive
+search of the space.
 
 %However, we are still bound to use costly and sometimes complex methods to
 %find reasonable values for these hyper-parameters.
@@ -207,7 +208,7 @@ sparsity in the parameters of the \textit{Filter Layers}. Indeed, having a negat
   L'(x,y;\theta) = L(x, y) + \lambda|\theta|
 \end{equation}
 
-This choice come from the Lasso loss [ref] and we use it for the same reason:
+This choice come from the Lasso loss ~\cite{Tibshirani1996} and we use it for the same reason:
 it introduces sparsity. The bigger the $\lambda$ the more entries in $\theta$
 are set to zer0, and since zero entries in $\theta$ correspond to dead neurons,
 lambda effectively control the number of neurons/channels in the entire
@@ -224,18 +225,19 @@ process to be significantly slower than classic neural networks. This is why we
 want to support what we call garbage collection: removing the weights in the
 layers that are responsible (or using) features that are disabled.  \par To be
 able to catpure this relationship between layers, we agumented \textit{Pytorch}
-(the framework we used as the foundation of our implementation) with a graph
-structure very similar to the one available in Keras [ref].  In this graph,
-edges are effectively event hubs responsible for propagating \textit{feature
-  removal} events to its endpoints. ShrinkNet layers are designed to emit and
-react to these events but also propagate the event further if has an impact at
-the other endpoint of the layer (input or output) \gl{What I mean here is: if
-  the event comes from the output, it might be propagated to the inputs, and
-  the other way around}.  \par This event-based implementation coordinated by
-edges makes it very easy to integrate new layers in the library. We even
-provide automatic wrapping for layers from \textit{PyTorch} if they have no
-internal state. For more complex ones, we provide utilitaries that makes the
-implementation very concise.
+~\cite{paszke2017automatic} (the framework we used as the
+foundation of our implementation) with a graph structure very similar to the
+one available in Keras ~\cite{chollet2015keras}.  In this graph, edges are
+effectively event hubs responsible for propagating \textit{feature removal}
+events to its endpoints. ShrinkNet layers are designed to emit and react to
+these events but also propagate the event further if has an impact at the other
+endpoint of the layer (input or output) \gl{What I mean here is: if the event
+  comes from the output, it might be propagated to the inputs, and the other
+  way around}.  \par This event-based implementation coordinated by edges makes
+it very easy to integrate new layers in the library.  We even provide automatic
+wrapping for layers from \textit{PyTorch} if they have no internal state. For
+more complex ones, we provide utilitaries that
+makes the implementation very concise.
 
 \section{Evaluation}
 \subsection{Convergence}
@@ -244,13 +246,15 @@ To demonstrate that the approach is viable, we will first show that Shrinking
 Networks converge properly. For this experiment we trained a one hidden layer
 neural network with one filter layer to control the number of hidden units. We
 initialized the models with $10000$ neurons and trained them on \texttt{MNIST}
-using different regularization factors ($\lambda$). We summarized the results
-in \autoref{convergence_plot}. We can see on this plot is that
-for a given $\lambda$ the number of hidden units seems to always converge to
-some value. It has two implications: it seems that $\lambda$ is, as we would think,
-a proxy of the network size (bigger $\lambda$ imply smaller networks). Secondly,
-it indicates that the spikes we see in the regular spikes we see in the loss that occur when neurons are disabled will eventually disapear because the number of neurons reach a plateau. \gl{I feel we should give a conclusion for this paragraph but
-I am not sure what to say}
+~\cite{Lecun1998} using different regularization factors ($\lambda$). We
+summarized the results in \autoref{convergence_plot}. We can see on this plot
+is that for a given $\lambda$ the number of hidden units seems to always
+converge to some value. It has two implications: it seems that $\lambda$ is, as
+we would think, a proxy of the network size (bigger $\lambda$ imply smaller
+networks). Secondly, it indicates that the spikes we see in the regular spikes
+we see in the loss that occur when neurons are disabled will eventually
+disapear because the number of neurons reach a plateau. \gl{I feel we should
+  give a conclusion for this paragraph but I am not sure what to say}
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.5\textwidth]{convergence}
@@ -271,18 +275,18 @@ dimensionality of the hyper-parameter space.
 
 \par To isolate the effect of ShrinkNets we will consider two very simple
 architectures: multi-layer perceptrons (with three hidden layers) and the
-\textit{LeNet-5} model. For this experiment we assume we have no prior
+\textit{LeNet-5} model ~\cite{Lecun1998}. For this experiment we assume we have no prior
 information about the size except an upper bound of $50$ channels per
 convolutional layer and $5000$ neuron for fully connected layers.  We try to
 find the appropriate size of the network using classical neural networks and
 ShrinkNets. To make sure that we are as fair as possible and since one might
 argue that ShrinkNets is also regularizing the network in addition to finding
 the size, we will also considered regularized classic networks using the most
-commonly used technique: the $L_2$ penalty [ref].
+commonly used technique: the $L_2$ penalty ~\cite{Ng2004}.
 \par The experiment consist in sampling parameters randomly for each class of
 network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation set and evaluate it
 on the testing set. We repeat the process for 50 models. This evaluation was done
-on \texttt{MNIST} [ref], \texttt{FashionMNIST} [ref] and \texttt{CIFAR10} [ref]. The distribution of the testing accuracy we obtained is summarized on \autoref{hyper_opt_res}.
+on \texttt{MNIST} ~\cite{Lecun1998}, \texttt{FashionMNIST} ~\cite{Xiao2017} and \texttt{CIFAR10} ~\cite{Krizhevsky2009}. The distribution of the testing accuracy we obtained is summarized on \autoref{hyper_opt_res}.
 
 We can see that the distributions for ShrinkNets are consistently better than the
 others for all datasets and both architectures. It shows that by training fewer
@@ -300,16 +304,17 @@ models even outperforms the best model of the other techniques.
 \section{Related Work}
 
 \par There are many methods in the litterature that try to simplify the neural
-network structure. Most of them focuses on removing connections (eg: [ref],
-[ref]).  However, most hardware (GPU's, TPUS, TensorCores) do not really
-leverage sparsity in the connections efficiently. On the other side, ShrinkNets
-and some others [ref] and [ref] try to remove entire neuron instead of
+network structure. Most of them focuses on removing connections (eg: ~\cite{Cun},
+~\cite{Han2015}).  However, most hardware (GPU's, TPUS ~\cite{Jouppi2017}, TensorCores) do not really
+leverage sparsity in the connections efficiently (as explained in ~\cite{Han2016}). On the other side, ShrinkNets
+and some others ~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neuron instead of
 connections. This is very usefull because it reduces the size of the matrices,
-producing speed-up on every device. ShrinkNets improves on [ref] because it
-removes neurons during training, speeding up the rest of the process and beats
-[ref] on convergence speed and because it does not need to change the
-optimizer. To the best of our knowledge this is also the first contribution
-that tries to learn the number of channels of a convolutional neural network.
+producing speed-up on every device. ShrinkNets improves on
+~\cite{Scardapane2017} because it removes neurons during training, speeding up
+the rest of the process and beats ~\cite{Philipp} on convergence speed and because it
+does not need to change the optimizer. To the best of our knowledge this is
+also the first contribution that tries to learn the number of channels of a
+convolutional neural network.
 
 \section{Conclusion}
 
@@ -317,22 +322,21 @@ In this paper we presented a novel technique to guess a resonable network size
 based on single parameter $\lambda$ that control the tradeof between loss and
 the size. We demonstrated that it works both on fully connected networks and
 convolutional neural networks.  Even though the firsts results seem promising,
-there are many ways we could improve. In the current
-implementation we only "learn" the number of features (neurons or channels). We
-could try to augment it with dynamic number of layers as seen in [ref] to be
-able to determine the entire architecture. \par We saw on Figure
-\ref{convergence_plot} that the loss temporarily suffers from the removal of
-neurons. It is likely that the loss would be more stable if the number of
-neurons converged faster or neurons disappeared slower. For this reason we plan
-to explore proximal gradient methods to optimize the filter vectors and/or
-randomize neuron removals. \par During our evaluation we picked small datasets
-mainly to be able to train many models and have statistically significant
-distributions. With more computation resources and time, we could see if it
-generalizes to bigger datasets and other architectures like \texttt{ResNet}
-[ref] (small modifications to the existing code base are required to support
-them)
+there are many ways we could improve. In the current implementation we only
+"learn" the number of features (neurons or channels). We could try to augment
+it with dynamic number of layers as seen in ~\cite{meier} to be able to
+determine the entire architecture. \par We saw on Figure \ref{convergence_plot}
+that the loss temporarily suffers from the removal of neurons. It is likely
+that the loss would be more stable if the number of neurons converged faster or
+neurons disappeared slower. For this reason we plan to explore proximal
+gradient methods to optimize the filter vectors and/or randomize neuron
+removals. \par During our evaluation we picked small datasets mainly to be able
+to train many models and have statistically significant distributions. With
+more computation resources and time, we could see if it generalizes to bigger
+datasets and other architectures like \texttt{ResNet} ~\cite{He2016} (small
+modifications to the existing code base are required to support them)
 
 \bibliographystyle{ACM-Reference-Format}
-\bibliography{sample-bibliography}
+\bibliography{bib,custom}
 
 \end{document}
