@@ -82,7 +82,7 @@ for m, lamb in zip(reversed(markers), reversed(lambdas)):
     file = load_file(
         './experiments_results/conv_MNIST_bs256_lamb%s.dat' % lamb)
     ax_loss.plot(np.arange(0, 100, 1 / len(file) * 100), file['loss'], m + '-', markevery=int(len(file) / 5))
-ax_size.legend(handles=lines , labels=reversed(tex_labels) ,loc='lower center', bbox_to_anchor=(0.5, 1), ncol=3, columnspacing=0.5)
-f.set_size_inches(5, 5)
+ax_loss.legend(handles=lines , labels=reversed(tex_labels) ,loc='lower center', bbox_to_anchor=(0.595, 0.68), ncol=3, columnspacing=0.5)
+f.set_size_inches(5, 4.5)
 plt.show()
 plt.savefig('convergence.pdf', bbox_inches='tight')
