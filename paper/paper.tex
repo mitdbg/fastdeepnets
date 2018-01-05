@@ -350,80 +350,113 @@ eventually converge.
 
 \subsection{Does ShrinkNet find good networks?}
 
-One of our main goals is to show that ShrinkNets quickly finds neural network architectures that
-perform well. To show this, we ran a simple experiment where we compare ShrinkNets
-to other network tuning methods,
- using random search over the
-hyper-parameters that control the network size ($\lambda$ in the case of ShrinkNets). 
-Despite the simple nature of this experiment, 
-we believe that the results generalize to more complex
-search methods, many of of which will actually benefit
-dimensionality of the hyper-parameter space in the ShrinkNets approach.
+In this experiment we want to find an appropriate network size for two network
+architectures, a multi-layer perceptron (MLP) and the \textit{LeNet-5}
+model~\cite{Lecun1998}. We have no prior information about the network size, but
+we set an upper bound of $50$ channels per convolutional layer and $5000$
+neurons for fully connected layers. We then use random search to vary the
+parameters that determine the network size, i.e., $\lambda$ in the case of
+ShrinkNets, random selection of depth and witdh in the case of \textsf{Fixed}
+and similar to previous but adding a $L_2$ penalty~\cite{Ng2004}
+(\textsf{Fixed-L2}).  We train all variants on \texttt{MNIST}~\cite{Lecun1998},
+\texttt{FashionMNIST}~\cite{Xiao2017} and
+\texttt{CIFAR10}~\cite{Krizhevsky2009}. We use the same number of epochs, 100
+for MLPs and 200 for \textit{LeNet-5}. We select the epoch that performed the
+best on the validation set and evaluated it on the testing set. We repeat this
+process 50 times and show the distribution of the testing accuracy in
+\autoref{hyper_opt_res}.
 
-To isolate the effect of ShrinkNets we will consider two very simple
-architectures: multi-layer perceptrons (with three hidden layers) and the
-\textit{LeNet-5} model ~\cite{Lecun1998}.
-For this experiment we assume we have no prior
-information about the size except an upper bound of $50$ channels per
-convolutional layer and $5000$ neurons for fully connected layers.  We try to
-find the appropriate size of the network using classical network-size optimization methods
- and
-ShrinkNets. For the classical methods we use: i) purely random selection of network size parameters (``Fixed''), as well as hyper-parameter
-regularization over the network size parameters using  $L_2$ penalty ~\cite{Ng2004} 
-(``Fixed-L2'').
-In the experiment, we randomly sample parameters for each class of
-network and  train them for the same number of epochs (100 for MLPs and 200 for CNNs). We picked the epoch that performed the best on the validation set and evaluated it
-on the testing set. We repeat the process for 50 iterations. This evaluation was done
-on \texttt{MNIST} ~\cite{Lecun1998}, \texttt{FashionMNIST} ~\cite{Xiao2017} and \texttt{CIFAR10} ~\cite{Krizhevsky2009}. The distribution of the testing accuracy we obtained is summarized in \autoref{hyper_opt_res}.
+The results in the figure show that ShrinkNets finds better networks with fewer
+training iterations than the other methods, because it achieves higher median 
+and less variable accuracies. Despite the simple nature of this experiment, we
+believe that the results generalize to more complex search methods.
+\srm{Note something about
+how we expect this to bear out even with methods other than random search?}
 
-We can see that in all cases the distributions for ShrinkNets have substantially higher medians are are less variable than the other architectures (the best model is not always found by ShrinkNets, but this is likely an artifact of our randomized search process).
-This shows that ShrinkNets can find better networks with fewer training iterations than existing methods. \srm{Note something about how we expect this to bear out even with methods other than random search?}
+%the distributions for ShrinkNets have higher
+%medians and are less variable than the others. ShrinkNets can find better
+%networks with fewer training iterations than the other methods
+%
+%We can see that in all cases the distributions for ShrinkNets have substantially
+%higher medians are are less variable than the other architectures (the best
+%model is not always found by ShrinkNets, but this is likely an artifact of our
+%randomized search process).  This shows that ShrinkNets can find better networks
+%with fewer training iterations than existing methods. 
+
+%One of our main goals is to show that ShrinkNets quickly finds neural network
+%architectures that perform well. To show this, we ran a simple experiment where
+%we compare ShrinkNets to other network tuning methods, using random search over
+%the hyper-parameters that control the network size ($\lambda$ in the case of
+%ShrinkNets).  Despite the simple nature of this experiment, we believe that the
+%results generalize to more complex search methods, many of of which will
+%actually benefit dimensionality of the hyper-parameter space in the ShrinkNets
+%approach.
+%
+%To isolate the effect of ShrinkNets we will consider two very simple
+%architectures: multi-layer perceptrons (with three hidden layers) and the
+%\textit{LeNet-5} model ~\cite{Lecun1998}.  For this experiment we assume we have
+%no prior information about the size except an upper bound of $50$ channels per
+%convolutional layer and $5000$ neurons for fully connected layers.  We try to
+%find the appropriate size of the network using classical network-size
+%optimization methods and ShrinkNets. For the classical methods we use: i) purely
+%random selection of network size parameters (``Fixed''), as well as
+%hyper-parameter regularization over the network size parameters using  $L_2$
+%penalty ~\cite{Ng2004} (``Fixed-L2'').  In the experiment, 
+%we randomly sample
+%parameters for each class of network and  train them for the same number of
+%epochs (100 for MLPs and 200 for CNNs). We picked the epoch that performed the
+%best on the validation set and evaluated it on the testing set. We repeat the
+%process for 50 iterations. This evaluation was done on \texttt{MNIST}
+%~\cite{Lecun1998}, \texttt{FashionMNIST} ~\cite{Xiao2017} and \texttt{CIFAR10}
+%~\cite{Krizhevsky2009}. The distribution of the testing accuracy we obtained is
+%summarized in \autoref{hyper_opt_res}.
 
 \begin{figure}
 \vspace{-.2in}
 \begin{center}
   \includegraphics[width=0.9\columnwidth]{hyper_opt}
   \vspace{-.2in}
-\caption{Distributions of the testing accuracy for different training methods, datasets and architectures using random search\label{hyper_opt_res}}
+\caption{Distributions of testing accuracy for different training methods, datasets and architectures using random search\label{hyper_opt_res}}
 \vspace{-.2in}
 \end{center}
 \end{figure}
 
 \section{Related Work}
 
-\par There are many methods in the literature that aim to simplify 
-network structure. Most of them focuses on removing connections (eg: ~\cite{Cun},
-~\cite{Han2015}).  However, most hardware (GPU's, TPUS ~\cite{Jouppi2017}, TensorCores) do not really
-leverage sparsity in the connections efficiently (as explained in ~\cite{Han2016}). On the other side, ShrinkNets
-and some others ~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neurons instead of
-connections. This is very useful because it reduces the size of the matrices,
+There are many methods in the literature that aim to simplify network
+structure. Most of them focuses on removing connections (eg: ~\cite{Cun},
+~\cite{Han2015}).  \ra{not sure the following is relevant. Instead, just
+contrast with the approach in this paper} However, most hardware (GPU's, TPUS ~\cite{Jouppi2017},
+TensorCores) do not really leverage sparsity in the connections efficiently (as
+explained in ~\cite{Han2016}). On the other side, ShrinkNets and some others
+~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neurons instead
+of connections. This is very useful because it reduces the size of the matrices,
 producing speed-up on every device. ShrinkNets improves on
 ~\cite{Scardapane2017} because it removes neurons during training, speeding up
-the rest of the process.  Further it outperforms~\cite{Philipp} on convergence speed and because it does not need to change the optimizer. To the best of our knowledge this is
-also the first work that tries to learn the number of channels in a
-convolutional neural network.
+the rest of the process. Further it outperforms~\cite{Philipp} on convergence
+speed and because it does not need to change the optimizer. To the best of our
+knowledge this is also the first work that tries to learn the number of channels
+in a convolutional neural network.
 
 \section{Conclusion}
-
-In this paper we presented a novel technique to guess a reasonable network size
-based on single parameter $\lambda$ that control the tradeoff between loss and
-network size. We demonstrated that ShrinkNets works both on fully connected networks and
-convolutional neural networks.  Although the initial results are promising,
-there are many additional avenues to explore. In the current implementation we only
-``learn'' the number of features (neurons or channels). We plan to augment
-this with a dynamic number of layers as seen in ~\cite{meier} to be able to
-determine the entire architecture. Further, as shown in Figure \ref{convergence_plot}
-that the loss temporarily suffers from the removal of neurons. It is likely
-that the loss would be more stable if the number of neurons converged faster or
-neurons disappeared more slowly. For this reason we plan to explore proximal
-gradient methods to optimize the filter vectors and/or randomize neuron
-removals. Finally, during our evaluation we picked small datasets mainly to be able
-to train many models and have statistically significant distributions. We 
-plan to verify that our approach
- see if it generalizes to bigger
-datasets and other architectures like \texttt{ResNet} ~\cite{He2016}, which is possible
-with small
-modifications to our existing code base.
+In this paper we presented a novel technique to guess a
+reasonable network size based on single parameter $\lambda$ that control the
+tradeoff between loss and network size. We demonstrated that ShrinkNets works
+both on fully connected networks and convolutional neural networks.  Although
+the initial results are promising, there are many additional avenues to explore.
+In the current implementation we only ``learn'' the number of features (neurons
+or channels).  We plan to augment this with a dynamic number of layers as seen
+in ~\cite{meier} to be able to determine the entire architecture. Further, as
+shown in Figure \ref{convergence_plot} that the loss temporarily suffers from
+the removal of neurons. It is likely that the loss would be more stable if the
+number of neurons converged faster or neurons disappeared more slowly. For this
+reason we plan to explore proximal gradient methods to optimize the filter
+vectors and/or randomize neuron removals. Finally, during our evaluation we
+picked small datasets mainly to be able to train many models and have
+statistically significant distributions. We plan to verify that our approach see
+if it generalizes to bigger datasets and other architectures like
+\texttt{ResNet} ~\cite{He2016}, which is possible with small modifications to
+our existing code base.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{bib,custom}
