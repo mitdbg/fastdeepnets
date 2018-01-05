@@ -9,9 +9,9 @@ rc('font',**{'family':'serif','serif':['Palatino']})
 rc('text', usetex=True)
 
 nice_boundaries = {
-    'MNIST': (94.5, 99),
-    'FashionMNIST': (80, 91),
-    'CIFAR10': (45, 56)
+    'MNIST': (97, 98.75),
+    'FashionMNIST': (86, 90),
+    'CIFAR10': (46, 56)
 }
 
 conv_nice_boundaries = {
@@ -47,12 +47,16 @@ def load_files(dataset, mode, max_samples=50, conv=False):
     # assert len(all_files) == max_samples, "Not enough experiments"
     return np.stack([load_single_file(f) for f in all_files])
 
-for conv in [True]:
+for conv in [True, False]:
+    if conv:
+        print("Convolutional:")
+    else:
+        print("Fully Connected")
     for dataset in nice_boundaries.keys():
         print(dataset)
         for mode in modes:
             infos = load_files(dataset, mode, 50000, conv)[:, [1, 3]]
-            bests_indices = infos[:, 0].argsort()[::-1]
+            bests_indices = infos[:, 0].argsort()[::-1][:10]
             res = np.percentile(infos[bests_indices], 50, axis=0)
             print('\t'.join(map(str, [mode] + list(res))))
 
@@ -60,7 +64,9 @@ for conv in [True]:
 def sub_plot(ax, dataset, first, conv=False, ff=False):
     try:
         infos = [load_files(dataset, mode, 50, conv)[:, 2] * 100 for mode in modes]
-        result = ax.boxplot(infos, patch_artist=True, widths=0.7)
+        result = ax.boxplot(infos, patch_artist=True, widths=0.7,
+                            medianprops={'color': (250/255, 49/255,0, 1), 'linewidth': 2}
+                            )
     except:
         result = {'boxes': []}
         pass
