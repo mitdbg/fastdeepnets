@@ -73,11 +73,11 @@ heuristics ~\cite{Bengio2012a} that try to prune that immense space of possible
 network sizes and suggest range of values to explore. To select the best
 candidates , researchers have used strategies such as random search \gl{Should
   we also move the references here if we remove the pargraph from the related
-  work ?}, meta-gradient descent ~\cite{Pedregosa2016} and Parzen Estimators
-~\cite{Bergstra2011a} to reduce find good parameters without exhaustively
-exploring the entire hyper-parameter space. Although these strategies help with
-finding a good set of hyper-parameters, they still require a compute-intensive
-search of the space.
+  work ?}, meta-gradient descent ~\cite{Pedregosa2016} , gaussian processes
+~\cite{Bergstra2011a}, and Parzen Estimators ~\cite{Bergstra2011a} to reduce
+find good parameters without exhaustively exploring the entire hyper-parameter
+space. Although these strategies help with finding a good set of
+hyper-parameters, they still require a compute-intensive search of the space.
 
 %However, we are still bound to use costly and sometimes complex methods to
 %find reasonable values for these hyper-parameters.
@@ -210,7 +210,7 @@ sparsity in the parameters of the \textit{Filter Layers}. Indeed, having a negat
 
 This choice come from the Lasso loss ~\cite{Tibshirani1996} and we use it for the same reason:
 it introduces sparsity. The bigger the $\lambda$ the more entries in $\theta$
-are set to zer0, and since zero entries in $\theta$ correspond to dead neurons,
+are set to zero, and since zero entries in $\theta$ correspond to dead neurons,
 lambda effectively control the number of neurons/channels in the entire
 network.
 Next, we explain how to implement ShrinkNets efficiently.
@@ -224,7 +224,7 @@ disabled neurons are not quickly removed, the overhead might cause the training
 process to be significantly slower than classic neural networks. This is why we
 want to support what we call garbage collection: removing the weights in the
 layers that are responsible (or using) features that are disabled.  \par To be
-able to catpure this relationship between layers, we agumented \textit{Pytorch}
+able to catpure this relationship between layers, we augmented \textit{Pytorch}
 ~\cite{paszke2017automatic} (the framework we used as the
 foundation of our implementation) with a graph structure very similar to the
 one available in Keras ~\cite{chollet2015keras}.  In this graph, edges are
@@ -251,10 +251,10 @@ summarized the results in \autoref{convergence_plot}. We can see on this plot
 is that for a given $\lambda$ the number of hidden units seems to always
 converge to some value. It has two implications: it seems that $\lambda$ is, as
 we would think, a proxy of the network size (bigger $\lambda$ imply smaller
-networks). Secondly, it indicates that the spikes we see in the regular spikes
-we see in the loss that occur when neurons are disabled will eventually
-disapear because the number of neurons reach a plateau. \gl{I feel we should
-  give a conclusion for this paragraph but I am not sure what to say}
+networks). Secondly, it indicates that the  the regular spikes we see in the
+loss function that occur when neurons are disabled will eventually disappear
+because the number of neurons reach a plateau. \gl{I feel we should give a
+  conclusion for this paragraph but I am not sure what to say}
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.5\textwidth]{convergence}
