@@ -209,29 +209,33 @@ sparsity in the parameters of the \textit{Filter Layers}. Indeed, having a negat
 
 This choice come from the Lasso loss [ref] and we use it for the same reason:
 it introduces sparsity. The bigger the $\lambda$ the more entries in $\theta$
-are set to zer, and since zeros entries in $\theta$ correspond to dead neurons,
+are set to zer0, and since zero entries in $\theta$ correspond to dead neurons,
 lambda effectively control the number of neurons/channels in the entire
 network.
 Next, we explain how to implement ShrinkNets efficiently.
 
-\textbf{Software architecture\footnote{The code is available as Python/PyTorch library on \url{http://github.com/mitdbg/fastdeepnets} \gl{Should we rename the repository ?}} :}\textit{Filter Vectors} can easily be implemented in a few lines of code
-in many existing deep learning frameworks. However, in ShrinkNets we assume
-that we start with obviously oversized networks. If disabled neurons are not
-quickly removed, the overhead might caused the training process to be
-significantly slower than classic neural networks. This is why we want to
-support what we call garbage collection: removing the weights in the layers
-that are responsible(or using) features that are disabled.
-\par To be able to catpure this relationship between layers we agumented
-\textit{Pytorch} (the framework we used as the foundation of our implementation)
-with a graph structure very similar to the one available in Keras [ref].
-In this graph edges are effectively event hubs responsible for propagating
-\textit{feature removal} events to subscribing layers. ShrinkNet layers are
-agumented to emit and react to these events but also propagate the event
-further if has an impact at the other endpoint of the layer (input or output).
-\par This event-based implementation coordinated by edges makes it very easy
-to integrate new layers in the library. We even provide automatic wrapping
-for layers from pytorch if they have no internal state. For more complex ones,
-we provide utilitaries that makes the implementation very concise.
+\textbf{Software architecture\footnote{The code is available as Python/PyTorch
+    library on \url{http://github.com/mitdbg/fastdeepnets} \gl{Should we rename
+      the repository ?}}: }\textit{Filter Vectors} can easily be implemented in
+a few lines of code in many existing deep learning frameworks. However, in
+ShrinkNets, we assume that we start with obviously oversized networks. If
+disabled neurons are not quickly removed, the overhead might cause the training
+process to be significantly slower than classic neural networks. This is why we
+want to support what we call garbage collection: removing the weights in the
+layers that are responsible (or using) features that are disabled.  \par To be
+able to catpure this relationship between layers, we agumented \textit{Pytorch}
+(the framework we used as the foundation of our implementation) with a graph
+structure very similar to the one available in Keras [ref].  In this graph,
+edges are effectively event hubs responsible for propagating \textit{feature
+  removal} events to its endpoints. ShrinkNet layers are designed to emit and
+react to these events but also propagate the event further if has an impact at
+the other endpoint of the layer (input or output) \gl{What I mean here is: if
+  the event comes from the output, it might be propagated to the inputs, and
+  the other way around}.  \par This event-based implementation coordinated by
+edges makes it very easy to integrate new layers in the library. We even
+provide automatic wrapping for layers from \textit{PyTorch} if they have no
+internal state. For more complex ones, we provide utilitaries that makes the
+implementation very concise.
 
 \section{Evaluation}
 \subsection{Convergence}
@@ -258,24 +262,25 @@ I am not sure what to say}
 \subsection{Relevance in the context of hyper-parameter optimization}
 
 One of our main goal is to help finding neural network architectures that
-perform reasonably well faster than existing techniques. For simplicity,
-we will try to see how ShrinkNets perform when doing random search. However,
-we believe that the results generalize to more complex methods, most of them
-might actually benefit a lot from the reduction in the dimensionality of the
-hyper-parameter space.
+perform reasonably well faster than existing techniques. For simplicity, we
+will try to see how ShrinkNets perform when doing random search over a sub set
+of the hyper-parameter space (we will fix everything except the size-related
+parameters). However, we believe that the results generalize to more complex
+methods, most of them might actually benefit a lot from the reduction of the
+dimensionality of the hyper-parameter space.
 
-\par To isolate the effect of ShrinkNets we will consider very simple architectures
-We will be using multi-layer perceptrons (with three hidden layers) and
-convolutional neural networks (With the LeNet-5 architecture). For this experiment
-we will assume we have no information about the size except an upper bound of
-$50$ channels per convolutional layer and $5000$ neuron for fully connected layers.
-We try to find the appropriate size of the network using classical neural networks
-and ShrinkNets. To make sure that we are as fair as possible and since one might
-argue that ShrinkNets is also regularizing the network in addition to finding the
-size, we will also considered regualrized classic networks using the most commonly
-used technique the $L_2$ penalty [ref].
+\par To isolate the effect of ShrinkNets we will consider two very simple
+architectures: multi-layer perceptrons (with three hidden layers) and the
+\textit{LeNet-5} model. For this experiment we assume we have no prior
+information about the size except an upper bound of $50$ channels per
+convolutional layer and $5000$ neuron for fully connected layers.  We try to
+find the appropriate size of the network using classical neural networks and
+ShrinkNets. To make sure that we are as fair as possible and since one might
+argue that ShrinkNets is also regularizing the network in addition to finding
+the size, we will also considered regularized classic networks using the most
+commonly used technique: the $L_2$ penalty [ref].
 \par The experiment consist in sampling parameters randomly for each class of
-network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation accuracy and evaluate it
+network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation set and evaluate it
 on the testing set. We repeat the process for 50 models. This evaluation was done
 on \texttt{MNIST} [ref], \texttt{FashionMNIST} [ref] and \texttt{CIFAR10} [ref]. The distribution of the testing accuracy we obtained is summarized on \autoref{hyper_opt_res}.
 
@@ -283,7 +288,7 @@ We can see that the distributions for ShrinkNets are consistently better than th
 others for all datasets and both architectures. It shows that by training fewer
 networks, we are likely to obtain on-par or even better models which effectively
 reduces the cost of hyper-parameter optimization. In some cases the best ShrinkNets
-models outperforms the best model of the other techniques.
+models even outperforms the best model of the other techniques.
 
 \begin{figure}
 \begin{center}
@@ -295,16 +300,16 @@ models outperforms the best model of the other techniques.
 \section{Related Work}
 
 \par There are many methods in the litterature that try to simplify the neural
-network. Most of them focuses on removing connections (eg: [ref], [ref]).
-However, most hardware (GPU's, TPUS, TensorCores) do not really leverage sparsity
-in the connections efficiently. On the other side, ShrinkNets and some others [ref]
-and [ref] try to remove entire neuron instead of connections. This is very
-usefull because it reduce the size of the matrices, producing speed-up on
-every device. ShrinkNets improves on [ref] because it removes neurons during
-training, speeding up the rest of the process and beats [ref] on convergence
-speed and because it does not need to change the optimizer. To the best of our
-knowledge this is also the first contribution that tries to learn the number of
-channels of a convolutional neural network.
+network structure. Most of them focuses on removing connections (eg: [ref],
+[ref]).  However, most hardware (GPU's, TPUS, TensorCores) do not really
+leverage sparsity in the connections efficiently. On the other side, ShrinkNets
+and some others [ref] and [ref] try to remove entire neuron instead of
+connections. This is very usefull because it reduces the size of the matrices,
+producing speed-up on every device. ShrinkNets improves on [ref] because it
+removes neurons during training, speeding up the rest of the process and beats
+[ref] on convergence speed and because it does not need to change the
+optimizer. To the best of our knowledge this is also the first contribution
+that tries to learn the number of channels of a convolutional neural network.
 
 \section{Conclusion}
 
