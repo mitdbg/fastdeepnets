@@ -10,7 +10,7 @@ rc('text', usetex=True)
 
 nice_boundaries = {
     'MNIST': (97, 98.75),
-    'FashionMNIST': (86, 90),
+    'FashionMNIST': (86, 90.2),
     'CIFAR10': (46, 56)
 }
 
@@ -44,7 +44,7 @@ def load_files(dataset, mode, max_samples=50, conv=False):
     pat = './experiments_results/hyper_opt_%s%s_%s*' % (p, dataset, mode)
     all_files = glob(pat)
     all_files = all_files[:max_samples]
-    # assert len(all_files) == max_samples, "Not enough experiments"
+    assert len(all_files) == max_samples, "Not enough experiments"
     return np.stack([load_single_file(f) for f in all_files])
 
 for conv in [True, False]:
@@ -55,7 +55,7 @@ for conv in [True, False]:
     for dataset in nice_boundaries.keys():
         print(dataset)
         for mode in modes:
-            infos = load_files(dataset, mode, 50000, conv)[:, [1, 3]]
+            infos = load_files(dataset, mode, 50, conv)[:, [1, 3]]
             bests_indices = infos[:, 0].argsort()[::-1][:10]
             res = np.percentile(infos[bests_indices], 50, axis=0)
             print('\t'.join(map(str, [mode] + list(res))))
