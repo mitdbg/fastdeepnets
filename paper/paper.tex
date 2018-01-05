@@ -70,51 +70,48 @@
 
 \section{Introduction}
 
-When designing Neural Networks, finding the appropriate size
+When designing neural networks, one of the key parameters is the network size, i.e., 
 %, number of layers
 %and number of neuros per layer, 
 %(width and depth)
-is key. It consists of determining the number of layers and neurons per layer
-that lead to the best accuracy.
+the number of layers and neurons per layer.  Choosing these parameters appropriately
+can dramatically affect performance, yet
 %In particular, these hyper parameters have a strong correlation with
 %over/underfitting \srm{give reference} \gl{I did some litterature review and
 %actually this statement is quite controversial, should we rephrase ?}. 
-Unfortunately, we have no reliable way to find the best parameters. Decades of
-experimentation led to search strategies and heuristics~\cite{Bengio2012a} that prune
-the immense space of possible network sizes and suggest range of values to
-explore. Examples of search strategies are
+there is no reliable way to efficiently set them. Although many search
+ strategies and heuristics~\cite{Bengio2012a} have been proposed, including
 %To select the best candidates, researchers have used strategies such
 %as 
 random search,
 %\gl{Should we also move the references here if we remove the
 %pargraph from the related work ?}, 
 meta-gradient descent~\cite{Pedregosa2016},
-gaussian processes~\cite{Bergstra2011a}, and Parzen Estimators~\cite{Bergstra2011a}. 
+Gaussian processes~\cite{Bergstra2011a}, and Parzen Estimators~\cite{Bergstra2011a}. 
 %to find good parameters without exhaustively
 %exploring the entire hyper-parameter space. 
-Although these strategies help with
-finding a good set of hyper-parameters, they still require a compute-intensive
-search of the space.
+ these methods generally require a compute-intensive
+search of parameter space.
 
 %However, we are still bound to use costly and sometimes complex methods to
 %find reasonable values for these hyper-parameters.
 
 In this paper we present a method to automatically find an appropriate network
-size, thus
+size,
 %from a single parameter, 
-drastically reducing the hyper-parameter optimization time.
+drastically reducing optimization time.
 %dimensionality. 
 The key idea is to
 \emph{learn} the right network size at the same time that the network is
 learning the main task. For example, for an image classification task, with our
 approach we can provide the training data to a network---without sizing it a
-priori---and expect to end up with a network that has learnt to classify images
-with an accuracy similar to a manually engineered network.
+priori---and expect to end up with a network that has learned to classify images
+with an accuracy similar to a the best manually engineered network.
 %\gl{too strong, we do not really have
 %  any guarantee on the generalization, how about changing it to: to end up with
 %  a network that learnt a tradeoff between size and accuracy}. 
-This approach has two main benefits. First, we do no longer need to choose a
-network size before training. Second, the final network size will be
+Our approach has two main benefits. First, no longer need to choose a
+network size before training. Second, the final network size will tuned to be
 appropriate for the task at hand, and not larger. 
 %Because the sizing occurs
 %dynamically, while the
@@ -124,14 +121,14 @@ appropriate for the task at hand, and not larger.
 %\gl{Should we talk about the
 %fact that it automatically gets rid of dead neurons ?}. 
 This is important
-because oversized networks have a lower inference throughput and higher memory
+because over-sized networks have a lower inference throughput and higher memory
 footprint.
 
-Our approach has two main challenges. First, on how to dynamically size the
-network during training. Second, on how to find a loss function that optimizes
+Our approach has two main challenges. First, we need a way to dynamically size the
+network during training. Second, we need a loss function that optimizes
 for the additional task of sizing, without deteriorating the learning
-performance of the main task. We describe next ShrinkNets, which cope with both
-challenges:
+performance of the main task. Our approach, called ShrinkNets, copes with both
+challenges.
 
 % \subsection{Main Contributions}
 % 
@@ -145,17 +142,14 @@ challenges:
 
 \section{ShrinkNets}
 
-Our approach consists of starting the training process for the task of interest
-with an explicitly oversized network. Then, as training progresses, we learn
-which neurons are not contributing to learning the main task and remove them
-dynamically, thus shrinking the network size. This method requires two building
-blocks. First, a way of identifying neurons that are not contributing to the
-learning process, and second a way of balancing the network size and the
-generalization capability for the main task. We introduce a new layer, called
-\textsf{Filter}, which takes care of \emph{deactivating} neurons. We also modify
+During training, our approach starts
+with an explicitly over-sized network. As training progresses, we learn
+which neurons are not contributing to learning and remove them
+dynamically, effectively shrinking the network. This method requires two key components: first, we need a way to identify neurons that are not contributing to the
+learning process, and second we need a way to balance the network size and the
+generalization capability for the main task. We introduce a new \textsf{Filter} layer that takes care of \emph{deactivating} neurons. We also modify
 existing loss functions to incorporate a new term that takes care of balancing
-network sizing and generalization capability appropriately. We explain them
-next:
+network size and generalization capability appropriately. 
 
 %\subsection{Motivation}
 %
@@ -175,8 +169,8 @@ next:
 
 %\subsection{Definition}
 
-\textbf{Filter Layers: } They have weights in the range $[0,+\infty]$ and are placed after
-linear and convolutional layers of traditional deep networks.
+\textbf{Filter Layers: } Filter layers have weights in the range $[0,+\infty]$ and are placed after
+linear and convolutional layers.
 %\gl{This is how I
 %  used it but with the new implementation we can be more creative and put them
 %  anywhere, should we say "usually placed" insdead ?}. 
@@ -186,23 +180,22 @@ features (or channels, in the case of convolutional layers), and $D$ any additio
 it compatible with fully connected layers with $n=0$ or convolutional layers
 with $n=2$. Their crucial property is a parameter $\theta \in \mathbb{R}^C$,
 defined as follows:
-
+\vspace{-1em}
 \begin{equation} Filter(I;\theta) = I \circ \max(0, \theta) \end{equation}
-
 Where $\circ$ is the 
 %Hadamard product (
 pointwise multiplication,
 %\gl{Should we
 %  keep only one of them to be more concise ?}), 
 and $\theta$ is expanded in all
-dimensions except the second one to match the input size. It is easy to see
+dimensions except the second one \srm{why not the second one? what is the second one?  C?} to match the input size. It is easy to see
 that if for any $k$, if $\theta_k \leq 0$, the $k^{\text{th}}$ feature/channel
 will forever be $0$. When this happens, we say the Filter layer deactivates the
-neuron. These disabled neurons/channels can be removed from the network without
+neuron. \srm{Not easy to see this because you haven't told me that theta only decays over time?} These disabled neurons/channels can be removed from the network without
 changing its output. Before explaining how that is achieved, we 
 % (we describe how we perform this removal below). We 
 explain
-next how the weights of the Filter Layer are adjusted during training.
+next how the weights of the Filter Layer are adjusted during training. \srm{How are filter weights initialized?}
 
 %We can use this property to devise a training procedure.
 
@@ -231,30 +224,30 @@ next how the weights of the Filter Layer are adjusted during training.
 %achieves -- what does the filter layer do, why is it significant.}
 
 %\subsection{The training procedure}
-\textbf{Training Procedure: } Once Filter layers are placed in a deep network, 
+\textbf{Training Procedure: } Once Filter layers are placed in a network, 
 %To train networks we need start with a substantially oversized network, then we
 %insert \textit{Filter Layers}  (usually after every linear or convolutional
 %layer except the last one) and we sample their weight from the
 %$\text{Uniform}(0, 1)$ distribution. 
-we could train it directly and it would be equivalent to a normal neural
+we could train the network directly using our standard loss function, and we could achieve performance equivalent to a normal neural
 network. However, our goal is to find the smallest network with reasonable
 performance. We achieve that by introducing sparsity in the parameters of the
-\textit{Filter Layers}, thus forcing the deactivation of neurons.
+\textit{Filter Layers}, thus forcing the deactivation of neurons \srm{by decaying the value of theta}
 %. Indeed, having a negative component in the $\theta$
 %parameter of the filter layer permamently disable its associated feature
 %\gl{Maybe redundant ? we talked about that in the previous paragraph} . 
 To obtain this sparsity, we simply redefine the loss function:
-
+\vspace{-.5em}
 \begin{equation}
   L'(x,y;\theta) = L(x, y) + \lambda|\theta|
 \end{equation}
 
 The additional term $\lambda|\theta|$ introduces sparsity (see Lasso
-loss~\cite{Tibshirani1996}).
+loss~\cite{Tibshirani1996}). \srm{Say lambda is in [0,1]?}
 %This choice comes from the Lasso loss ~\cite{Tibshirani1996} and we use it for
 %the same reason: it introduces sparsity. 
-The $\lambda$ parameter adjusts how aggressive the network deactivates neurons,
-with larger values indicating more aggressive deactivation. 
+The $\lambda$ parameter adjusts how aggressively the network deactivates neurons,
+with larger values indicating more aggressive deactivation. \srm{Give some intuitive statement about how this loss function causes theta to decay in irrelevant neurons, while preserving the value of important neurons.}
 %The bigger the $\lambda$ the more
 %entries in $\theta$ are set to zero, and 
 Because the entries in $\theta$ with a value of $0$
@@ -265,25 +258,26 @@ ShrinkNets efficiently.
 
 \textbf{Dynamic Network Resizing}
 It is possible to reduce the overhead of the training process by removing
-neurons as soon as they become deactivated.
+neurons as soon as they become deactivated by $\theta$ going to 0.
 %If
 %disabled neurons are not quickly removed, the overhead might cause the training
 %process to be significantly slower than classic neural networks. 
-For that, we implemented a \emph{neural garbage collection} mechanism which
-prunes deactivated neurons on-the-fly, therefore reducing the processing time
+To do this, we implemented a \emph{neural garbage collection} mechanism which
+prunes deactivated neurons on-the-fly,  reducing the processing time
 and memory overhead. To support this feature, it is crucial to understand the
 information flow between neurons and layers in the neural network. We achieve
 this by representing such information flow as a graph, in which edges indicate
 what action each node, i.e., neuron, must take. 
+\srm{I can't really understand what this means -- need to add a bit more detail.}
 
 \section{Evaluation}
 
-We have implemented ShrinkNets, including the \emph{garbage collection}
+We  implemented ShrinkNets, including the \emph{garbage collection}
 mechanism on top of \textit{PyTorch}~\cite{paszke2017automatic}, and we have
 made the software open source.\footnote{The code is available as Python/PyTorch
 library on \url{http://github.com/mitdbg/fastdeepnets} 
 %\gl{Should we rename the repository ?}
-}. We have then used our implementation to evaluate two crucial aspects of
+}. We used used our implementation to evaluate two crucial aspects of
 ShrinkNets, which we present next.
 
 %This is why we
@@ -343,85 +337,93 @@ eventually converge.
 \ra{stopped here}
 
 \begin{figure}
+\vspace{-.2in}
 \begin{center}
 \includegraphics[width=0.9\columnwidth]{convergence}
+\vspace{-.2in}
 \caption{Evolution of the number of hidden units and loss over time on the \texttt{MNIST} dataset for different $\lambda$ values \label{convergence_plot}}
+\srm{Move legend inside top of figure, to save space.}
+\vspace{-.2in}
 \end{center}
 \end{figure}
 
 
-\subsection{Relevance in the context of hyper-parameter optimization}
+\subsection{Does ShrinkNet find good networks?}
 
-One of our main goal is to help finding neural network architectures that
-perform reasonably well faster than existing techniques. For simplicity, we
-will try to see how ShrinkNets perform when doing random search over a sub set
-of the hyper-parameter space (we will fix everything except the size-related
-parameters). However, we believe that the results generalize to more complex
-methods, most of them might actually benefit a lot from the reduction of the
-dimensionality of the hyper-parameter space.
+One of our main goals is to show that ShrinkNets quickly finds neural network architectures that
+perform well. To show this, we ran a simple experiment where we compare ShrinkNets
+to other network tuning methods,
+ using random search over the
+hyper-parameters that control the network size ($\lambda$ in the case of ShrinkNets). 
+Despite the simple nature of this experiment, 
+we believe that the results generalize to more complex
+search methods, many of of which will actually benefit
+dimensionality of the hyper-parameter space in the ShrinkNets approach.
 
-\par To isolate the effect of ShrinkNets we will consider two very simple
+To isolate the effect of ShrinkNets we will consider two very simple
 architectures: multi-layer perceptrons (with three hidden layers) and the
-\textit{LeNet-5} model ~\cite{Lecun1998}. For this experiment we assume we have no prior
+\textit{LeNet-5} model ~\cite{Lecun1998}.
+For this experiment we assume we have no prior
 information about the size except an upper bound of $50$ channels per
-convolutional layer and $5000$ neuron for fully connected layers.  We try to
-find the appropriate size of the network using classical neural networks and
-ShrinkNets. To make sure that we are as fair as possible and since one might
-argue that ShrinkNets is also regularizing the network in addition to finding
-the size, we will also considered regularized classic networks using the most
-commonly used technique: the $L_2$ penalty ~\cite{Ng2004}.
-\par The experiment consist in sampling parameters randomly for each class of
-network, train them for the same amount of epochs (100 for MLPs and 200 for CNNs). Pick the epoch that performed the best on the validation set and evaluate it
-on the testing set. We repeat the process for 50 models. This evaluation was done
-on \texttt{MNIST} ~\cite{Lecun1998}, \texttt{FashionMNIST} ~\cite{Xiao2017} and \texttt{CIFAR10} ~\cite{Krizhevsky2009}. The distribution of the testing accuracy we obtained is summarized on \autoref{hyper_opt_res}.
+convolutional layer and $5000$ neurons for fully connected layers.  We try to
+find the appropriate size of the network using classical network-size optimization methods
+ and
+ShrinkNets. For the classical methods we use: i) purely random selection of network size parameters (``Fixed''), as well as hyper-parameter
+regularization over the network size parameters using  $L_2$ penalty ~\cite{Ng2004} 
+(``Fixed-L2'').
+In the experiment, we randomly sample parameters for each class of
+network and  train them for the same number of epochs (100 for MLPs and 200 for CNNs). We picked the epoch that performed the best on the validation set and evaluated it
+on the testing set. We repeat the process for 50 iterations. This evaluation was done
+on \texttt{MNIST} ~\cite{Lecun1998}, \texttt{FashionMNIST} ~\cite{Xiao2017} and \texttt{CIFAR10} ~\cite{Krizhevsky2009}. The distribution of the testing accuracy we obtained is summarized in \autoref{hyper_opt_res}.
 
-We can see that the distributions for ShrinkNets are consistently better than the
-others for all datasets and both architectures. It shows that by training fewer
-networks, we are likely to obtain on-par or even better models which effectively
-reduces the cost of hyper-parameter optimization. In some cases the best ShrinkNets
-models even outperforms the best model of the other techniques.
+We can see that in all cases the distributions for ShrinkNets have substantially higher medians are are less variable than the other architectures (the best model is not always found by ShrinkNets, but this is likely an artifact of our randomized search process).
+This shows that ShrinkNets can find better networks with fewer training iterations than existing methods. \srm{Note something about how we expect this to bear out even with methods other than random search?}
 
 \begin{figure}
+\vspace{-.2in}
 \begin{center}
   \includegraphics[width=0.9\columnwidth]{hyper_opt}
+  \vspace{-.2in}
 \caption{Distributions of the testing accuracy for different training methods, datasets and architectures using random search\label{hyper_opt_res}}
+\vspace{-.2in}
 \end{center}
 \end{figure}
 
 \section{Related Work}
 
-\par There are many methods in the litterature that try to simplify the neural
+\par There are many methods in the literature that aim to simplify 
 network structure. Most of them focuses on removing connections (eg: ~\cite{Cun},
 ~\cite{Han2015}).  However, most hardware (GPU's, TPUS ~\cite{Jouppi2017}, TensorCores) do not really
 leverage sparsity in the connections efficiently (as explained in ~\cite{Han2016}). On the other side, ShrinkNets
-and some others ~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neuron instead of
-connections. This is very usefull because it reduces the size of the matrices,
+and some others ~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neurons instead of
+connections. This is very useful because it reduces the size of the matrices,
 producing speed-up on every device. ShrinkNets improves on
 ~\cite{Scardapane2017} because it removes neurons during training, speeding up
-the rest of the process and beats ~\cite{Philipp} on convergence speed and because it
-does not need to change the optimizer. To the best of our knowledge this is
-also the first contribution that tries to learn the number of channels of a
+the rest of the process.  Further it outperforms~\cite{Philipp} on convergence speed and because it does not need to change the optimizer. To the best of our knowledge this is
+also the first work that tries to learn the number of channels in a
 convolutional neural network.
 
 \section{Conclusion}
 
-In this paper we presented a novel technique to guess a resonable network size
-based on single parameter $\lambda$ that control the tradeof between loss and
-the size. We demonstrated that it works both on fully connected networks and
-convolutional neural networks.  Even though the firsts results seem promising,
-there are many ways we could improve. In the current implementation we only
-"learn" the number of features (neurons or channels). We could try to augment
-it with dynamic number of layers as seen in ~\cite{meier} to be able to
-determine the entire architecture. \par We saw on Figure \ref{convergence_plot}
+In this paper we presented a novel technique to guess a reasonable network size
+based on single parameter $\lambda$ that control the tradeoff between loss and
+network size. We demonstrated that ShrinkNets works both on fully connected networks and
+convolutional neural networks.  Although the initial results are promising,
+there are many additional avenues to explore. In the current implementation we only
+``learn'' the number of features (neurons or channels). We plan to augment
+this with a dynamic number of layers as seen in ~\cite{meier} to be able to
+determine the entire architecture. Further, as shown in Figure \ref{convergence_plot}
 that the loss temporarily suffers from the removal of neurons. It is likely
 that the loss would be more stable if the number of neurons converged faster or
-neurons disappeared slower. For this reason we plan to explore proximal
+neurons disappeared more slowly. For this reason we plan to explore proximal
 gradient methods to optimize the filter vectors and/or randomize neuron
-removals. \par During our evaluation we picked small datasets mainly to be able
-to train many models and have statistically significant distributions. With
-more computation resources and time, we could see if it generalizes to bigger
-datasets and other architectures like \texttt{ResNet} ~\cite{He2016} (small
-modifications to the existing code base are required to support them)
+removals. Finally, during our evaluation we picked small datasets mainly to be able
+to train many models and have statistically significant distributions. We 
+plan to verify that our approach
+ see if it generalizes to bigger
+datasets and other architectures like \texttt{ResNet} ~\cite{He2016}, which is possible
+with small
+modifications to our existing code base.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{bib,custom}

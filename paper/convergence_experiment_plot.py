@@ -53,7 +53,7 @@ ax_loss.set_xticks(r)
 ax_size.set_xticklabels(["$10^{-%s}$" % x for x in range(1, 6)])
 ax_loss.set_xticklabels(["$10^{-%s}$" % x for x in range(1, 6)])
 plt.tight_layout()
-ax_size.legend(handles=[l1, l2] , labels=['\\texttt{MNIST}', '\\texttt{FashionMNIST}'] ,loc='lower center', bbox_to_anchor=(1.175, 1), ncol=3, columnspacing=0.5)
+ax_size.legend(handles=[l1, l2] , labels=['\\texttt{MNIST}', '\\texttt{FashionMNIST}'], bbox_to_anchor=(1.175, 1), ncol=3, columnspacing=0.5)
 f.set_size_inches(5, 2.05)
 plt.savefig('conv_MNIST_FM_comp.pdf', bbox_inches='tight')
 
