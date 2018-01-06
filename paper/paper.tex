@@ -86,10 +86,10 @@ random search,
 %\gl{Should we also move the references here if we remove the
 %pargraph from the related work ?}, 
 meta-gradient descent~\cite{Pedregosa2016},
-Gaussian processes~\cite{Bergstra2011a}, and Parzen Estimators~\cite{Bergstra2011a}. 
+Gaussian processes~\cite{Bergstra2011a}, and Parzen Estimators~\cite{Bergstra2011a}, 
 %to find good parameters without exhaustively
 %exploring the entire hyper-parameter space. 
- these methods generally require a compute-intensive
+ they generally require a compute-intensive
 search of parameter space.
 
 %However, we are still bound to use costly and sometimes complex methods to
@@ -109,7 +109,7 @@ with an accuracy similar to a the best manually engineered network.
 %\gl{too strong, we do not really have
 %  any guarantee on the generalization, how about changing it to: to end up with
 %  a network that learnt a tradeoff between size and accuracy}. 
-Our approach has two main benefits. First, no longer need to choose a
+Our approach has two main benefits. First, we no longer need to choose a
 network size before training. Second, the final network size will tuned to be
 appropriate for the task at hand, and not larger. 
 %Because the sizing occurs
@@ -168,7 +168,7 @@ network size and generalization capability appropriately.
 
 %\subsection{Definition}
 
-\textbf{Filter Layers: } Filter layers have weights in the range $[0,+\infty]$ and are placed after
+\textbf{Filter Layers: } Filter layers have weights in the range $[0,+\infty]$ and are usually placed after
 linear and convolutional layers.
 %\gl{This is how I
 %  used it but with the new implementation we can be more creative and put them
@@ -178,16 +178,17 @@ The \textit{Filter Layer} takes an input of size $\left(B \times C \times D_1
 of features (or channels, in the case of convolutional layers), and $D$ any
 additional dimension. This structure makes it compatible with fully connected
 layers with $n=0$ or convolutional layers with $n=2$. Their crucial property is
-a parameter $\theta \in \mathbb{R}^C$, defined as follows: \vspace{-1em}
+a parameter $\theta \in \mathbb{R}^C$. The output is defined as follows: \vspace{-1em}
 \begin{equation} Filter(I;\theta) = I \circ \max(0, \theta) \end{equation}
 Where $\circ$ is the pointwise multiplication, and $\theta$ is expanded in all
-dimensions to match the input size (except the second one since they are equal by definition). It is easy to see that if for any
-$k$, if $\theta_k \leq 0$, the $k^{\text{th}}$ feature/channel will forever be
-$0$. When this happens, we say the Filter layer deactivates the neuron.
-\srm{Not easy to see this because you haven't told me that theta only decays
-  over time?} \gl{The decay is only caused by the loss, and actually it does not depends on how it became zero, if it is zero for any reason, multiplying by zero will nullfy any value and cancel any gradient going through the layer} These disabled neurons/channels can be removed from the network
+dimensions to match the input size (except the second one since they are equal
+by definition). It is easy to see that if for any $k$, if $\theta_k \leq 0$,
+the $k^{\text{th}}$ input feature/channel is multiplied by zero and have no
+influence on the output. If this happens, we say the Filter layer deactivates
+the neuron. These disabled neurons/channels can be removed from the network
 without changing its output. Before explaining how that is achieved, we explain
-next how the weights of the Filter Layer are initialized and adjusted during training.
+next how the weights of the Filter Layer are initialized and adjusted during
+training.
 
 %We can use this property to devise a training procedure.
 
@@ -224,27 +225,28 @@ next how the weights of the Filter Layer are initialized and adjusted during tra
 we could train the network directly using our standard loss function, and we could achieve performance equivalent to a normal neural
 network. However, our goal is to find the smallest network with reasonable
 performance. We achieve that by introducing sparsity in the parameters of the
-\textit{Filter Layers}, thus forcing the deactivation of neurons \srm{by decaying the value of theta} \gl{$\theta$ only decays (and only for some features), only because of the loss function that we have not defined yet at this moment in the paper}
-%. Indeed, having a negative component in the $\theta$
+\textit{Filter Layers}, thus forcing the deactivation of neurons%. Indeed, having a negative component in the $\theta$
 %parameter of the filter layer permamently disable its associated feature
 %\gl{Maybe redundant ? we talked about that in the previous paragraph} . 
-To obtain this sparsity, we simply redefine the loss function:
+. To obtain this sparsity, we simply redefine the loss function:
 \vspace{-.5em}
 \begin{equation}
-  L'(x,y;\theta) = L(x, y) + \lambda|\theta|
+  L'(x,y;\theta) = L(x, y) + \lambda|\max(0, \theta)|
 \end{equation}
 
-The additional term $\lambda|\theta|$ introduces sparsity (see Lasso
+The additional term $\lambda|\max(0, \theta)|$ introduces sparsity (see Lasso
 loss~\cite{Tibshirani1996}). 
 % The $\lambda$ parameter, that can take any
 % positive value, adjusts how aggressively the network deactivates neurons, with
 % larger values indicating more aggressive deactivation.
-Indeed, the second component of the loss, because it increases the gradient in
-respect with $\theta$, pushes its value towards zero. Neurons with little
-impact on the original loss (gradient lower than $\lambda$), will not be able
-to compete against this attraction towards zero. Because the entries in
-$\theta$ with a value of $0$ correspond to dead neurons, $\lambda$ effectively
-controls the number of neurons/channels in the entire network.  Next, we
+The second component of the loss, because it increases the gradient with
+respect to $\theta$, pushes its value towards zero. Neurons with little impact
+on the original loss (gradient lower than $\lambda$), will not be able to
+compete against this attraction towards zero. Because the entries in $\theta$
+with a value of $0$ or less correspond to dead neurons, $\lambda$ effectively
+controls the number of neurons/channels in the entire network. We introduced
+the $\max(\dots)$ into the loss to make sure that neurons are permamently disabled
+when performing gradient descent based optimization. Next, we
 explain how to implement ShrinkNets efficiently.
 
 \textbf{Dynamic Network Resizing}
@@ -338,12 +340,12 @@ eventually converge.
 
 In this experiment we want to find an appropriate network size for two network
 architectures, a multi-layer perceptron (MLP) and the \textit{LeNet-5}
-model~\cite{Lecun1998}. We have no prior information about the network size, but
-we set an upper bound of $50$ channels per convolutional layer and $5000$
+model~\cite{Lecun1998}. We have no prior information about the network size,
+but we set an upper bound of $50$ channels per convolutional layer and $5000$
 neurons for fully connected layers. We then use random search to vary the
 parameters that determine the network size, i.e., $\lambda$ in the case of
-ShrinkNets, random selection of depth and witdh in the case of \textsf{Fixed}
-and similar to previous but adding a $L_2$ penalty~\cite{Ng2004}
+ShrinkNets, the width of each layer in the case of
+\textsf{Fixed} and similar to previous but adding a $L_2$ penalty~\cite{Ng2004}
 (\textsf{Fixed-L2}).  We train all variants on \texttt{MNIST}~\cite{Lecun1998},
 \texttt{FashionMNIST}~\cite{Xiao2017} and
 \texttt{CIFAR10}~\cite{Krizhevsky2009}. We use the same number of epochs, 100
@@ -356,7 +358,7 @@ The results in the figure show that ShrinkNets finds better networks with fewer
 training iterations than the other methods, because it achieves higher median 
 and less variable accuracies. Despite the simple nature of this experiment, we
 believe that the results generalize to more complex search methods; mainly
-because our solution reduce the dimensionality of the space they have to
+because our solution reduces the dimensionality of the space they have to
 explore.
 
 %the distributions for ShrinkNets have higher
@@ -414,7 +416,8 @@ structure. Most of them focuses on removing connections (eg: ~\cite{Cun},
 ~\cite{Han2015}). On the other side, ShrinkNets and some others
 ~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neurons instead
 of connections. This is very useful because it reduces the size of the matrices,
-producing speed-up on every device. ShrinkNets improves on
+producing speed-up even on devices/libraries that only support dense matrices
+. ShrinkNets improves on
 ~\cite{Scardapane2017} because it removes neurons during training, speeding up
 the rest of the process. Further it outperforms~\cite{Philipp} on convergence
 speed and because it does not need to change the optimizer. To the best of our
