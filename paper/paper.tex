@@ -35,7 +35,7 @@
 \newcommand{\ra}[1]{\textcolor{blue}{{\bf ra:} #1}}
 \newcommand{\gl}[1]{\textcolor{violet}{{\bf Gl:} #1}}
 \begin{document}
-\title{ShrinkNets}
+\title{Learning Network Size While Training with ShrinkNets}
 
 \author{Guillaume Leclerc, Raul Castro Fernandez, Samuel Madden}
 \affiliation{%
@@ -239,8 +239,7 @@ loss~\cite{Tibshirani1996}).
 % The $\lambda$ parameter, that can take any
 % positive value, adjusts how aggressively the network deactivates neurons, with
 % larger values indicating more aggressive deactivation.
-The second component of the loss, because it increases the gradient with
-respect to $\theta$, pushes its value towards zero. Neurons with little impact
+ The second component of the loss increases the gradient with respect to $\theta$, thus pushing its value towards zero. Neurons with little impact
 on the original loss (gradient lower than $\lambda$), will not be able to
 compete against this attraction towards zero. Because the entries in $\theta$
 with a value of $0$ or less correspond to dead neurons, $\lambda$ effectively
