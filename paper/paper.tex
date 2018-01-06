@@ -174,27 +174,20 @@ linear and convolutional layers.
 %  used it but with the new implementation we can be more creative and put them
 %  anywhere, should we say "usually placed" insdead ?}. 
 The \textit{Filter Layer} takes an input of size $\left(B \times C \times D_1
-\times \dots \times D_n\right)$, where $B$ is the batch size, $C$ the number of
-features (or channels, in the case of convolutional layers), and $D$ any additional dimension. This structure makes
-it compatible with fully connected layers with $n=0$ or convolutional layers
-with $n=2$. Their crucial property is a parameter $\theta \in \mathbb{R}^C$,
-defined as follows:
-\vspace{-1em}
+  \times \dots \times D_n\right)$, where $B$ is the batch size, $C$ the number
+of features (or channels, in the case of convolutional layers), and $D$ any
+additional dimension. This structure makes it compatible with fully connected
+layers with $n=0$ or convolutional layers with $n=2$. Their crucial property is
+a parameter $\theta \in \mathbb{R}^C$, defined as follows: \vspace{-1em}
 \begin{equation} Filter(I;\theta) = I \circ \max(0, \theta) \end{equation}
-Where $\circ$ is the 
-%Hadamard product (
-pointwise multiplication,
-%\gl{Should we
-%  keep only one of them to be more concise ?}), 
-and $\theta$ is expanded in all
-dimensions except the second one \srm{why not the second one? what is the second one?  C?} to match the input size. It is easy to see
-that if for any $k$, if $\theta_k \leq 0$, the $k^{\text{th}}$ feature/channel
-will forever be $0$. When this happens, we say the Filter layer deactivates the
-neuron. \srm{Not easy to see this because you haven't told me that theta only decays over time?} These disabled neurons/channels can be removed from the network without
-changing its output. Before explaining how that is achieved, we 
-% (we describe how we perform this removal below). We 
-explain
-next how the weights of the Filter Layer are adjusted during training. \srm{How are filter weights initialized?}
+Where $\circ$ is the pointwise multiplication, and $\theta$ is expanded in all
+dimensions to match the input size (except the second one since they are equal by definition). It is easy to see that if for any
+$k$, if $\theta_k \leq 0$, the $k^{\text{th}}$ feature/channel will forever be
+$0$. When this happens, we say the Filter layer deactivates the neuron.
+\srm{Not easy to see this because you haven't told me that theta only decays
+  over time?} \gl{The decay is only caused by the loss, and actually it does not depends on how it became zero, if it is zero for any reason, multiplying by zero will nullfy any value and cancel any gradient going through the layer} These disabled neurons/channels can be removed from the network
+without changing its output. Before explaining how that is achieved, we explain
+next how the weights of the Filter Layer are initialized and adjusted during training.
 
 %We can use this property to devise a training procedure.
 
@@ -223,7 +216,7 @@ next how the weights of the Filter Layer are adjusted during training. \srm{How 
 %achieves -- what does the filter layer do, why is it significant.}
 
 %\subsection{The training procedure}
-\textbf{Training Procedure: } Once Filter layers are placed in a network, 
+\textbf{Training Procedure: } Once Filter layers are placed in a network and initialized (sampled from the Uniform$[0, 1]$ distribution),
 %To train networks we need start with a substantially oversized network, then we
 %insert \textit{Filter Layers}  (usually after every linear or convolutional
 %layer except the last one) and we sample their weight from the
@@ -231,7 +224,7 @@ next how the weights of the Filter Layer are adjusted during training. \srm{How 
 we could train the network directly using our standard loss function, and we could achieve performance equivalent to a normal neural
 network. However, our goal is to find the smallest network with reasonable
 performance. We achieve that by introducing sparsity in the parameters of the
-\textit{Filter Layers}, thus forcing the deactivation of neurons \srm{by decaying the value of theta}
+\textit{Filter Layers}, thus forcing the deactivation of neurons \srm{by decaying the value of theta} \gl{$\theta$ only decays (and only for some features), only because of the loss function that we have not defined yet at this moment in the paper}
 %. Indeed, having a negative component in the $\theta$
 %parameter of the filter layer permamently disable its associated feature
 %\gl{Maybe redundant ? we talked about that in the previous paragraph} . 
@@ -242,18 +235,17 @@ To obtain this sparsity, we simply redefine the loss function:
 \end{equation}
 
 The additional term $\lambda|\theta|$ introduces sparsity (see Lasso
-loss~\cite{Tibshirani1996}). \srm{Say lambda is in [0,1]?}
-%This choice comes from the Lasso loss ~\cite{Tibshirani1996} and we use it for
-%the same reason: it introduces sparsity. 
-The $\lambda$ parameter adjusts how aggressively the network deactivates neurons,
-with larger values indicating more aggressive deactivation. \srm{Give some intuitive statement about how this loss function causes theta to decay in irrelevant neurons, while preserving the value of important neurons.}
-%The bigger the $\lambda$ the more
-%entries in $\theta$ are set to zero, and 
-Because the entries in $\theta$ with a value of $0$
-correspond to dead neurons, $\lambda$ effectively controls the number of
-neurons/channels in the entire network.  
-Next, we explain how to implement
-ShrinkNets efficiently.
+loss~\cite{Tibshirani1996}). 
+% The $\lambda$ parameter, that can take any
+% positive value, adjusts how aggressively the network deactivates neurons, with
+% larger values indicating more aggressive deactivation.
+Indeed, the second component of the loss, because it increases the gradient in
+respect with $\theta$, pushes its value towards zero. Neurons with little
+impact on the original loss (gradient lower than $\lambda$), will not be able
+to compete against this attraction towards zero. Because the entries in
+$\theta$ with a value of $0$ correspond to dead neurons, $\lambda$ effectively
+controls the number of neurons/channels in the entire network.  Next, we
+explain how to implement ShrinkNets efficiently.
 
 \textbf{Dynamic Network Resizing}
 It is possible to reduce the overhead of the training process by removing
@@ -265,16 +257,16 @@ To do this, we implemented a \emph{neural garbage collection} mechanism which
 prunes deactivated neurons on-the-fly,  reducing the processing time
 and memory overhead. To support this feature, it is crucial to understand the
 information flow between neurons and layers in the neural network. We achieve
-this by representing such information flow as a graph, in which edges indicate
-what action each node, i.e., neuron, must take. 
-\srm{I can't really understand what this means -- need to add a bit more detail.}
+this by representing such information flow as a graph. Vertices represent layers,
+and edges are event-hubs responsible for propagating information about disabled
+neurons to the relevant layers.
 
 \section{Evaluation}
 
 We  implemented ShrinkNets, including the \emph{garbage collection}
 mechanism on top of \textit{PyTorch}~\cite{paszke2017automatic}, and we have
 made the software open source.\footnote{The code is available as Python/PyTorch
-library on \url{http://github.com/mitdbg/fastdeepnets} 
+library on \url{http://github.com/mitdbg/fastdeepnets}
 %\gl{Should we rename the repository ?}
 }. We used used our implementation to evaluate two crucial aspects of
 ShrinkNets, which we present next.
@@ -336,15 +328,12 @@ eventually converge.
 \begin{figure}
 \vspace{-.2in}
 \begin{center}
-\includegraphics[width=0.9\columnwidth]{convergence}
+\includegraphics[width=\columnwidth]{convergence}
 \vspace{-.2in}
 \caption{Evolution of the number of hidden units and loss over time on the \texttt{MNIST} dataset for different $\lambda$ values \label{convergence_plot}}
-\srm{Move legend inside top of figure, to save space.}
 \vspace{-.2in}
 \end{center}
 \end{figure}
-
-
 \subsection{Does ShrinkNet find good networks?}
 
 In this experiment we want to find an appropriate network size for two network
@@ -366,9 +355,7 @@ process 50 times and show the distribution of the testing accuracy in
 The results in the figure show that ShrinkNets finds better networks with fewer
 training iterations than the other methods, because it achieves higher median 
 and less variable accuracies. Despite the simple nature of this experiment, we
-believe that the results generalize to more complex search methods.
-\srm{Note something about
-how we expect this to bear out even with methods other than random search?}
+believe that the results generalize to more complex search methods. 
 
 %the distributions for ShrinkNets have higher
 %medians and are less variable than the others. ShrinkNets can find better
@@ -411,7 +398,7 @@ how we expect this to bear out even with methods other than random search?}
 \begin{figure}
 \vspace{-.2in}
 \begin{center}
-  \includegraphics[width=0.9\columnwidth]{hyper_opt}
+  \includegraphics[width=\columnwidth]{hyper_opt}
   \vspace{-.2in}
 \caption{Distributions of testing accuracy for different training methods, datasets and architectures using random search\label{hyper_opt_res}}
 \vspace{-.2in}
@@ -422,10 +409,7 @@ how we expect this to bear out even with methods other than random search?}
 
 There are many methods in the literature that aim to simplify network
 structure. Most of them focuses on removing connections (eg: ~\cite{Cun},
-~\cite{Han2015}).  \ra{not sure the following is relevant. Instead, just
-contrast with the approach in this paper} However, most hardware (GPU's, TPUS ~\cite{Jouppi2017},
-TensorCores) do not really leverage sparsity in the connections efficiently (as
-explained in ~\cite{Han2016}). On the other side, ShrinkNets and some others
+~\cite{Han2015}). On the other side, ShrinkNets and some others
 ~\cite{Scardapane2017} and ~\cite{Philipp} try to remove entire neurons instead
 of connections. This is very useful because it reduces the size of the matrices,
 producing speed-up on every device. ShrinkNets improves on
