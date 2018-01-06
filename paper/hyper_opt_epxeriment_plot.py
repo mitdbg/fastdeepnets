@@ -89,17 +89,18 @@ def sub_plot(ax, dataset, first, conv=False, ff=False):
     if first:
         ax.set_ylabel('Accuracy (\\%)')
     if ff:
-        ax.legend(handles=boxes , labels=tex_labels ,loc='lower center', bbox_to_anchor=(1.75, 1.09), ncol=3, columnspacing=0.5)
+        ax.legend(handles=boxes , labels=tex_labels ,loc='lower center', bbox_to_anchor=(1.75, - 0.23), ncol=3, columnspacing=0.5)
 
 f, [axes_fc, axes_conv] = plt.subplots(2, 3, sharex=True)
 plt.subplots_adjust(wspace=0.3, hspace=0.1)
 first = True
-ff = True
+ff = False
 for ax, ds in zip(axes_fc, ['MNIST', 'FashionMNIST', 'CIFAR10']):
     sub_plot(ax, ds, first, False, ff)
     first = False
     ff = False
 first = True
+ff = True
 for ax, ds in zip(axes_conv, ['MNIST', 'FashionMNIST', 'CIFAR10']):
     sub_plot(ax, ds, first, True, ff)
     first = False
@@ -107,5 +108,5 @@ for ax, ds in zip(axes_conv, ['MNIST', 'FashionMNIST', 'CIFAR10']):
 
 f.set_size_inches(5, 5)
 plt.show()
-plt.savefig('hyper_opt.pdf', bbox_inches='tight')
+plt.savefig('hyper_opt.pdf', bbox_inches='tight', pad_inches=0)
 
