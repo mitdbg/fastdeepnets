@@ -106,7 +106,7 @@ for ax, ds in zip(axes_conv, ['MNIST', 'FashionMNIST', 'CIFAR10']):
     first = False
     ff = False
 
-f.set_size_inches(5, 5)
+f.set_size_inches(5, 4.5)
 plt.show()
 plt.savefig('hyper_opt.pdf', bbox_inches='tight', pad_inches=0)
 
