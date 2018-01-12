@@ -175,3 +175,18 @@ class Graph(ModuleList):
                 outputs.extend(left_to_do)
 
         return [memory[m] for m in requested_outputs]
+
+class Sequential(Graph):
+
+    def __init__(self):
+        super(Sequential, self).__init__()
+
+    def add(self, factory: Callable[[], Module],
+            *args, **kwargs) -> DynamicModule:
+        parent = []
+        if len(self) > 0:
+            parent = [self[-1]]
+        return super(Sequential, self).add(factory, *args, **kwargs)(parent)
+
+    def forward(self, inp):
+        return super(Sequential, self).forward({self[0]: inp}, self[-1])[0]
