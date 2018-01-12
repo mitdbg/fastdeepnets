@@ -32,13 +32,17 @@ def compute_feature_patch(previous_features: List,
                                                             LongTensor]:
     """Compute a patch to go from the previous features to the new ones
 
+    This function might look weird and missing sanity checks, however it
+    is not the case, it has just been heavily optimized, take a look at
+    the comments.
+
     Parameters
     ----------
 
     previous_features
-        The list of previous features
+        The list of sorted previous features
     new_features
-        The list of new features
+        The list of sorted new features (subset of previous_features)
 
     Returns
     -------
@@ -47,10 +51,23 @@ def compute_feature_patch(previous_features: List,
     """
     assert len(new_features) <= len(previous_features), (
         "We can only remove features")
-    result = [previous_features.index(x) for x in new_features]
+    # since we are removing features new_features is smaller so we will
+    # iterate on this one to make it faster
+    p2 = 0
+    result = []
+    for feature in new_features:
+        # We do not need to check for an overflow of p2 here because
+        # we know that new_features is a subset of previous_features
+        while previous_features[p2] < feature:
+            p2 += 1
+        # Also because new_features is a subset of previous_features
+        # They are necessrly equal, therefore, we can comment the next line
+        # if previous_features[p2] == feature:
+        result.append(p2)
     if as_tensor:
         result = from_numpy(np.array(result))
     return result
+
 
 def set_to_ordered_list(features_set: set) -> List:
     """Converts a set to an ordered numpy array
