@@ -313,7 +313,7 @@ class Flatten(DynamicModule):
         indicies = arange(0, diff).long().unsqueeze(1)
         indicies = indicies.repeat(1, remaining_features.size(0))
         indicies += remaining_features * diff
-        indicies = indicies.view(-1)
+        indicies = indicies.transpose(0, 1).contiguous().view(-1)
         self.output_features.remove_features(self, indicies, log)
 
     def remove_output_features(self, remaining_features: LongTensor,

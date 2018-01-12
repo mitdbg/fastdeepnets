@@ -8,7 +8,8 @@ from torch.nn import Module, Parameter
 from torch.optim import Optimizer
 
 from dynnet.utils import (compute_feature_patch,
-                          set_to_ordered_list)
+                          sorted_list_intersection,
+                          batch_indexing)
 
 GarbageCollectionOperation = namedtuple('GarbageCollectionOperation',
                                         ['old_parameter',
@@ -116,14 +117,7 @@ class FeatureBag():
     Internal Note
     -------------
 
-    In this class we often go from sets to ordered lists. It would be much
-    more efficient to only deal with ordered list all the time since
-    unions and intersections can be done in linear time on ordered lists
-    but for now we will stick with this slower yet simpler to read
-    implementation. It might be a nice pull request to have everything done
-    in linear time.
-
-    We could also save some memory by only maintaining the :module_awareness:
+    We could maybe save some memory by only maintaining the :module_awareness:
     dict during the event propagation process, otherwise they should all be
     equal to :self.latest_features:
 
@@ -154,7 +148,7 @@ class FeatureBag():
     """
     def __init__(self, feature_count: int, *additional_dims: Tuple):
         self.additional_dims = additional_dims
-        self.latest_features = set(range(feature_count))
+        self.latest_features = list(range(0, feature_count))
         self.input_listeners = set()
         self.output_listeners = set()
         self.module_awareness = dict()
@@ -171,7 +165,7 @@ class FeatureBag():
         """
         return len(self.latest_features)
 
-    def sample_typical_input(self, type: Callable = Tensor,
+    def sample_typical_input(self, tpe: Callable = Tensor,
                              batch_size: int = 2) -> Tensor:
         """Generate an input that has a compatible size with this FeatureBag
 
@@ -192,11 +186,10 @@ class FeatureBag():
         -------
             A tensor of the correct size
         """
-        return type(batch_size, self.feature_count, *self.additional_dims)
-
+        return tpe(batch_size, self.feature_count, *self.additional_dims)
 
     def offsets_to_features(self, context: "DynamicModule",
-                            offsets: np.array):
+                            offsets: List):
         """Converts the feature offsets of a module to a set of feature ids
 
         Parameters
@@ -212,8 +205,7 @@ class FeatureBag():
         A set of feature ids corresponding to these offsets
         """
         context_features = self.module_awareness[context]
-        context_features = set_to_ordered_list(context_features)
-        return set(np.array(context_features)[offsets])
+        return batch_indexing(context_features, offsets)
 
     def remove_features(self, context: "DynamicModule",
                         remaining_offsets: LongTensor,
@@ -239,11 +231,12 @@ class FeatureBag():
         # Compute the features from the offsets in context
         remaining_features = self.offsets_to_features(context,
                                                       remaining_offsets)
-        if len(remaining_features) == self.latest_features:
+        if len(remaining_features) == len(self.latest_features):
             # We are effectively not modifing the features
             return
         # Remove the useless features
-        self.latest_features = remaining_features & self.latest_features
+        self.latest_features = sorted_list_intersection(remaining_features,
+                                                        self.latest_features)
 
         self.propagate_changes(log)
 
@@ -275,7 +268,7 @@ class FeatureBag():
             else:
                 break
         self.propagating = False
-    
+
     @property
     def root_feature_bag(self):
         """Return the referene feature bag for a given feature bag
@@ -296,8 +289,8 @@ class FeatureBag():
             The garbage collector log to register any change made to the
             parameters
         """
-        current_features = set_to_ordered_list(self.latest_features)
-        previous_features = set_to_ordered_list(self.module_awareness[module])
+        current_features = self.latest_features
+        previous_features = self.module_awareness[module]
         patch = compute_feature_patch(previous_features, current_features,
                                       as_tensor=True)
         if module in self.input_listeners:
@@ -322,7 +315,7 @@ class FeatureBag():
             "It is dangerous to add events during event processing")
         assert isinstance(listener, DynamicModule), (
             "Only DynamicModule can be warned of feature removal")
-        self.module_awareness[listener] = self.latest_features.copy()
+        self.module_awareness[listener] = self.latest_features[:]
 
     def register_input_listener(self, listener: 'DynamicModule',
                                 input_index: Any) -> None:
@@ -351,7 +344,9 @@ class FeatureBag():
         self.output_listeners.add(listener)
 
     def __repr__(self):
-        return "FeatureBag(%s, %s)" % (self.feature_count, self.additional_dims)
+        return "FeatureBag(%s, %s)" % (self.feature_count,
+                                       self.additional_dims)
+
 
 class MirrorFeatureBag(FeatureBag):
     """This is a FeatureBag linked to another
@@ -383,6 +378,7 @@ class MirrorFeatureBag(FeatureBag):
         self.reference_feature_bag.register_input_listener(
             listener, input_index
         )
+
     @property
     def root_feature_bag(self):
         """Return the referene feature bag for a given feature bag
@@ -404,7 +400,6 @@ class MirrorFeatureBag(FeatureBag):
     def __repr__(self):
         return "MirrorFeatureBag(%s, %s)" % (self.feature_count,
                                              self.additional_dims)
-
 
 
 class DynamicModule(Module):
