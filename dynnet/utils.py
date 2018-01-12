@@ -3,7 +3,11 @@
 from typing import List, Union
 
 import numpy as np
-from torch import from_numpy, LongTensor
+from torch import from_numpy, LongTensor, cat
+from torch.nn import Module
+from torch.autograd import Variable
+from torch.nn.functional import relu
+import dynnet
 
 
 def is_sorted(lst: List) -> bool:
@@ -140,3 +144,36 @@ def batch_indexing(array: List, indices: List) -> List:
     The values of of :array: corresponding to the indices found in :indices:
     """
     return [array[x] for x in indices]
+
+
+def shrinknet_penalty(model: Module) -> Variable:
+    """Compute the shrinknet penalty (regularization factor)
+
+    It is computed as defined in the paper
+
+    Parameters
+    ----------
+    model
+        The model to compute the penalty for
+
+    Returns
+    -------
+
+    The shrinknet penalty: max(0, abs(theta)) where theta is the concatenation
+    of all the parameters of all filter vectors
+    """
+    filter_weights = []
+    for layer in model.modules():
+        if isinstance(layer, dynnet.filters.SimpleFilter):
+            filter_weights.append(layer.weight)
+    if not filter_weights:
+        return 0
+    # It might look it is subobtimal to do it this way and we should
+    # do the sum while we are iterating over the modules. Here are the two
+    # reasons why it is done this way
+    # - cat is not copying data around so its cost is almost negligeable
+    # - Here we are working with Variables that hold the computation graph
+    #   Having a lot of sum (one for every filter layer) would generate a very
+    #   deep computation graph, Here we have a constant number of pytorch
+    #   operations
+    return relu(cat(filter_weights)).sum()
