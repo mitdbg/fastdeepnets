@@ -1,7 +1,7 @@
 """This module implements different algorithms for feature selection"""
 
-from typing import Any
-from torch import ones, nonzero, LongTensor, ByteTensor
+from typing import Any, Union
+from torch import ones, nonzero, LongTensor, ByteTensor, rand
 from torch.nn import Parameter
 from torch.nn.functional import relu
 
@@ -11,14 +11,20 @@ from dynnet.operations import IndexSelectOperation
 
 class SimpleFilter(DynamicModule):
 
-    def __init__(self, starting_value: float = 1, **kwargs):
+    def __init__(self, starting_value: Union[float, str] = 'random', **kwargs):
         input_features = kwargs['input_features']
         assert len(input_features) == 1, "Filters need 1 and 1 parent"
         features = input_features[0]
         # We are not changing the feature set
         kwargs['output_features'] = features
         super(SimpleFilter, self).__init__(**kwargs)
-        self.weight = Parameter(ones(features.feature_count) * starting_value)
+        if starting_value == 'random':
+            # We do 1 - rand because, rand outputs in the range [0, 1) and
+            # we do not want dead neurons from the beginning so (0, 1] is
+            # a better range for the random numbers
+            self.weight = Parameter(1 - rand(features.feature_count))
+        else:
+            self.weight = Parameter(ones(features.feature_count) * starting_value)
 
     def forward(self, x):
         # Size checks
