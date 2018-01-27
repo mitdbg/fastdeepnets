@@ -6,8 +6,8 @@ from torch.nn.functional import relu
 from torch.autograd import Variable
 from torch.optim import Adam
 from torchvision import transforms
-from torchvision.datasets import MNIST, FashionMNIST, CIFAR10
-from dynnet.graph import Graph
+from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, CIFAR100
+from dynnet.graph import Graph, Sequential
 from dynnet.filters import SimpleFilter
 from sklearn.model_selection import train_test_split
 from uuid import uuid4
@@ -23,23 +23,28 @@ NORMALIZATIONS = {
     MNIST: [(0.13066047740239478,), (0.30810780876661253,)],
     FashionMNIST: [(0.2860406021898328,), (0.353024253432129,)],
     CIFAR10: [(0.49139968, 0.48215845, 0.44653094),
-              (0.24703224003314972, 0.24348513782024384, 0.26158785820007324)]
+              (0.24703224003314972, 0.24348513782024384, 0.26158785820007324)],
+    CIFAR100: [(0.50707513, 0.48654887, 0.44091785),
+               (0.26733428, 0.25643846, 0.27615047)]
 }
 SIZES = {
     MNIST: (1, 28, 28),
     FashionMNIST: (1, 28, 28),
-    CIFAR10: (3, 32, 32)
+    CIFAR10: (3, 32, 32),
+    CIFAR100: (3, 32, 32)
 }
 REGULARIZATIONS = {
     MNIST: [2, 5],
     FashionMNIST: [2, 5],
-    CIFAR10: [2, 6]
+    CIFAR10: [2, 6],
+    CIFAR100: [2, 6]
 }
 
 DATASETS = {
     'MNIST': MNIST,
     'FashionMNIST' : FashionMNIST,
-    'CIFAR10': CIFAR10
+    'CIFAR10': CIFAR10,
+    'CIFAR100': CIFAR100
 }
 
 def preload_dataset(dataset, train):
@@ -80,7 +85,7 @@ def init_model(model):
             torch.nn.init.xavier_normal(parameter.data, gain=np.sqrt(2))
     for l in model:
         if isinstance(l, SimpleFilter):
-            l.weight.data.uniform_(0, 1)
+            l.weight.data.uniform_(0, 0)
 
 
 def create_dynamic_model(start_size=5000, size=(1, 28, 28), conv=False):
@@ -149,6 +154,7 @@ def regularized_loss(graph, prediction, labels, lamb):
             filter_weights.append(m.weight)
     if not filter_weights:
         return loss, loss
+    print(loss)
     return loss, loss + lamb * relu(torch.cat(filter_weights)).sum()
 
 def compute_network_size(graph, conv=False, parts=False):
@@ -180,7 +186,10 @@ def forward(graph, dataloader, lamb=0, conv=False, optimizer=None):
             inputs = inputs.view(inputs.size(0), -1)
         inputs = Variable(inputs, volatile=(optimizer is None))
         labels = Variable(labels.cuda(), volatile=(optimizer is None))
-        if isinstance(graph, Graph):
+        if isinstance(graph, Sequential):
+            print('hoho')
+            prediction  = graph(inputs)
+        elif isinstance(graph, Graph):
             prediction,  = graph({graph[0]: inputs}, graph[-1])
         else:
             prediction = graph(inputs)
@@ -221,8 +230,8 @@ def train(graph, dataset=MNIST, wd=0, batch_size=256,
         all_sizes.append(np.array(cs).mean())
         print(train_accs[-1], val_accs[-1], test_accs[-1], all_sizes[-1])
         if isinstance(graph, Graph):
-            log = graph.garbage_collect()
-            log.update_optimizer(optimizer)
+            # log = graph.garbage_collect()
+            # log.update_optimizer(optimizer)
             pass
     return np.array([train_accs, val_accs, test_accs, all_sizes])
 
@@ -274,7 +283,7 @@ def hyper_opt_shrink(dataset, bs, conv=False):
         p = dataset.__name__
         if conv:
             p = "conv_" + p
-        store_training("%s_shrink" % p, params, log)
+        # store_training("%s_shrink" % p, params, log)
 
 def hyper_opt_decay(dataset, bs, conv=False):
     for i in range(COUNT):
@@ -292,12 +301,12 @@ def hyper_opt_decay(dataset, bs, conv=False):
             p = "conv_" + p
         store_training("%s_decay" % p, params, log)
 
-dataset = DATASETS.get(sys.argv[-1])
-mode =sys.argv[-2]
-conv = sys.argv[-3] == 'conv'
-if mode == 'static':
-    hyper_opt_static(dataset, 256, conv=conv)
-elif mode == 'decay':
-    hyper_opt_decay(dataset, 256, conv=conv)
-elif mode == 'shrink':
-    hyper_opt_shrink(dataset, 256, conv=conv)
+# dataset = DATASETS.get(sys.argv[-1])
+# mode =sys.argv[-2]
+# conv = sys.argv[-3] == 'conv'
+# if mode == 'static':
+#     hyper_opt_static(dataset, 256, conv=conv)
+# elif mode == 'decay':
+#     hyper_opt_decay(dataset, 256, conv=conv)
+# elif mode == 'shrink':
+#     hyper_opt_shrink(dataset, 256, conv=conv)
