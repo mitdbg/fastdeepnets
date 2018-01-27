@@ -1,0 +1,81 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Arch Linux)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: paper.aux
+The style file: ACM-Reference-Format.bst
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Reallocated wiz_functions (elt_size=8) to 6000 items from 3000.
+Database file #1: bib.bib
+Database file #2: custom.bib
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Reallocated glb_str_ptr (elt_size=8) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=8) to 20 items from 10.
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Warning--empty publisher in Bergstra2011a
+Warning--empty address in Bergstra2011a
+Warning--unrecognized DOI value [2012arXiv1206.2944S]
+Warning--no journal in Han2015
+Warning--no number and no volume in Han2015
+Warning--page numbers missing in both pages and numpages fields in Han2015
+Warning--unrecognized DOI value [abs/1510.00149/1510.00149]
+Warning--empty publisher in He2016
+Warning--empty address in He2016
+Warning--no number and no volume in Krizhevsky2009
+Warning--empty publisher in Lecun1998
+Warning--empty address in Lecun1998
+Warning--empty year in meier
+Warning--empty publisher in Ng2004
+Warning--empty address in Ng2004
+Warning--no journal in paszke2017automatic
+Warning--no number and no volume in paszke2017automatic
+Warning--page numbers missing in both pages and numpages fields in paszke2017automatic
+Warning--no journal in Pedregosa2016
+Warning--no number and no volume in Pedregosa2016
+Warning--page numbers missing in both pages and numpages fields in Pedregosa2016
+Warning--empty publisher in Philipp
+Warning--empty address in Philipp
+Warning--no journal in Xiao2017
+Warning--no number and no volume in Xiao2017
+Warning--page numbers missing in both pages and numpages fields in Xiao2017
+You've used 15 entries,
+            5795 wiz_defined-function locations,
+            1457 strings with 19479 characters,
+and the built_in function-call counts, 21847 in all, are:
+= -- 2672
+> -- 629
+< -- 0
++ -- 191
+- -- 553
+* -- 1642
+:= -- 2132
+add.period$ -- 75
+call.type$ -- 15
+change.case$ -- 115
+chr.to.int$ -- 59
+cite$ -- 39
+duplicate$ -- 1558
+empty$ -- 1106
+format.name$ -- 240
+if$ -- 4737
+int.to.chr$ -- 2
+int.to.str$ -- 1
+missing$ -- 57
+newline$ -- 211
+num.names$ -- 120
+pop$ -- 597
+preamble$ -- 1
+purify$ -- 232
+quote$ -- 0
+skip$ -- 515
+stack$ -- 0
+substring$ -- 2645
+swap$ -- 155
+text.length$ -- 714
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 338
+warning$ -- 26
+while$ -- 128
+width$ -- 0
+write$ -- 342
+(There were 26 warnings)

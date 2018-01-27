@@ -1,0 +1,267 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{15}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Bengio}{Bengio}{2012}]%
+        {Bengio2012a}
+\bibfield{author}{\bibinfo{person}{Yoshua Bengio}.}
+  \bibinfo{year}{2012}\natexlab{}.
+\newblock \showarticletitle{{Practical recommendations for gradient-based
+  training of deep architectures}}.
+\newblock \bibinfo{journal}{{\em Lecture Notes in Computer Science (including
+  subseries Lecture Notes in Artificial Intelligence and Lecture Notes in
+  Bioinformatics)\/}}  \bibinfo{volume}{7700 LECTU} (\bibinfo{year}{2012}),
+  \bibinfo{pages}{437--478}.
+\newblock
+\showISBNx{9783642352881}
+\showISSN{03029743}
+\showDOI{%
+\url{https://doi.org/10.1007/978-3-642-35289-8-26}}
+\showeprint[arxiv]{1206.5533}
+
+
+\bibitem[\protect\citeauthoryear{Bergstra, Bardenet, Bengio, and
+  K{\'{e}}gl}{Bergstra et~al\mbox{.}}{2011}]%
+        {Bergstra2011a}
+\bibfield{author}{\bibinfo{person}{James Bergstra}, \bibinfo{person}{R{\'{e}}mi
+  Bardenet}, \bibinfo{person}{Yoshua Bengio}, {and}
+  \bibinfo{person}{Bal{\'{a}}zs K{\'{e}}gl}.} \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{{Algorithms for Hyper-Parameter Optimization}}. In
+  \bibinfo{booktitle}{{\em Advances in Neural Information Processing Systems
+  (NIPS)}}. \bibinfo{pages}{2546--2554}.
+\newblock
+\showISBNx{9781618395993}
+\showISSN{10495258}
+\showDOI{%
+\url{https://doi.org/2012arXiv1206.2944S}}
+\showeprint[arxiv]{1206.2944}
+
+
+\bibitem[\protect\citeauthoryear{Cun, Denker, and Solla}{Cun
+  et~al\mbox{.}}{1990}]%
+        {Cun}
+\bibfield{author}{\bibinfo{person}{Yann~Le Cun}, \bibinfo{person}{John~S
+  Denker}, {and} \bibinfo{person}{Sara~a Solla}.}
+  \bibinfo{year}{1990}\natexlab{}.
+\newblock \showarticletitle{{Optimal Brain Damage}}.
+\newblock \bibinfo{journal}{{\em Advances in Neural Information Processing
+  Systems\/}} \bibinfo{volume}{2}, \bibinfo{number}{1} (\bibinfo{year}{1990}),
+  \bibinfo{pages}{598--605}.
+\newblock
+\showISBNx{1558601007}
+\showISSN{1098-6596}
+\showDOI{%
+\url{https://doi.org/10.1.1.32.7223}}
+\showeprint[arxiv]{arXiv:1011.1669v3}
+
+
+\bibitem[\protect\citeauthoryear{Han, Mao, and Dally}{Han
+  et~al\mbox{.}}{2015}]%
+        {Han2015}
+\bibfield{author}{\bibinfo{person}{Song Han}, \bibinfo{person}{Huizi Mao},
+  {and} \bibinfo{person}{William~J Dally}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{{Deep Compression: Compressing Deep Neural Networks
+  with Pruning, Trained Quantization and Huffman Coding}}.
+\newblock  (\bibinfo{year}{2015}).
+\newblock
+\showDOI{%
+\url{https://doi.org/abs/1510.00149/1510.00149}}
+\showeprint[arxiv]{1510.00149}
+
+
+\bibitem[\protect\citeauthoryear{He, Zhang, Ren, and Sun}{He
+  et~al\mbox{.}}{2016}]%
+        {He2016}
+\bibfield{author}{\bibinfo{person}{Kaiming He}, \bibinfo{person}{Xiangyu
+  Zhang}, \bibinfo{person}{Shaoqing Ren}, {and} \bibinfo{person}{Jian Sun}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{{Deep Residual Learning for Image Recognition}}. In
+  \bibinfo{booktitle}{{\em 2016 IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)}}. \bibinfo{pages}{770--778}.
+\newblock
+\showISBNx{978-1-4673-8851-1}
+\showISSN{1664-1078}
+\showDOI{%
+\url{https://doi.org/10.1109/CVPR.2016.90}}
+\showeprint[arxiv]{1512.03385}
+
+
+\bibitem[\protect\citeauthoryear{Krizhevsky}{Krizhevsky}{2009}]%
+        {Krizhevsky2009}
+\bibfield{author}{\bibinfo{person}{Alex Krizhevsky}.}
+  \bibinfo{year}{2009}\natexlab{}.
+\newblock \showarticletitle{{Learning Multiple Layers of Features from Tiny
+  Images}}.
+\newblock \bibinfo{journal}{{\em {\ldots} Science Department, University of
+  Toronto, Tech. {\ldots}\/}} (\bibinfo{year}{2009}), \bibinfo{pages}{1--60}.
+\newblock
+\showISBNx{9788578110796}
+\showISSN{1098-6596}
+\showDOI{%
+\url{https://doi.org/10.1.1.222.9220}}
+\showeprint[arxiv]{arXiv:1011.1669v3}
+
+
+\bibitem[\protect\citeauthoryear{LeCun, Bottou, Bengio, and Haffner}{LeCun
+  et~al\mbox{.}}{2001}]%
+        {Lecun1998}
+\bibfield{author}{\bibinfo{person}{Y LeCun}, \bibinfo{person}{L Bottou},
+  \bibinfo{person}{Yoshua Bengio}, {and} \bibinfo{person}{P Haffner}.}
+  \bibinfo{year}{2001}\natexlab{}.
+\newblock \showarticletitle{{Gradient-Based Learning Applied to Document
+  Recognition}}. In \bibinfo{booktitle}{{\em Intelligent Signal Processing}}.
+  \bibinfo{pages}{306--351}.
+\newblock
+\showISBNx{0018-9219}
+\showISSN{00189219}
+\showDOI{%
+\url{https://doi.org/10.1109/5.726791}}
+\showeprint[arxiv]{1102.0183}
+
+
+\bibitem[\protect\citeauthoryear{Meier}{Meier}{[n. d.]}]%
+        {meier}
+\bibfield{author}{\bibinfo{person}{Benjamin Meier}.} \bibinfo{year}{[n.
+  d.]}\natexlab{}.
+\newblock \bibinfo{title}{Going Deeper: Infinite Deep Neural Networks}.
+\newblock   (\bibinfo{year}{[n. d.]}).
+\newblock
+\showURL{%
+\url{https://github.com/kutoga/going_deeper/raw/master/doc/going_deeper.pdf}}
+
+
+\bibitem[\protect\citeauthoryear{Ng}{Ng}{2004}]%
+        {Ng2004}
+\bibfield{author}{\bibinfo{person}{Andrew~Y Ng}.}
+  \bibinfo{year}{2004}\natexlab{}.
+\newblock \showarticletitle{{Feature selection, $\backslash$ell{\_}1 vs.
+  $\backslash$ell{\_}2 regularization, and rotational invariance.}}. In
+  \bibinfo{booktitle}{{\em ICML}}. \bibinfo{pages}{78--85}.
+\newblock
+\showURL{%
+\url{http://www.machinelearning.org/proceedings/icml2004/papers/354.pdf}}
+
+
+\bibitem[\protect\citeauthoryear{Paszke, Gross, Chintala, Chanan, Yang, DeVito,
+  Lin, Desmaison, Antiga, and Lerer}{Paszke et~al\mbox{.}}{2017}]%
+        {paszke2017automatic}
+\bibfield{author}{\bibinfo{person}{Adam Paszke}, \bibinfo{person}{Sam Gross},
+  \bibinfo{person}{Soumith Chintala}, \bibinfo{person}{Gregory Chanan},
+  \bibinfo{person}{Edward Yang}, \bibinfo{person}{Zachary DeVito},
+  \bibinfo{person}{Zeming Lin}, \bibinfo{person}{Alban Desmaison},
+  \bibinfo{person}{Luca Antiga}, {and} \bibinfo{person}{Adam Lerer}.}
+  \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Automatic differentiation in PyTorch}.
+\newblock  (\bibinfo{year}{2017}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Pedregosa}{Pedregosa}{2016}]%
+        {Pedregosa2016}
+\bibfield{author}{\bibinfo{person}{Fabian Pedregosa}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{{Hyperparameter optimization with approximate
+  gradient}}.
+\newblock  (\bibinfo{year}{2016}).
+\newblock
+\showISBNx{9781510829008}
+\showeprint[arxiv]{1602.02355}
+\showURL{%
+\url{https://arxiv.org/pdf/1602.02355.pdfhttp://arxiv.org/abs/1602.02355}}
+
+
+\bibitem[\protect\citeauthoryear{Philipp and Carbonell}{Philipp and
+  Carbonell}{2017}]%
+        {Philipp}
+\bibfield{author}{\bibinfo{person}{George Philipp} {and}
+  \bibinfo{person}{Jaime~G Carbonell}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{{Nonparametric Neural Network}}. In
+  \bibinfo{booktitle}{{\em Proc. International Conference on Learning
+  Representations}}. \bibinfo{pages}{1--27}.
+\newblock
+\showeprint[arxiv]{1712.05440}
+\showURL{%
+\url{https://www.cs.cmu.edu/{~}jgc/publication/NonparametricNeuralNe}}
+
+
+\bibitem[\protect\citeauthoryear{Scardapane, Comminiello, Hussain, and
+  Uncini}{Scardapane et~al\mbox{.}}{2017}]%
+        {Scardapane2017}
+\bibfield{author}{\bibinfo{person}{Simone Scardapane}, \bibinfo{person}{Danilo
+  Comminiello}, \bibinfo{person}{Amir Hussain}, {and} \bibinfo{person}{Aurelio
+  Uncini}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{{Group sparse regularization for deep neural
+  networks}}.
+\newblock \bibinfo{journal}{{\em Neurocomputing\/}}  \bibinfo{volume}{241}
+  (\bibinfo{year}{2017}), \bibinfo{pages}{81--89}.
+\newblock
+\showISSN{18728286}
+\showDOI{%
+\url{https://doi.org/10.1016/j.neucom.2017.02.029}}
+\showeprint[arxiv]{1607.00485}
+
+
+\bibitem[\protect\citeauthoryear{Tibshirani}{Tibshirani}{1996}]%
+        {Tibshirani1996}
+\bibfield{author}{\bibinfo{person}{Robert Tibshirani}.}
+  \bibinfo{year}{1996}\natexlab{}.
+\newblock \bibinfo{title}{{Regression Selection and Shrinkage via the Lasso}}.
+\newblock   (\bibinfo{year}{1996}), \bibinfo{numpages}{267--288}~pages.
+\newblock
+\showISBNx{0849320240}
+\showISSN{00359246}
+\showDOI{%
+\url{https://doi.org/10.2307/2346178}}
+\showeprint[arxiv]{1369–7412/11/73273}
+
+
+\bibitem[\protect\citeauthoryear{Xiao, Rasul, and Vollgraf}{Xiao
+  et~al\mbox{.}}{2017}]%
+        {Xiao2017}
+\bibfield{author}{\bibinfo{person}{Han Xiao}, \bibinfo{person}{Kashif Rasul},
+  {and} \bibinfo{person}{Roland Vollgraf}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{{Fashion-MNIST: a Novel Image Dataset for
+  Benchmarking Machine Learning Algorithms}}.
+\newblock  (\bibinfo{year}{2017}).
+\newblock
+\showeprint[arxiv]{1708.07747}
+\showURL{%
+\url{https://arxiv.org/pdf/1708.07747.pdfhttp://arxiv.org/abs/1708.07747}}
+
+
+\end{thebibliography}
