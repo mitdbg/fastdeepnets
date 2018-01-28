@@ -1,5 +1,5 @@
 from matplotlib import rc, use
-# use('agg')
+use('agg')
 import numpy as np
 import pandas as pd
 import torch
@@ -100,7 +100,7 @@ def plot_file(ax, fn, max_val, right=False):
     gs, s = load_file(fn)
     ax.plot(gs[:, 2], gs[:, 0] / max_val, 'x-', label="Group Sparsity")
     ax.plot(s[:, 2], s[:, 0] / max_val, '.-', label="ShrinkNet")
-    ax.set_ylim((0, 1.1))
+    ax.set_ylim((-0.1, 1.1))
     if right:
         ax.yaxis.set_ticklabels([])
     ax.yaxis.grid(b=True, which='major', alpha=0.4, linestyle='--')
@@ -115,5 +115,6 @@ plot_file(axs_logistic[1], './experiments_results/logistic_reg_1447.pkl', np.log
 axs_linear[0].legend()
 f.set_size_inches((5, 5))
 
-f.text(0.52, 0.04, 'Ratio of features dropped', ha='center')
-f.text(0.04, 0.5, 'Normalized error', va='center', rotation='vertical')
+f.text(0.52, 0.04, 'Sparsity', ha='center')
+f.text(0.02, 0.5, 'Normalized loss', va='center', rotation='vertical')
+plt.savefig('regressions.pdf', bbox_inches='tight', pad_inches=0)
