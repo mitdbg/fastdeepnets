@@ -1,5 +1,5 @@
 from matplotlib import rc, use
-# use('agg')
+use('agg')
 import numpy as np
 import pandas as pd
 import torch
@@ -87,9 +87,14 @@ def plot(ax_left, ax_right, det, ran, bl):
     ax_left.xaxis.grid(b=True, which='major', alpha=0.4, linestyle='--')
 
 def plot_configs(configs):
-    f, lines = plt.subplots(len(configs), 2, sharex=True)
+    fig, lines = plt.subplots(len(configs), 2, sharex=True)
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
     for line, config in zip(lines, configs):
         f = load_file(*config)
         plot(*(tuple(line) + tuple(f)))
-    lines[-1][0].legend(ncol=2, loc='lower right')
+    lines[0][0].legend(bbox_to_anchor=(1.9, 1.3), ncol=2, loc='upper right')
+    fig.set_size_inches((5, 5))
+    fig.text(0.515, 0.04, '$\gamma$', ha='center')
+
+plot_configs([('scm1d', 0.1), ('oes97', 0.1)])
+plt.savefig('neuron_removal.pdf', bbox_inches='tight', pad_inches=0)

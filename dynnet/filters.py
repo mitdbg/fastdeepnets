@@ -1,15 +1,24 @@
 """This module implements different algorithms for feature selection"""
 
 from typing import Any, Union
-from torch import ones, nonzero, LongTensor, ByteTensor, rand
+from torch import ones, nonzero, LongTensor, ByteTensor, rand, randn
 from torch.nn import Parameter
 from torch.nn.functional import relu
 
 from dynnet.interfaces import DynamicModule, GarbageCollectionLog
 from dynnet.operations import IndexSelectOperation
 
+class Filter(DynamicModule):
 
-class SimpleFilter(DynamicModule):
+    def forward(self, x):
+        raise NotImplementedError("This is an abstract class")
+
+    def get_weights(self):
+        raise NotImplementedError("This is an abstract class")
+
+
+
+class SimpleFilter(Filter):
 
     def __init__(self, starting_value: Union[float, str] = 'random', **kwargs):
         input_features = kwargs['input_features']
@@ -23,8 +32,14 @@ class SimpleFilter(DynamicModule):
             # we do not want dead neurons from the beginning so (0, 1] is
             # a better range for the random numbers
             self.weight = Parameter(1 - rand(features.feature_count))
+        elif starting_value == 'normal':
+            self.weight = Parameter(randn(features.feature_count))
         else:
+            print(starting_value)
             self.weight = Parameter(ones(features.feature_count) * starting_value)
+
+    def get_weight(self):
+        return relu(self.weight)
 
     def forward(self, x):
         # Size checks
@@ -33,11 +48,11 @@ class SimpleFilter(DynamicModule):
         # This is the only implementation that keeps the output
         # contiguous in memory (and therefore does not involve reordering
         # it later
-        weight = self.weight.unsqueeze(0)
+        weight = self.get_weight().unsqueeze(0)
         for _ in range(len(self.output_features.additional_dims)):
             weight = weight.unsqueeze(2)
         weight = weight.expand(x.size())
-        x = x * relu(weight)
+        x = x * weight
         return x
 
     def remove_input_features(self, remaining_features: LongTensor,
@@ -71,3 +86,51 @@ class SimpleFilter(DynamicModule):
 
     def __repr__(self):
         return "SimpleFilter(%s)" % self.output_features.feature_count
+
+class SmoothFilter(SimpleFilter):
+
+    def __init__(self, starting_value: Union[float, str] = 'random',
+                 gamma=0.99, threshold=0.5 **kwargs):
+        super(SmoothFilter, self).__init__(starting_value, **kwargs)
+        self.register_buffer('exp_avg', torch.zeros(self.weight.size()))
+        self.register_buffer('exp_std', torch.zeros(self.weight.size()))
+        self.register_buffer('mask', torch.ByteTensor(self.weight.size())))
+        self.mask.fill_(1)
+
+    def get_weights(self):
+        return self.weight
+
+    def get_alive_features(self) -> ByteTensor:
+        """Mask containing ones when alive
+
+        Returns
+        -------
+        The binary mask
+        """
+        return self.mask
+
+    def remove_input_features(self, remaining_features: LongTensor,
+                              input_index: Any,
+                              log: GarbageCollectionLog) -> None:
+        assert input_index == 0, "We are only aware of one parent"
+        # Let's reuse the logic
+        self.remove_output_features(remaining_features, log)
+
+    def remove_output_features(self, remaining_features: LongTensor,
+                               log: GarbageCollectionLog) -> None:
+        assert remaining_features.size(0) < self.weight.size(0), (
+            "We should be removing features")
+        operation = IndexSelectOperation(remaining_features, 0)
+        self.weight = log.change_parameter(self.weight, operation)
+        for buffer_name in ['exp_std', 'exp_avg', 'mask']:
+            self.__dict__[buffer_name] = operation(self.__dict__[buffer_name])
+
+    def update_statistics(self):
+        gamma = self.gamma
+        bs = self.get_weights().data.sign()
+        diff = bs - self.exp_avg
+        self.exp_std.mul_(gamma).addcmul_(1 - gamma, diff, diff)
+        self.exp_avg.mul_(gamma).add_(1 - gamma, bs)
+        self.mask.mul_(self.exp_std <= self.threshold)
+        self.weight.mul_(self.mask.float())
+

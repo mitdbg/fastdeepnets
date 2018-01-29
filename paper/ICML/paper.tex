@@ -60,7 +60,7 @@
 \icmlsetsymbol{equal}{*}
 
 \begin{icmlauthorlist}
-\icmlauthor{Guillaume Leclerc}{mit}
+\icmlauthor{Guillaume Leclerc}{mit,epfl}
 \icmlauthor{Raul Castro Fernandez}{mit}
 \icmlauthor{Manasi Vartak}{mit}
 \icmlauthor{Martin Jaggi}{epfl}
@@ -232,7 +232,7 @@ are available in \cref{linear_datasets}.
 
 \begin{figure}
 \begin{center}
-\includegraphics[height=0.97\columnwidth]{regressions}
+\includegraphics[width=\columnwidth]{regressions}
 \vspace*{-5mm}
 \caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknet on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
 
@@ -244,9 +244,32 @@ are available in \cref{linear_datasets}.
 
 In our previous experiment, we showed that the ShrinkNet loss was
 reasonable in practice, we are now interested in the impact on
-early pruning. The two most important questions to answer are:
-What are the impact on convergence speed (i.e. the number of iterations) ?
-and: What is the difference in loss with and without early pruning ?
+early pruning. The method we suggest for early prunning uses a
+parameter $\gamma$ that control the aggressiveness of neuron removal
+so we will try to evaluate its impact on the final loss achieved by
+the model and the cost required to train the model. Our cost model
+is simple and hardware independant, we sum the number of input neurons
+at each epoch. In theory the cost in time should be asymptotically
+linear to this metric. To have a baseline we also train the same model
+but without neuron removal. Keep in mind that this is just in order to
+have some reference. Indeed, if we were to remove the neurons with small
+weights it would deteriorate the loss (and picking the threshould would
+be completely arbitrary). Therefore the baseline is evaluated with all neurons.
+One could consider it as a "theoretical lower bound" of the best achievable loss.
+
+
+We picked multiple combinations of dataset and regularization parameters ($\lambda$) and for each we fit with different aggressiveness parameters ($\gamma$). We measure the loss after convergence and the total cost and report the result in \cref{neuron_removal_figure}. In order to reduce the noise in the result, each experiment was performed $30$ times and we display the range arround $\pm$ $1$ standard deviation.
+
+\textbf{TODO: Interpret the results}
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{neuron_removal}
+\vspace*{-5mm}
+\caption{\label{neuron_removal_figure}Effect of dynamic neuron removal for different $\gamma$. First column is the difference in the final loss in function of the removal factor. We plot theoretical baseline as a reference. Right column is a proxy of the total cost for training the model (i.e. the sum of input neurons at each epoch). Each row is a dataset/$\lambda$ combination. From top to bottom we have: \texttt{scm1d}/$0.1$, \texttt{oes97}/$0.1$}
+
+\end{center}
+\vspace*{-4mm}
+\end{figure}
 
 \subsection{Convergence and training dynamics of Neural networks}
 
