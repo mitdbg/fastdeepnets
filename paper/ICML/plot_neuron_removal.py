@@ -93,8 +93,8 @@ def plot_configs(configs):
         f = load_file(*config)
         plot(*(tuple(line) + tuple(f)))
     lines[0][0].legend(bbox_to_anchor=(1.9, 1.3), ncol=2, loc='upper right')
-    fig.set_size_inches((5, 5))
+    fig.set_size_inches((5, 10))
     fig.text(0.515, 0.04, '$\gamma$', ha='center')
 
-plot_configs([('scm1d', 0.1), ('oes97', 0.1)])
+plot_configs([('scm1d', 0.1), ('scm1d', 0.001), ('oes97', 0.1), ('oes97', 0.0036)])
 plt.savefig('neuron_removal.pdf', bbox_inches='tight', pad_inches=0)
