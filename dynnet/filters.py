@@ -1,7 +1,9 @@
 """This module implements different algorithms for feature selection"""
 
 from typing import Any, Union
-from torch import ones, nonzero, LongTensor, ByteTensor, rand, randn
+from torch import (
+    ones, nonzero, LongTensor, ByteTensor, rand, randn, zeros
+)
 from torch.nn import Parameter
 from torch.nn.functional import relu
 
@@ -10,12 +12,8 @@ from dynnet.operations import IndexSelectOperation
 
 class Filter(DynamicModule):
 
-    def forward(self, x):
-        raise NotImplementedError("This is an abstract class")
-
     def get_weights(self):
         raise NotImplementedError("This is an abstract class")
-
 
 
 class SimpleFilter(Filter):
@@ -34,11 +32,13 @@ class SimpleFilter(Filter):
             self.weight = Parameter(1 - rand(features.feature_count))
         elif starting_value == 'normal':
             self.weight = Parameter(randn(features.feature_count))
+        elif starting_value == 'uniform':
+            self.weight = Parameter(rand(features.feature_count) * 2 - 1)
         else:
             print(starting_value)
             self.weight = Parameter(ones(features.feature_count) * starting_value)
 
-    def get_weight(self):
+    def get_weights(self):
         return relu(self.weight)
 
     def forward(self, x):
@@ -48,7 +48,7 @@ class SimpleFilter(Filter):
         # This is the only implementation that keeps the output
         # contiguous in memory (and therefore does not involve reordering
         # it later
-        weight = self.get_weight().unsqueeze(0)
+        weight = self.get_weights().unsqueeze(0)
         for _ in range(len(self.output_features.additional_dims)):
             weight = weight.unsqueeze(2)
         weight = weight.expand(x.size())
@@ -90,11 +90,13 @@ class SimpleFilter(Filter):
 class SmoothFilter(SimpleFilter):
 
     def __init__(self, starting_value: Union[float, str] = 'random',
-                 gamma=0.99, threshold=0.5 **kwargs):
+                 gamma=0.99, threshold=0.5, **kwargs):
+        self.gamma = gamma
+        self.threshold = threshold
         super(SmoothFilter, self).__init__(starting_value, **kwargs)
-        self.register_buffer('exp_avg', torch.zeros(self.weight.size()))
-        self.register_buffer('exp_std', torch.zeros(self.weight.size()))
-        self.register_buffer('mask', torch.ByteTensor(self.weight.size())))
+        self.register_buffer('exp_avg', self.weight.data.sign().float())
+        self.register_buffer('exp_std', zeros(self.weight.size()))
+        self.register_buffer('mask', ByteTensor(self.weight.size()))
         self.mask.fill_(1)
 
     def get_weights(self):
@@ -123,7 +125,7 @@ class SmoothFilter(SimpleFilter):
         operation = IndexSelectOperation(remaining_features, 0)
         self.weight = log.change_parameter(self.weight, operation)
         for buffer_name in ['exp_std', 'exp_avg', 'mask']:
-            self.__dict__[buffer_name] = operation(self.__dict__[buffer_name])
+            setattr(self, buffer_name, operation(getattr(self, buffer_name)))
 
     def update_statistics(self):
         gamma = self.gamma
@@ -132,5 +134,11 @@ class SmoothFilter(SimpleFilter):
         self.exp_std.mul_(gamma).addcmul_(1 - gamma, diff, diff)
         self.exp_avg.mul_(gamma).add_(1 - gamma, bs)
         self.mask.mul_(self.exp_std <= self.threshold)
-        self.weight.mul_(self.mask.float())
+        self.weight.data.mul_(self.mask.float())
+
+    def __repr__(self):
+        return "SmoothFilter(%s, gamma=%s)" % (
+            self.output_features.feature_count,
+            self.gamma
+        )
 

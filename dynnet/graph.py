@@ -183,6 +183,7 @@ class Sequential(Graph):
 
     def add(self, factory: Callable[[], Module],
             *args, **kwargs) -> DynamicModule:
+        print("adding", factory)
         parent = []
         if len(self) > 0:
             parent = [self[-1]]

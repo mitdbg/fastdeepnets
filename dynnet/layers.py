@@ -6,6 +6,8 @@ from torch.autograd import Variable
 from torch.nn import (
     Linear as SimpleLinear,
     BatchNorm1d as SimpleBatchNorm1d,
+    BatchNorm2d as SimpleBatchNorm2d,
+    BatchNorm3d as SimpleBatchNorm3d,
     Conv2d as SimpleConv2d
 )
 
@@ -230,15 +232,25 @@ class Linear(BaseDynamicLayer):
                                      *args, **kwargs)
 
 
-class BatchNorm1d(BaseDynamicLayer):
+class BatchNorm(BaseDynamicLayer):
     """We will reuse the docstring from pytorch"""
+
+    def get_factory(self):
+        raise NotImplementedError('This is a base class')
 
     def __init__(self, *args, **kwargs):
         input_features = kwargs['input_features']
         assert len(input_features) == 1, (
-            "BatchNorm1d only supports 1 parent")
+            "BatchNorm only supports 1 parent")
+        dim = len(input_features[0].additional_dims)
+        if dim == 0:
+            factory = SimpleBatchNorm1d
+        elif dim == 1:
+            factory = SimpleBatchNorm2d
+        elif dim == 2:
+            factory = SimpleBatchNorm3d
 
-        super(BatchNorm1d, self).__init__(factory=SimpleBatchNorm1d,
+        super(BatchNorm, self).__init__(factory=factory,
                                           in_feature_arg_name="num_features",
                                           out_feature_arg_name="num_features",
                                           in_feature_dim=0,
@@ -257,7 +269,7 @@ class BatchNorm1d(BaseDynamicLayer):
 
     def remove_output_features(self, remaining_features: LongTensor,
                                log: GarbageCollectionLog) -> None:
-        super(BatchNorm1d, self).remove_output_features(remaining_features,
+        super(BatchNorm, self).remove_output_features(remaining_features,
                                                         log)
         operation = IndexSelectOperation(remaining_features, 0)
         # The operations on the buffer do not need te be logged, they
@@ -269,6 +281,38 @@ class BatchNorm1d(BaseDynamicLayer):
         self.implementation.num_features = (
             self.output_features.feature_count)
 
+class CapNorm(BatchNorm):
+
+    def __init__(self, *args, **kwargs):
+        input_features = kwargs['input_features']
+        assert len(input_features) == 1, (
+            "BatchNorm only supports 1 parent")
+        kwargs['affine'] = False
+        super(CapNorm, self).__init__(*args, **kwargs)
+
+    def forward(self, x):
+        previous_factor = (x.transpose(0, 1).contiguous().view(x.size(1), -1).var(1) + self.implementation.eps).sqrt().clamp(max=1)
+        previous_factor = previous_factor.unsqueeze(0)
+        for i in range(2, len(x.size())):
+            previous_factor = previous_factor.unsqueeze(i)
+        previous_factor = previous_factor.expand(x.size())
+        x = super().forward(x)
+        return x * previous_factor
+
+    def remove_output_features(self, remaining_features: LongTensor,
+                               log: GarbageCollectionLog) -> None:
+        operation = IndexSelectOperation(remaining_features, 0)
+        # The operations on the buffer do not need te be logged, they
+        # are purely internals to the module
+        self.implementation.running_mean = operation(
+            self.implementation.running_mean)
+        self.implementation.running_var = operation(
+            self.implementation.running_var)
+        self.implementation.num_features = (
+            self.output_features.feature_count)
+
+    def __repr__(self):
+        return "DynCapped%s" % self.implementation
 
 class Conv2d(BaseDynamicLayer):
     """We will reuse the docstring from pytorch"""
@@ -338,6 +382,7 @@ class Flatten(DynamicModule):
 
 
 # Fill documentation
-BatchNorm1d.__doc__ = SimpleBatchNorm1d.__doc__
+BatchNorm.__doc__ = SimpleBatchNorm1d.__doc__
+CapNorm.__doc__ = SimpleBatchNorm1d.__doc__
 Linear.__doc__ = SimpleLinear.__doc__
 Conv2d.__doc__ = SimpleConv2d.__doc__

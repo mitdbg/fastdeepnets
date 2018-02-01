@@ -3,10 +3,9 @@
 from typing import List, Union
 
 import numpy as np
-from torch import from_numpy, LongTensor, cat
+from torch import from_numpy, LongTensor, cat, abs
 from torch.nn import Module
 from torch.autograd import Variable
-from torch.nn.functional import relu
 import dynnet
 
 
@@ -164,8 +163,8 @@ def shrinknet_penalty(model: Module) -> Variable:
     """
     filter_weights = []
     for layer in model.modules():
-        if isinstance(layer, dynnet.filters.SimpleFilter):
-            filter_weights.append(layer.weight)
+        if isinstance(layer, dynnet.filters.Filter):
+            filter_weights.append(layer.get_weights())
     if not filter_weights:
         return 0
     # It might look it is subobtimal to do it this way and we should
@@ -176,4 +175,9 @@ def shrinknet_penalty(model: Module) -> Variable:
     #   Having a lot of sum (one for every filter layer) would generate a very
     #   deep computation graph, Here we have a constant number of pytorch
     #   operations
-    return relu(cat(filter_weights)).sum()
+    return abs(cat(filter_weights)).sum()
+
+def update_statistics(model: Module) -> None:
+    for module in model.modules():
+        if hasattr(module, 'update_statistics'):
+            module.update_statistics()

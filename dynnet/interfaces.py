@@ -226,7 +226,7 @@ class FeatureBag():
         assert context in self.module_awareness, (
             "The module requesting the feature removal is not a listener")
         # We do not care about the torch format here
-        remaining_offsets = remaining_offsets.numpy()
+        remaining_offsets = remaining_offsets.cpu().numpy()
 
         # Compute the features from the offsets in context
         remaining_features = self.offsets_to_features(context,
