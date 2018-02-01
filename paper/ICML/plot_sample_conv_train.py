@@ -1,5 +1,5 @@
 from matplotlib import rc, use
-# use('agg')
+use('agg')
 import numpy as np
 import pandas as pd
 import torch
@@ -76,3 +76,7 @@ def plot_timings(logs):
     print(sums)
     ax4.bar(list(range(0, 4)), sums, color=['C0', 'C1', 'C2', 'C3'])
     ax4.set_yscale('log')
+    f.set_size_inches((20, 5))
+    plt.savefig('dynamic_timings.pdf', bbox_inches='tight', pad_inches=0)
+
+plot_timings(read_file('dynamic', 0)[1])
