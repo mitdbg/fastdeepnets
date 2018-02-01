@@ -24,7 +24,7 @@ def train(inputs, outputs, model, l1, l2, lr=1e-5, epochs=10000, gamma=0.9, remo
 
     if gamma is not None:
         mask = model.beta.data.new(model.beta.size()).fill_(1).byte()
-        exp_avg = model.beta.data.new(model.beta.size()).fill_(1.0)
+        exp_avg = model.beta.data.new(model.beta.size()).fill_(0)
         exp_std= model.beta.data.new(model.beta.size()).fill_(0)
     if randomized:
         noise = inputs.data.new(inputs.data.size())
