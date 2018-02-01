@@ -129,17 +129,6 @@ def init_model(model):
             module.running_var.fill_(0.9)
 
 def train(config, epochs=400):
-    config['params']['dropout'] = 0
-    config['params']['batch_norm'] = True
-    config['params']['dynamic'] = True
-    config['params']['weight_decay'] = 0.000001
-    config['params']['layers'] = 2
-    config['params']['lambda'] = 0.0001
-    config['params']['factor'] = 2
-    config['params']['batch_size'] = 150
-    config['params']['learning_rate'] = 1e-2
-    print(config)
-
 
     stats = TrainingStats()
     is_classification = config['mode'] == 'classification'
@@ -203,7 +192,7 @@ def train_simple_CIFAR10_dynamic():
             torch.save((config, stats), f)
 
 def train_simple_CIFAR10_static():
-    for i in range(1, 10):
+    for i in range(10, 20):
         config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
         config['params']['batch_norm'] = True
         config['params']['dynamic'] = False
@@ -216,4 +205,4 @@ def train_simple_CIFAR10_static():
         with open('./experiments_results/simple_static_CIFAR10_%s.pkl' %i, 'wb') as f:
             torch.save((config, stats), f)
 
-train_simple_CIFAR10_dynamic()
+train_simple_CIFAR10_static()
