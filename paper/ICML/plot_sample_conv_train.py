@@ -5,9 +5,11 @@ import pandas as pd
 import torch
 import matplotlib.pyplot as plt
 from glob import glob
+from paper.ICML.models.VGG import cfg
 # for Palatino and other serif fonts use:
 rc('font',**{'family':'serif','serif':['Palatino']})
 rc('text', usetex=True)
+vgg_configs = {k: [x for x in v if x != 'M'] for (k, v) in cfg.items()}
 
 # def last(experiments):
 #     return np.stack([x[-1] for x in experiments])
@@ -45,6 +47,8 @@ def read_file(mode, id):
     with open(fn, 'rb') as f:
         params, logs = torch.load(f)
         logs = logs.logs
+    # Mistake while writing
+    logs.measure.replace('test_', 'test_acc', inplace=True)
     return params, logs
 
 def extrat_timeline(logs, key):
@@ -79,4 +83,46 @@ def plot_timings(logs):
     f.set_size_inches((20, 5))
     plt.savefig('dynamic_timings.pdf', bbox_inches='tight', pad_inches=0)
 
+
+def get_best_entry(logs):
+    vac = logs[logs.measure == 'val_acc']
+    return logs[logs.epoch == vac.ix[vac['value'].argmax()].epoch]
+
+def plot_shape(logs, segments=10, vgg='VGG16', factor=2):
+    f = plt.figure()
+    cf = vgg_configs[vgg]
+    best = get_best_entry(logs)
+    best_epoch = int(best.epoch.iloc[0])
+    parts = np.linspace(0, best_epoch, segments).astype(int)
+    last_value = None
+    for epoch in parts:
+        if epoch == 0:
+            values = np.array(cf) * factor
+        else:
+            at_that_time = logs[logs.epoch == epoch]
+            at_that_time = at_that_time[at_that_time['measure'].str.startswith('size')]
+            values = at_that_time.value.as_matrix()[:-2]
+        last_value = values
+        plt.fill_between(range(len(values)), 0*values, values, color='C0', alpha=0.1)
+    plt.xlabel('layer')
+    plt.ylabel('size')
+    plt.plot(range(len(last_value)), last_value, color='C0', label='Converted Shrinknet size')
+    plt.plot(range(len(last_value)), cf, color='C1', label='Original VGG16 size')
+    ax = plt.gca()
+    ax.yaxis.grid(b=True, which='major', alpha=0.4, linestyle='--')
+    ax.xaxis.grid(b=True, which='major', alpha=0.4, linestyle='--')
+    plt.legend()
+    f.set_size_inches((10, 5))
+    plt.savefig('convergence_shape.pdf', bbox_inches='tight', pad_inches=0)
+
+
+def compare_static_dynamic():
+    results = []
+    for i in range(2):
+        cur = get_best_entry(read_file('static', i)[1])
+        results.append(cur)
+    return results
+
 plot_timings(read_file('dynamic', 0)[1])
+plot_shape(read_file('dynamic', 0)[1])
+
