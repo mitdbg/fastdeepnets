@@ -1,7 +1,9 @@
 import torch
 import numpy as np
+import os
 from copy import deepcopy, copy
 from random import choice
+from uuid import uuid4
 from dataset_settings import SETTINGS as DATASETS, LOG_DISTRIBUTIONS, INTEGERS
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader, TensorDataset
@@ -13,6 +15,7 @@ from utils.misc import tn
 from multiprocessing import cpu_count
 from torch.optim import Adam, SGD, Adamax
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+import sys
 
 def clean_params(params):
     result = {}
@@ -136,7 +139,8 @@ def train(config, epochs=400):
     init_model(model)
     dl_train, dl_val, dl_test = prepare_loaders(config)
     weight_decay = config['params']['weight_decay']
-    optimizer =  Adam(model.parameters(), weight_decay=weight_decay)
+    lr = config['params']['learning_rate']
+    optimizer =  Adam(model.parameters(), weight_decay=weight_decay, lr=lr)
 
     if is_classification:
         direction = 'max'
@@ -158,6 +162,7 @@ def train(config, epochs=400):
                 with stats.time('optimizer_update'):
                     log.update_optimizer(optimizer)
                 sizes = compute_size(model)
+                print(sizes)
                 for i, value, in enumerate(sizes):
                     stats.log('size_%s' % (i + 1), value)
             with stats.time('inference_val'):
@@ -168,31 +173,25 @@ def train(config, epochs=400):
                 test_loss, test_acc = forward(model, dl_test, config)
                 stats.log('test_loss', test_loss)
                 stats.log('test_acc', test_acc)
+            print(train_acc, test_acc)
             stats.log('learning_rate', optimizer.param_groups[0]['lr'])
             scheduler.step(val_acc)
             if optimizer.param_groups[0]['lr'] < 1e-6:
                 break
     except:
-        pass
-
+        raise
     return stats, model
 
 def train_simple_CIFAR10_dynamic():
-    for i in range(1, 10):
-        config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
-        config['params']['batch_norm'] = True
-        config['params']['dynamic'] = True
-        config['params']['weight_decay'] = 0.000001
-        config['params']['lambda'] = 0.0001
-        config['params']['factor'] = 2
-        config['params']['batch_size'] = 150
-        config['params']['learning_rate'] = 1e-2
-        stats, model = train(config)
-        with open('./experiments_results/simple_dynamic_CIFAR10_%s.pkl' % i, 'wb') as f:
-            torch.save((config, stats), f)
+    config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
+    print(config)
+    return
+    stats, model = train(config)
+    with open('./experiments_results/simple_dynamic_CIFAR10_%s.pkl' % i, 'wb') as f:
+        torch.save((config, stats), f)
 
 def train_simple_CIFAR10_static():
-    for i in range(10, 20):
+    for i in range(50, 100):
         config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
         config['params']['batch_norm'] = True
         config['params']['dynamic'] = False
@@ -205,4 +204,15 @@ def train_simple_CIFAR10_static():
         with open('./experiments_results/simple_static_CIFAR10_%s.pkl' %i, 'wb') as f:
             torch.save((config, stats), f)
 
-train_simple_CIFAR10_static()
+def random_train(mode):
+    sampling_settings = DATASETS[mode]
+    config = deepcopy(sample_params(sampling_settings))
+    print(mode)
+    print(config)
+    filename = './experiments_results/random_search/%s/%s.pkl' % (mode, uuid4())
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    stats, model = train(config)
+    with open(filename, 'wb') as f:
+        torch.save((sampling_settings, config, stats, model), f)
+
+random_train(sys.argv[-1])
