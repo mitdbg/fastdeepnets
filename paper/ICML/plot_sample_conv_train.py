@@ -3,6 +3,7 @@ from matplotlib import rc, use
 import numpy as np
 import pandas as pd
 import torch
+from glob import glob
 import matplotlib.pyplot as plt
 from glob import glob
 from paper.ICML.models.VGG import cfg
@@ -42,14 +43,17 @@ vgg_configs = {k: [x for x in v if x != 'M'] for (k, v) in cfg.items()}
 # f.text(0.02, 0.5, 'Normalized loss', va='center', rotation='vertical')
 # plt.savefig('regressions.pdf', bbox_inches='tight', pad_inches=0)
 
-def read_file(mode, id):
-    fn = './experiments_results/simple_%s_CIFAR10_%s.pkl' % (mode, id)
+def process_file(fn):
     with open(fn, 'rb') as f:
         params, logs = torch.load(f)
         logs = logs.logs
     # Mistake while writing
     logs.measure.replace('test_', 'test_acc', inplace=True)
     return params, logs
+
+def read_file(mode, id):
+    fn = './experiments_results/simple_%s_CIFAR10_%s.pkl' % (mode, id)
+    return process_file(fn)
 
 def extrat_timeline(logs, key):
     return logs[logs.measure==key]
@@ -117,3 +121,41 @@ def compare_static_dynamic():
         results.append(cur)
     return results
 
+def cost(seq):
+    prev = 3
+    total = 0
+    for e in seq:
+        total += prev * e * 9
+        prev = e
+    return total
+
+def get_final_size(logs,):
+    best = get_best_entry(logs)
+    epoch = int(best.epoch.iloc[0])
+    at_that_time = logs[logs.epoch == epoch]
+    at_that_time = at_that_time[at_that_time['measure'].str.startswith('size')]
+    values = at_that_time.value.as_matrix()[:-2]
+    return cost(values)
+
+def get_all_files(mode):
+    pattern = './experiments_results/simple_%s_CIFAR10_*.pkl' % (mode)
+    files = glob(pattern)
+    return [process_file(x) for x in files]
+
+
+def get_compression(vgg='VGG16'):
+    compressions = []
+    cf = vgg_configs[vgg]
+    original_cost = cost(cf)
+    result = []
+    for _, logs in get_all_files('dynamic'):
+        b = get_best_entry(logs)
+        result.append(cost(cf) / get_final_size(logs))
+    return np.array(result)
+
+def get_final_measure(mode, measure='test_acc'):
+    best_results = [get_best_entry(x[1]) for x in get_all_files(mode)]
+    if measure == 'time':
+        return np.array([float(x.max().time) for x in best_results])
+    else:
+        return np.array([float(x[x.measure == measure].value) for x in best_results])
