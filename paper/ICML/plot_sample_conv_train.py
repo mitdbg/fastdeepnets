@@ -1,5 +1,5 @@
 from matplotlib import rc, use
-# use('agg')
+use('agg')
 import numpy as np
 import pandas as pd
 import torch
@@ -84,12 +84,16 @@ def plot_timings(logs):
     print(sums)
     ax4.bar(list(range(0, 4)), sums, color=['C0', 'C1', 'C2', 'C3'])
     ax4.set_yscale('log')
+    f.set_size_inches((20, 5))
+    plt.savefig('dynamic_timings.pdf', bbox_inches='tight', pad_inches=0)
+
 
 def get_best_entry(logs):
     vac = logs[logs.measure == 'val_acc']
     return logs[logs.epoch == vac.ix[vac['value'].argmax()].epoch]
 
 def plot_shape(logs, segments=10, vgg='VGG16', factor=2):
+    f = plt.figure()
     cf = vgg_configs[vgg]
     best = get_best_entry(logs)
     best_epoch = int(best.epoch.iloc[0])
@@ -112,6 +116,8 @@ def plot_shape(logs, segments=10, vgg='VGG16', factor=2):
     ax.yaxis.grid(b=True, which='major', alpha=0.4, linestyle='--')
     ax.xaxis.grid(b=True, which='major', alpha=0.4, linestyle='--')
     plt.legend()
+    f.set_size_inches((10, 5))
+    plt.savefig('convergence_shape.pdf', bbox_inches='tight', pad_inches=0)
 
 
 def compare_static_dynamic():
@@ -159,3 +165,5 @@ def get_final_measure(mode, measure='test_acc'):
         return np.array([float(x.max().time) for x in best_results])
     else:
         return np.array([float(x[x.measure == measure].value) for x in best_results])
+plot_timings(read_file('dynamic', 0)[1])
+plot_shape(read_file('dynamic', 0)[1])
