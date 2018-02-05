@@ -46,8 +46,9 @@ class VGG(nn.Module):
         graph.add(Flatten)
         for i in range(2):
             graph.add(Linear, out_features=params['classifier_layer_%s' % (i + 1)])
-            graph.add(SmoothFilter, starting_value='uniform',
-                      gamma=params['gamma'])
+            if dynamic:
+                graph.add(SmoothFilter, starting_value='uniform',
+                          gamma=params['gamma'])
             graph.add(ReLU, inplace=True)
         graph.add(Linear, out_features=params['output_features'])
 
