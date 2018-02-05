@@ -1,0 +1,75 @@
+\section{Theoretical analysis}
+
+\subsection{Notations}
+
+\par In order to avoid any potential ambiguity, in this section we will
+describe in details the mathematical notations used in this article. Non-bold
+letters represent scalar values, while bold lowercase and upper case
+repectively denote vectors and matrices. $\bm{A}^T$ stands for the transpose of
+the matrix $\bm{A}$. Subscripts are used to index particular elements of
+vectors and matrices. $\bm{x}_i$, $\bm{A}_i$, $\left(\bm{A}^T\right)_j$ and
+$\bm{A}_{i,j}$ respectively correspond to the $i^{th}$ component of $\bm{x}$,
+the $i^{th}$ row of $\bm{A}$, the $j^{th}$ column of $\bm{A}$ and the $j^{th}$
+component of the $i^{th}$ row of $\bm{A}$. All the following definitions assume
+$\bm{A}$ to be an $n\times p$ matrix.  For any vetor $\bm{b}$ with $n$
+components, we define $\diag{\bm{b}}$ a $n\times n$ matrix such that: $\forall
+1 \leq i \leq n$, $\diag{\bm{b}}_{i, i} = \bm{b}_i$ and $0$ otherwise.  For any $l \in \left[0, +\infty\right]$ we define the norm: $\norm{\bm{A}}_l =
+\left(\sum_{i=1}^n \sum_{j=1}^p \abs{\bm{A}_{i, j}}^l\right)^{\frac{1}{p}}$. For the rest of this paper and unless stated otherwise, $\bm{y}$ will represent the output of a network, $\bm{x}$ the input, $\bm{b}$ a bias, $\lambda$ regularization factors, $\Omega$ regularization methods, $\bm{\theta}$ general model parameters and $a$ will stand for any element-wise activation function. The only constraint that we want to enforce is that $a(0) = 0$. We use $\intint{u, v}$ to denote inteveral of integers, $\bm{0}$ is the null vector (size depending on the context). $\#S$ is meant to represent the cardinality of a set $S$. To simplify the notation of function composition we use the following operator: $g(f(\bm{x})) = (f \circ g)(\bm{x})$ and for a long sequence of functions from $f_1$ to $f_n$ we use: $f_n(...f_1(\bm{x})) = \left(\bigcirc_{k = 1}^n f_k\right)(\bm{x})$.
+\subsection{Definition}
+
+\begin{equation}
+  \Omega_\lambda^s = \lambda \norm{\bm{\beta}}_1
+\end{equation}
+
+Our goal when designing ShrinkNets was to be able to remove inputs
+and outputs of layers. For classic fully connected layers, which are defined
+as :
+
+\begin{equation} \label{fully_connected}
+  f_{\bm{A}, \bm{b}}(\bm{x})=a(\bm{Ax + b})
+\end{equation}
+
+removing an input neuron $j$ is equivalent to have $\left(\bm{A}^T\right)_j = \bm{0}$
+and removing an output neuron $i$ is the same as having $\bm{A}_i = \bm{0}$ and $\bm{b}_i = 0$. Solving  optimization problems while trying to set entire groups
+of parameters to zero has been already studied and the most popular method
+is without doubt the group sparsity regularization [ref]. For any partitionning of the set of parameter defining a model in $p$ groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$ we define it the following way:
+
+\begin{equation}
+  \Omega_\lambda^{gp} = \lambda \sum_{i=1}^p \sqrt{\#\bm{\theta_i}} \norm{\bm{\theta_i}}_2 \\
+\end{equation}
+
+In the context of a fully-connected layer, the groups are either: columns of $\bm{A}$ if we want to remove inputs, or rows of $\bm{A}$ and the corresponding entry in $\bm{b}$ if we want to remove outputs. For simplicity, we will focus our analysis in the simple one-layer case. In this case filtering outputs does not make a lot of sense, this is why we will only consider the former case. The group sparsity regularization then becomes:
+
+
+\begin{equation} \label{group_sparsity_regularization}
+  \Omega_\lambda^{gp} = \lambda \sum_{j=1}^p \norm{\bm{\left(A^T\right)_j}}_2 \\
+\end{equation}
+
+Because $\forall i, \#\bm{\theta}_i = n$, To make the notation simpler,
+we now embed $\sqrt{n}$ inside $\lambda$.
+
+Since group sparsity and ShrinkNets try to achieve the same goal we will try to understand their similarities and differences. First let's recall the two problems. The ShrinkNet problem is:
+
+\begin{equation}
+  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s
+\end{equation}
+
+And the Group Sparsity problem is:
+
+\begin{equation}
+  \min_{\bm{A}} \norm{\bm{y} - \bm{A}\bm{x}}_2^2 + \Omega_\lambda^{gp}
+\end{equation}
+
+We can prove the under the condition: $\forall j\in \intint{1, p}, \norm{\left(\bm{A}^T\right)_j}_2 = 1$ the two problems are equivalent (\cref{gps_equivalence}). However if we relax this constraint then shrinknet becomes non-convex and has no global minimum (\cref{unconstrained_non_convex,unconstrained_shrinknet_no_min}). Fortunately, by adding an extra term to the ShrinkNet regularization term we can proove that:
+
+\begin{equation}
+  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s + \lambda_2\norm{A}_p^p
+\end{equation}
+
+has many global minimum (\cref{shrinknet_regularized_minimum}) for all $p>0$. This is the reason we define the \textit{regularized ShrinkNet penalty}:
+
+\begin{equation}
+  \Omega_{\lambda, \lambda_2, p}^{rs} = \lambda\norm{\bm{\beta}}_1 + \lambda_2\norm{\bm\theta}_p^p
+\end{equation}
+
+In practice we observed that $p=2$ or $p=1$ are good choice, while the latter will also introduce additional sparsity in the parameters.
