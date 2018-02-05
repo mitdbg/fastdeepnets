@@ -84,7 +84,6 @@ dependencies:
   - debtcollector==1.19.0
   - dill==0.2.7.1
   - docutils==0.14
-  - en-core-web-sm==2.0.0
   - fasteners==0.14.1
   - ftfy==4.4.3
   - future==0.16.0
@@ -126,7 +125,6 @@ dependencies:
   - rfc3986==1.1.0
   - s3transfer==0.1.12
   - smart-open==1.5.5
-  - spacy==2.0.5
   - stevedore==1.28.0
   - termcolor==1.1.0
   - thinc==6.10.2
