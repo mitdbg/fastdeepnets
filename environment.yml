@@ -107,7 +107,6 @@ dependencies:
   - netifaces==0.10.6
   - nibabel==2.2.1
   - nose==1.3.7
-  - numpy-indexed==0.3.4
   - oslo.concurrency==3.25.0
   - oslo.config==5.2.0
   - oslo.i18n==3.19.0
@@ -118,7 +117,6 @@ dependencies:
   - preshed==1.0.0
   - prompt-toolkit==1.0.15
   - py3==0.0.18
-  - pyyaml==3.12
   - regex==2017.4.5
   - requests==2.18.4
   - rfc3986==1.1.0
