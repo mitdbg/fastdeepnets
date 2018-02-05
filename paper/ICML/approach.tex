@@ -1,0 +1,94 @@
+\section{Our Approach}
+
+\begin{itemize}
+  \item Assign an on/off switch to each neuron. But this is np-hard, so we
+  consider a relaxation
+  \item Formulation
+  \item Relationship to group sparsity
+  \item Strategies to kill neurons (relation to theory above?)
+  \item Implementation details
+\end{itemize}
+
+Our approach has two main challenges. First, we need a way to
+dynamically size the network during training. Second, we need a
+loss function that optimizes for the additional task of sizing, without
+deteriorating the learning performance of the main task. Our
+approach, called ShrinkNets, copes with both challenges.
+
+During training, our approach starts
+with an explicitly over-sized network. As training progresses, we learn
+which neurons are not contributing to learning and remove them
+dynamically, effectively shrinking the network. This method requires two key components: first, we need a way to identify neurons that are not contributing to the
+learning process, and second we need a way to balance the network size and the
+generalization capability for the main task. We introduce a new \textsf{Filter} 
+\mpv{Choose a different name if possible bc this can be confused w/convolutional
+filters. Maybe Shrinkage layer?} 
+layer that takes care of \emph{deactivating} neurons. We also modify
+existing loss functions to incorporate a new term that takes care of balancing
+network size and generalization capability appropriately.
+
+\textbf{Filter Layers: } Filter layers have weights in the range $[0,+\infty]$ and are usually placed after
+linear and convolutional layers.
+The \textit{Filter Layer} takes an input of size $\left(B \times C \times D_1
+  \times \dots \times D_n\right)$, where $B$ is the batch size, $C$ the number
+of features (or channels, in the case of convolutional layers), and $D$ any
+additional dimension. This structure makes it compatible with fully connected
+layers with $n=0$ or convolutional layers with $n=2$. Their crucial property is
+a parameter $\theta \in \mathbb{R}^C$. The output is defined as follows: \vspace{-1em}
+\begin{equation} Filter(I;\theta) = I \circ \max(0, \theta) \end{equation}
+Where $\circ$ is the pointwise multiplication, and $\theta$ is expanded in all
+dimensions to match the input size (except the second one since they are equal
+by definition). It is easy to see that if for any $k$, if $\theta_k \leq 0$,
+the $k^{\text{th}}$ input feature/channel is multiplied by zero and have no
+influence on the output. If this happens, we say the Filter layer deactivates
+the neuron. These disabled neurons/channels can be removed from the network
+without changing its output. Before explaining how that is achieved, we explain
+next how the weights of the Filter Layer are initialized and adjusted during
+training.
+
+\textbf{Training Procedure: } Once Filter layers are placed in a network and initialized (sampled from the Uniform$[0, 1]$ distribution),
+%To train networks we need start with a substantially oversized network, then we
+%insert \textit{Filter Layers}  (usually after every linear or convolutional
+%layer except the last one) and we sample their weight from the
+%$\text{Uniform}(0, 1)$ distribution. 
+we could train the network directly using our standard loss function, and we could achieve performance equivalent to a normal neural
+network. However, our goal is to find the smallest network with reasonable
+performance. We achieve that by introducing sparsity in the parameters of the
+\textit{Filter Layers}, thus forcing the deactivation of neurons%. Indeed, having a negative component in the $\theta$
+%parameter of the filter layer permamently disable its associated feature
+%\gl{Maybe redundant ? we talked about that in the previous paragraph} . 
+. To obtain this sparsity, we simply redefine the loss function:
+\vspace{-.5em}
+\begin{equation}
+  L'(x,y;\theta) = L(x, y) + \lambda|\max(0, \theta)|
+\end{equation}
+
+The additional term $\lambda|\max(0, \theta)|$ introduces sparsity (see Lasso
+loss~\cite{Tibshirani1996}). 
+% The $\lambda$ parameter, that can take any
+% positive value, adjusts how aggressively the network deactivates neurons, with
+% larger values indicating more aggressive deactivation.
+ The second component of the loss increases the gradient with respect to $\theta$, thus pushing its value towards zero. Neurons with little impact
+on the original loss (gradient lower than $\lambda$), will not be able to
+compete against this attraction towards zero. Because the entries in $\theta$
+with a value of $0$ or less correspond to dead neurons, $\lambda$ effectively
+controls the number of neurons/channels in the entire network. We introduced
+the $\max(\dots)$ into the loss to make sure that neurons are permamently disabled
+when performing gradient descent based optimization. Next, we
+explain how to implement ShrinkNets efficiently.
+
+\subsection{Strategies to Remove Neurons}
+
+\textbf{Implementation}
+It is possible to reduce the overhead of the training process by removing
+neurons as soon as they become deactivated by $\theta$ going to 0.
+%If
+%disabled neurons are not quickly removed, the overhead might cause the training
+%process to be significantly slower than classic neural networks. 
+To do this, we implemented a \emph{neural garbage collection} mechanism which
+prunes deactivated neurons on-the-fly,  reducing the processing time
+and memory overhead. To support this feature, it is crucial to understand the
+information flow between neurons and layers in the neural network. We achieve
+this by representing such information flow as a graph. Vertices represent layers,
+and edges are event-hubs responsible for propagating information about disabled
+neurons to the relevant layers.

@@ -1,0 +1,53 @@
+\section{Introduction}
+
+One of the key determinants of network accuracy is the shape of the network, 
+i.e., the number of layers, number of neurons per layer, and connections between
+layers.
+An under-sized network is likely to have low accuracy because of insufficient 
+capacity while an over-sized network is difficult to train due to additional 
+parameters and is computationally inefficient during trainging as well as
+inference.
+% A sub-optimal network shape can lead to low accuracy .
+%Although the hyperparameters related wo network size can dramatically affect
+% performance, there is no reliable way to efficiently set them.
+Consequently, many techniques have been proposed to determine the optimal size of
+a neural network.
+This problem is also referred to as {\it hyperparameter optimization}.
+The most popular techniques include hyperparameter optimization strategies 
+ranging from random search~\cite{paper-on-random-is-good-enough}, 
+what-is-this-paper~\cite{Bengio2012a}, 
+meta-gradient descent~\cite{Pedregosa2016},
+Gaussian processes~\cite{Bergstra2011a} etc.
+All of these techniques without exception require a compute-intensive search of 
+parameter space and often the training of many tens or hundreds of models.
+As a result, tuning models via hyperparameter optimization takes many times 
+longer than the training of a single model and also requires more compute power
+for the training of every model with different model shape.
+
+In this paper we present a novel method to automatically find an appropriate
+network size, drastically reducing optimization time. 
+The key idea is to learn the right network size at the same time that
+the network is learning the main task.
+Our strategy, called \textbf{ShrinkNets}, is blah blah \mpv{Short blurb about the technique}
+% For example, for an image classification task, with our approach we can 
+% provide the training data to a network—without sizing it a priori—and expect 
+% to end up with a network that has learned to classify images with an accuracy
+% similar to a the best manually engineered network. 
+Our approach has two main benefits. 
+First and foremost, we no longer need to choose a network size before training.
+We can merely set an initial size for the network and then the algorithm will
+determine the best network that is smaller or equal in size to the inital size.
+Second, our technique trains a single model as opposed to the hundreds trained
+during hyperparameter optimization, as a result, we can find the best model 
+faster as well as with less computational overhead.
+
+Thus, our contributions are as follows: 
+(a) we propose a novel technique based on dynamically switching neurons on/off 
+to learn network size as the network is being trained. 
+(b) we show that our technique is a relaxation\mpv{?} of group sparsity and 
+prove \mpv{fill in}. 
+(c) we demonstrate the efficacy of our technique on CNNs and FCNs where 
+ShrinkNets finds networks within +/-X\% of best hand-crafted accuracy in XX\% of
+training time compared to competing hyperparameter optimization methods.
+(d) we also demonstrate that ShrinkNets can achieve this accuracy with only YY\% 
+of neurons.
