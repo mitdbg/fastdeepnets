@@ -236,11 +236,15 @@ def random_train(mode):
     config = deepcopy(sample_params(sampling_settings))
     print(mode)
     print(config)
-    filename = './experiments_results/random_search/%s/%s.pkl' % (mode, uuid4())
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    filename_stats = './experiments_results/random_search/%s/%s.pkl' % (mode, uuid4())
+    filename_model = './experiments_results/random_search/%s/%s.model' % (mode, uuid4())
+    os.makedirs(os.path.dirname(filename_stats), exist_ok=True)
+    os.makedirs(os.path.dirname(filename_model), exist_ok=True)
     stats, model = train(config)
-    with open(filename, 'wb') as f:
+    with open(filename_stats, 'wb') as f:
         torch.save((sampling_settings, config, stats), f)
+    with open(filename_model, 'wb') as f:
+        torch.save(model.cpu(), f)
 
 if __name__ == '__main__':
     random_train(sys.argv[-1])
