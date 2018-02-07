@@ -59,7 +59,7 @@ SETTINGS = {
         'normalization': None,
         'data_augmentations': [],
         'params': {
-            'lambda': (1, 1e-5),
+            'lambda': (0.1, 1e-6),
             'input_features': [(98,)],
             'output_features': [7],
             'layers': [3],
