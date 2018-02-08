@@ -1,9 +1,58 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Han et~al.(2015)Han, Mao, and Dally]{han2015deepcompression}
+Han, Song, Mao, Huizi, and Dally, William~J.
+\newblock Deep compression: Compressing deep neural networks with pruning,
+  trained quantization and huffman coding.
+\newblock \emph{arXiv preprint arXiv:1510.00149}, 2015.
+
+\bibitem[Hinton et~al.(2015)Hinton, Vinyals, and Dean]{hinton2015distilling}
+Hinton, Geoffrey, Vinyals, Oriol, and Dean, Jeff.
+\newblock Distilling the knowledge in a neural network.
+\newblock \emph{arXiv preprint arXiv:1503.02531}, 2015.
+
+\bibitem[Jamieson \& Talwalkar(2016)Jamieson and Talwalkar]{jamieson2016}
+Jamieson, Kevin and Talwalkar, Ameet.
+\newblock Non-stochastic best arm identification and hyperparameter
+  optimization.
+\newblock In \emph{Artificial Intelligence and Statistics}, pp.\  240--248,
+  2016.
+
+\bibitem[Li et~al.(2016)Li, Jamieson, DeSalvo, Rostamizadeh, and
+  Talwalkar]{li2016hyperband}
+Li, Lisha, Jamieson, Kevin, DeSalvo, Giulia, Rostamizadeh, Afshin, and
+  Talwalkar, Ameet.
+\newblock Hyperband: A novel bandit-based approach to hyperparameter
+  optimization.
+\newblock \emph{arXiv preprint arXiv:1603.06560}, 2016.
+
+\bibitem[Rasmussen \& Williams(2006)Rasmussen and Williams]{GaussianProcesses}
+Rasmussen, CE and Williams, CKI.
+\newblock \emph{Gaussian Processes for Machine Learning}.
+\newblock Adaptive Computation and Machine Learning. MIT Press, Cambridge, MA,
+  USA, 1 2006.
+\newblock ISBN 0-262-18253-X.
+
+\bibitem[Romero et~al.(2014)Romero, Ballas, Kahou, Chassang, Gatta, and
+  Bengio]{romero2014fitnets}
+Romero, Adriana, Ballas, Nicolas, Kahou, Samira~Ebrahimi, Chassang, Antoine,
+  Gatta, Carlo, and Bengio, Yoshua.
+\newblock Fitnets: Hints for thin deep nets.
+\newblock \emph{arXiv preprint arXiv:1412.6550}, 2014.
+
+\bibitem[Snoek et~al.(2012)Snoek, Larochelle, and Adams]{Snoek12}
+Snoek, Jasper, Larochelle, Hugo, and Adams, Ryan~P.
+\newblock Practical bayesian optimization of machine learning algorithms.
+\newblock In Pereira, F., Burges, C. J.~C., Bottou, L., and Weinberger, K.~Q.
+  (eds.), \emph{Advances in Neural Information Processing Systems 25}, pp.\
+  2951--2959. Curran Associates, Inc., 2012.
+\newblock URL
+  \url{http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms.pdf}.
 
 \bibitem[Vanschoren et~al.(2013)Vanschoren, van Rijn, Bischl, and
   Torgo]{OpenML2013}
@@ -12,5 +61,16 @@ Vanschoren, Joaquin, van Rijn, Jan~N., Bischl, Bernd, and Torgo, Luis.
 \newblock \emph{SIGKDD Explorations}, 15\penalty0 (2):\penalty0 49--60, 2013.
 \newblock \doi{10.1145/2641190.2641198}.
 \newblock URL \url{http://doi.acm.org/10.1145/2641190.2641198}.
+
+\bibitem[Zoph \& Le(2016)Zoph and Le]{DBLP:journals/corr/ZophL16}
+Zoph, Barret and Le, Quoc~V.
+\newblock Neural architecture search with reinforcement learning.
+\newblock \emph{CoRR}, abs/1611.01578, 2016.
+\newblock URL \url{http://arxiv.org/abs/1611.01578}.
+
+\bibitem[Zoph et~al.(2017)Zoph, Vasudevan, Shlens, and Le]{zoph2017learning}
+Zoph, Barret, Vasudevan, Vijay, Shlens, Jonathon, and Le, Quoc~V.
+\newblock Learning transferable architectures for scalable image recognition.
+\newblock \emph{arXiv preprint arXiv:1707.07012}, 2017.
 
 \end{thebibliography}

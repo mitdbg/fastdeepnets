@@ -1,0 +1,9 @@
+PWD /Users/madden/fastdeepnets/paper/ICML
+INPUT /usr/local/texlive/2013/texmf.cnf
+INPUT /usr/local/texlive/2013/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2013/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT /Users/madden/fastdeepnets/paper/ICML/introduction.tex
+OUTPUT /Users/madden/fastdeepnets/paper/ICML/introduction.log
+INPUT /usr/local/texlive/2013/texmf-dist/fonts/map/fontname/texfonts.map
+INPUT /usr/local/texlive/2013/texmf-dist/fonts/map/fontname/texfonts.map
+INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
