@@ -11,13 +11,28 @@ torch.backends.cudnn.benchmark = True
 
 configs = {
     'COVER_FC': {
-        'warmup': 10,
-        'rep': 500,
+        'cpu': {
+            'warmup': 50,
+            'rep': 500,
+            'large_batches': 512,
+        },
+        'gpu': {
+            'warmup': 1,
+            'rep': 100,
+            'large_batches': 4096,
+        }
     },
     'CIFAR10_VGG': {
-        'warmup': 1,
-        'rep': 10,
-        'large_batches': 64,
+        'cpu': {
+            'warmup': 1,
+            'rep': 10,
+            'large_batches': 64,
+        },
+        'gpu': {
+            'warmup': 1,
+            'rep': 100,
+            'large_batches': 1024,
+        }
     }
 }
 
@@ -63,10 +78,11 @@ def load_model(filename, dataset):
     return cfg, model
 
 def evaluate_model(cfg, model, hardware, size, dataset):
-    batch_size = 1 if size == 'small' else configs[dataset]['large_batches']
+    cd = configs[dataset][hardware]
+    batch_size = 1 if size == 'small' else cd['large_batches']
     size = cfg['params']['input_features']
-    off = configs[dataset]['warmup']
-    rep = configs[dataset]['rep']
+    off = cd['warmup']
+    rep = cd['rep']
     data = Variable(torch.rand(*((batch_size,) + size)))
     if hardware == 'gpu':
         model = model.cuda()
@@ -102,6 +118,6 @@ def get_all_models(dataset, mode):
 
 if __name__ == '__main__':
     # get_all_models('COVER_FC', 'DYNAMIC')
-    # get_all_models('COVER_FC', 'STATIC')
+    get_all_models('COVER_FC', 'STATIC')
     # get_all_models('CIFAR10_VGG', 'DYNAMIC')
     get_all_models('CIFAR10_VGG', 'STATIC')
