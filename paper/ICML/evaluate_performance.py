@@ -49,9 +49,12 @@ def load_model(filename, dataset):
         for i, s in enumerate(vgg_sizes):
             cfg['params']['size_%s' % (i + 1)] = s
 
-        cfg['params']['classifier_layer_1'] = classifier_sizes[0]
-        cfg['params']['classifier_layer_2'] = classifier_sizes[1]
-        del cfg['params']['factor']
+        try:
+            cfg['params']['classifier_layer_1'] = classifier_sizes[0]
+            cfg['params']['classifier_layer_2'] = classifier_sizes[1]
+            del cfg['params']['factor']
+        except:
+            pass # Keep the original values
 
 
 
@@ -100,4 +103,5 @@ def get_all_models(dataset, mode):
 if __name__ == '__main__':
     # get_all_models('COVER_FC', 'DYNAMIC')
     # get_all_models('COVER_FC', 'STATIC')
-    get_all_models('CIFAR10_VGG', 'DYNAMIC')
+    # get_all_models('CIFAR10_VGG', 'DYNAMIC')
+    get_all_models('CIFAR10_VGG', 'STATIC')
