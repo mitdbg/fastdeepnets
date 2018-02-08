@@ -1,35 +1,8 @@
-\section{Theoretical analysis}
+\subsection{Relation to Group Sparsity}
 
-\begin{itemize}
-  \item Comparison to group sparsity
-  \item If we add a specific constraint on our formulation we obtain the group sparsity one (proven)
-  \item We conclude that without this constraint our formulation has more degree of freedom
-  \item What happen when we drop this constraint
-  \item The problem becomes non-convex and without a global minimum
-  \item Not having a global minimum is bad, how can we solve that ?
-  \item Adding an extra regularization parameter allow us to have a global minimum (a lot of them actually)
-\end{itemize}
-
-\subsection{Notations}
-
-\par In order to avoid any potential ambiguity, in this section we will
-describe in details the mathematical notations used in this article. Non-bold
-letters represent scalar values, while bold lowercase and upper case
-repectively denote vectors and matrices. $\bm{A}^T$ stands for the transpose of
-the matrix $\bm{A}$. Subscripts are used to index particular elements of
-vectors and matrices. $\bm{x}_i$, $\bm{A}_i$, $\left(\bm{A}^T\right)_j$ and
-$\bm{A}_{i,j}$ respectively correspond to the $i^{th}$ component of $\bm{x}$,
-the $i^{th}$ row of $\bm{A}$, the $j^{th}$ column of $\bm{A}$ and the $j^{th}$
-component of the $i^{th}$ row of $\bm{A}$. All the following definitions assume
-$\bm{A}$ to be an $n\times p$ matrix.  For any vetor $\bm{b}$ with $n$
-components, we define $\diag{\bm{b}}$ a $n\times n$ matrix such that: $\forall
-1 \leq i \leq n$, $\diag{\bm{b}}_{i, i} = \bm{b}_i$ and $0$ otherwise.  For any $l \in \left[0, +\infty\right]$ we define the norm: $\norm{\bm{A}}_l =
-\left(\sum_{i=1}^n \sum_{j=1}^p \abs{\bm{A}_{i, j}}^l\right)^{\frac{1}{p}}$. For the rest of this paper and unless stated otherwise, $\bm{y}$ will represent the output of a network, $\bm{x}$ the input, $\bm{b}$ a bias, $\lambda$ regularization factors, $\Omega$ regularization methods, $\bm{\theta}$ general model parameters and $a$ will stand for any element-wise activation function. The only constraint that we want to enforce is that $a(0) = 0$. We use $\intint{u, v}$ to denote inteveral of integers, $\bm{0}$ is the null vector (size depending on the context). $\#S$ is meant to represent the cardinality of a set $S$. To simplify the notation of function composition we use the following operator: $g(f(\bm{x})) = (f \circ g)(\bm{x})$ and for a long sequence of functions from $f_1$ to $f_n$ we use: $f_n(...f_1(\bm{x})) = \left(\bigcirc_{k = 1}^n f_k\right)(\bm{x})$.
-\subsection{Definition}
-
-\begin{equation}
-  \Omega_\lambda^s = \lambda \norm{\bm{\beta}}_1
-\end{equation}
+% \begin{equation}
+%   \Omega_\lambda^s = \lambda \norm{\bm{\beta}}_1
+% \end{equation}
 
 Our goal when designing ShrinkNets was to be able to remove inputs
 and outputs of layers. For classic fully connected layers, which are defined
@@ -56,12 +29,12 @@ In the context of a fully-connected layer, the groups are either: columns of $\b
 \end{equation}
 
 Because $\forall i, \#\bm{\theta}_i = n$, To make the notation simpler,
-we now embed $\sqrt{n}$ inside $\lambda$.
+we embedded $\sqrt{n}$ inside $\lambda$.
 
-Since group sparsity and ShrinkNets try to achieve the same goal we will try to understand their similarities and differences. First let's recall the two problems. The ShrinkNet problem is:
+Since group sparsity and ShrinkNets try to achieve the same goal we will try to understand their similarities and differences. First let's recall the two problems. The original ShrinkNet problem is:
 
 \begin{equation}
-  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s
+  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
 \end{equation}
 
 And the Group Sparsity problem is:
@@ -76,7 +49,7 @@ We can prove the under the condition: $\forall j\in \intint{1, p}, \norm{\left(\
   \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s + \lambda_2\norm{A}_p^p
 \end{equation}
 
-has many global minimum (\cref{shrinknet_regularized_minimum}) for all $p>0$. This is the reason we define the \textit{regularized ShrinkNet penalty}:
+has many global minimum (\cref{shrinknet_regularized_minimum}) for all $p>0$. This is the reason we defined the \textit{regularized ShrinkNet penalty} earlier this way:
 
 \begin{equation}
   \Omega_{\lambda, \lambda_2, p}^{rs} = \lambda\norm{\bm{\beta}}_1 + \lambda_2\norm{\bm\theta}_p^p
