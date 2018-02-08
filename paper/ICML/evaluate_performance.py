@@ -3,7 +3,7 @@ import numpy as np
 from torch.autograd import Variable
 from copy import deepcopy
 from time import perf_counter
-from paper.ICML.plot_random_search import get_best_entry
+import paper
 from glob import glob
 
 # Enable performance optimizations
@@ -39,7 +39,7 @@ configs = {
 def load_model(filename, dataset):
     with open(filename, 'rb') as f:
         data = torch.load(f)
-    best_entry =  get_best_entry(data[2].logs)
+    best_entry =  paper.ICML.plot_random_search.get_best_entry(data[2].logs)
     model = data[1]['model']
     cfg = deepcopy(data[1])
     if dataset == 'COVER_FC':
