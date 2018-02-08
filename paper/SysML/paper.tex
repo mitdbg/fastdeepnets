@@ -68,7 +68,23 @@
 \maketitle
 
 \section{Introduction}
+Alternative intro sketch:
+As neural networks become commodity in many applications from improving camera quality on mobile phones \cite{googleapple} over language translation \cite{languagetranslation} to text auto-complete \cite{autocomplete}, inference performance and model size become equally important to the quality of the prediction.  
+Surprisingly, today those three concerns, quality, performance and model size, are largely handled separately with suboptimal results. 
+That is, models are trained with a fixed architecture (e.g., considering a certain size and performance budget), but then during the training the network architecture is considered fixed and does not further improve.
+In contrast, recently proposed techniques to make neural nets smaller after they have been trained, such as XX \cite{xx} and YY \cite{yy}, do not focus on the inference performance. 
+In fact, besides universal applicable techniques such as quantitazation \cite{quant} and compiling neural networks to binary code to avoid unneccassary overhead, most existing techniques to make neural nets smaller actually harm performance as they often transform dense into sparse matrix multiplications, which is inherently slower to execute on modern hardware \cite{something}. 
+%I am still not super happy with the flow. Will work on it more. 
 
+In this paper we present a new method to automatically tune the network size while training the model to drastically improve the inference performance with comparable quality to much larger networks  
+The key idea is to
+\emph{learn} the right network size at the same time that the network is
+learning the main task. For example, for an image classification task, with our approach we can provide the training data to a network---without sizing it a priori---and expect to end up with a network that has learned to classify images with an accuracy similar to much larger network architectures.
+Our approach has two main benefits. 
+First, in contrast to existing neural network compression techniques, such as brain damage, it results in small dense models, which helps to improve inference performances
+Second, and most surprisingly, the resulting models are often not only much smaller but also have better accuracy than much larger models. 
+
+Old intro:
 When designing neural networks, one of the key parameters is the network size, i.e., 
 %, number of layers
 %and number of neuros per layer, 
