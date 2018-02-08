@@ -1,22 +1,71 @@
 \section{Evaluation}
 
-\begin{itemize}
-  \item Accuracy obtained by Shrinknets
-  \item Time taken to reach that accuracy compared with other hyperopt methods
-  \item Characterize method wrt params (lambda, starting network size), training dynamics
-  \item Other experiments: compression achieved by network, shape of network
-  obtained
-  \item Extra: Shrinknets have more freedom than group sparsity,  
-\end{itemize}
+\subsection{Core evaluation (CHANGE\_MY\_NAME)}
+
+To show the versatility of our aproach we evaluate both on two very different
+scenario
+
+\subsubsection{\texttt{CIFAR10} dataset}
+
+\gl{Cite and describe the dataset}
+
+To solve this task we use the \texttt{VGG16} model [ref]. It is constituted of
+alternating convolutional layers and \textit{MaxPool} layers interleaved by
+\textit{BatchNorm} [ref] and \textit{ReLU} [ref] layers. The two last layers are
+Fully connected layers separated by just a \textit{ReLU} activation function.
+
+To turn it into a ShrinkNet we introduce \textit{Switch Layers} after each
+\textit{BatchNorm} and each Fully connected (except the last one).
+
+ShrinkNets assume that the starting size of the network is an upper bound on the
+optimal size. We though that picking two times the recommended size for each
+layer (that was designed for ImageNet[ref]), is a generous upper bound. For the
+classification layers we use $5000$ neurons as an upper bound where the ImageNet
+version uses $4096$ \gl{This is on the top of my head, need to be double checked}.
+
+We assume no prior knowledge on the optimal batch size, learning rate,
+$\lambda$ or weight decay ($\lambda_2$). This is why, we randomly sample them
+from a range of reasonable values (\gl{should we make them explicit ?}).
+For each of the models we trained, we pick the epoch with the best validation
+accuracy and report the corresponding testing accuracy. For each model, we also
+measure the total size, in number of floating point parameters, excluding the
+\textit{Switch Layers} because as we saw in section \gl{REFERENCE\_ME}, we can
+get rid of them when training is done.
+
+We want to compare against classical (\textit{Static}) networks. The number of
+parameters that control the size is large: 13 for the size of convolutional
+layers and $2$ for the fully connected ones. Without Shrinknets to help and fuse
+all these parameters in a single $\lambda$ it is infeasible to sample reasonably
+well a search space of that size. This is why we have to rely on the very well
+known heuristic that the original VGG architecture (and many CNNs) \gl{try to
+  find the paper that introduces this heuristic}. For \textit{Static Networks}
+we sample the size between $0.1$ and $2$ times the size optimized for ImageNet.
+We report the same numbers as we did for \textit{ShrinkNets} and we compare the
+two distributions of models we obtain on the first plot of \cref{figure_CIFAR10}.
+
+
+\subsubsection{\texttt{COVERTYPE} dataset}
+
+We followed the same procedure 
+\gl{Cite and describe the dataset}
+
+We try to fit 
+
+
+\subsection{Benefits of smaller sizes}
+
+We showed in the previous section that \textit{ShrinkNets} were able to find
+more or at least as efficient as \textit{Static Networks}. In this experiment we
+want to determine the perf
+
 
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions}
 
-We will start evaluating ShrinkNets with the simplest problems possible: linear
-and logistic regression. As we showed, Group sparsity share similarities with
-our method, this is why we will use it as baseline. We decided to focus on
-multi-target linear regression because in the single target case, groups in the
-Group Sparsity problem would have a size of one ($\bm{A}$ would be a vector in this
-case).
+As we showed, Group sparsity share similarities with our method, and we claim
+that ShrinkNets are a relaxation of group sparsity.  In this experiment we want
+to compare the two aproaches.  We decided to focus on multi-target linear
+regression because in the single target case, groups in the Group Sparsity
+problem would have a size of one ($\bm{A}$ would be a vector in this case).
 
 The evaluation will be done on two datasets \texttt{scm1d} and \texttt{oes97}
 [ref] for linear regressions and we will use \texttt{gina\_prior2} [ref] and
@@ -24,10 +73,16 @@ the \textit{Gas Sensor Array Drift Dataset} [ref] (that we shorten in
 \texttt{gsadd}) for logistic regressions.
 
 For each dataset we fit with different regularization parameters and measure
-the error and sparsity obtained after convergence. In this context we define sparsity as the ratio of columns that have all their weight under $10^{-3}$ in absolute value. Parameters were choosed in
-order to obtain the widest sparsity spectrum. Loss is normalized depending on the problem to be in the $[0, 1]$ range. We summarized the results in
-\cref{sparsity_accuracy}. From our experiments it is clear that ShrinkNets can fit the data closer than Group Sparsity for the same amount of sparsity. The fact that we are able to reach very low loss demonstrate that even if our objective function is non convex, in practice it works as good or better as convex alternatives. Details about these datasets and the parameters used
-are available in \cref{linear_datasets}.
+the error and sparsity obtained after convergence. In this context we define
+sparsity as the ratio of columns that have all their weight under $10^{-3}$ in
+absolute value. Regularization parameters were choosed in order to obtain the
+widest sparsity spectrum. Loss is normalized depending on the problem to be in
+the $[0, 1]$ range. We summarized the results in \cref{sparsity_accuracy}. From
+our experiments it is clear that ShrinkNets can fit the data closer than Group
+Sparsity for the same amount of sparsity. The fact that we are able to reach
+very low loss demonstrate that even if our objective function is non convex, in
+practice it works as good or better as convex alternatives. Details about these
+datasets and the parameters used are available in \cref{linear_datasets}.
 
 \begin{figure}
 \begin{center}
@@ -74,7 +129,8 @@ We picked multiple combinations of dataset and regularization parameters ($\lamb
 \begin{center}
 \includegraphics[width=\columnwidth]{CIFAR10_VGG_summary}
 \vspace*{-5mm}
-\caption{CIFAR10}
+\caption{\label{figure_CIFAR10} Summary of the result of random
+search over the hyper-parameters the \texttt{CIFAR10} dataset}
 \end{center}
 \vspace*{-4mm}
 \end{figure}
@@ -88,10 +144,5 @@ We picked multiple combinations of dataset and regularization parameters ($\lamb
 \vspace*{-4mm}
 \end{figure}
 
-\subsection{Convergence and training dynamics of Neural networks}
-
-\subsection{Hyper-optimization of ShrinkNets}
-
-\subsection{Performance}
 
 \section{Speeding up training with pruning}

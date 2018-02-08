@@ -123,12 +123,12 @@ potentially non-crucial neurons and setting their corresponding entry in the
 switch layer to exactly 0, and neural garbage collection that 
 
 \subsubsection{Neuron killing}
-\textbf{Threshold strategy} \\ We kill neurons based on a threshold (in absolute
+\textbf{Threshold strategy}:  We kill neurons based on a threshold (in absolute
 value), this is the method used by deep compression. It is bad because it is
 scale dependant and is not robust to noise in the gradients (explain that)
-\textbf{Sign change strategy} \\ We look at when the sign change. This is also
+\\ \textbf{Sign change strategy}:  We look at when the sign change. This is also
 sensitive to noise but has the advantage
-\textbf{Sign variance strategy}
+\textbf{Sign variance strategy}: We measure the variance of the sign ($-1, 1$) of each component in the \textit{Switch Layer}, and consider it dead when it goes over a predefined threshold. \gl{Maybe we should add some intuition on why it makes sense}. \gl{We should probably explain the impact of $\gamma$ and report numbers from the expertiment that show that it does not hurt too much to kill neurons, we have the data in this experiment in the evaluation that we probably want to remove later.}
 
 In our library we implemented a variant of the second strategy and the last one.
 
