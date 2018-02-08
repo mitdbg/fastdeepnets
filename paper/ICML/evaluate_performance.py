@@ -17,8 +17,12 @@ def load_model(filename, dataset='cover'):
     if dataset == 'cover':
         cfg = deepcopy(data[1])
         for i in range(cfg['params']['layers']):
-            cs = float(best_entry[best_entry.measure == 'size_%s' % (i + 1)].value)
-            cfg['params']['size_layer_%s' % (i + 1)] = int(cs)
+            try:
+                cs = float(best_entry[best_entry.measure == 'size_%s' % (i + 1)].value)
+                cfg['params']['size_layer_%s' % (i + 1)] = int(cs)
+            except:
+                pass # Keep the original size
+
     cfg['params']['dynamic'] = False # remove filters
     model = model(cfg['params'])
     return cfg, model
@@ -60,5 +64,5 @@ def get_all_models(dataset, mode):
         torch.save(result, f)
 
 if __name__ == '__main__':
-    get_all_models('COVER_FC', 'DYNAMIC')
+    # get_all_models('COVER_FC', 'DYNAMIC')
     get_all_models('COVER_FC', 'STATIC')
