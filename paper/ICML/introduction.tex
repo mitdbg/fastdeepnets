@@ -1,7 +1,24 @@
 %!TEX root=paper.tex
 
 \section{Introduction}
+{\bf Alternative intro sketch:}
+As neural networks become commodity in many applications from improving camera quality on mobile phones \cite{googleapple} over language translation \cite{languagetranslation} to text auto-complete \cite{autocomplete}, inference performance and model size become equally important to the quality of the prediction.  
+Surprisingly, today those three concerns, quality, performance and model size, are largely handled separately with suboptimal results. 
+That is, models are trained with a fixed architecture (e.g., considering a certain size and performance budget), but then during the training the network architecture is considered fixed and does not further improve.
+This is especially problematic for complex networks architectures such as CNNs where the search space of potentially network architectures is so big, that it is unfeasible to try all possible combinations. 
+ 
+In contrast, recently proposed techniques to make neural nets smaller \cite{something1,something2} allow to start from a network architecture which is known to be perform well, but do not focus on the inference performance and often have a negative impact on the model quality.
+In fact, besides universal applicable techniques such as quantitazation \cite{quant} and compiling neural networks to binary code to avoid unneccassary overhead, most existing techniques to make neural nets smaller actually harm performance as they often transform dense into sparse matrix multiplications, which is inherently slower to execute on modern hardware \cite{something}. 
+%I am still not super happy with the flow. Will work on it more. 
 
+In this paper we present a new method to automatically tune the network size while training the model to drastically improve the inference performance with comparable quality to much larger networks  
+The key idea is to \emph{learn} the right network size at the same time that the network is learning the main task. 
+For example, for an image classification task we can start with a well-known model architecture and shrink it while training the model  to end up with a much smaller network that has learned to classify images with an accuracy similar to larger network architectures.
+Our approach has two main benefits. 
+First, in contrast to existing neural network compression techniques, such as brain damage, it results in small dense models, which helps to improve inference performances
+Second, we avoid the exhaustive and expensive model search to find a smaller network architecture with good accuracy. 
+
+{\bf Old introduction:}
 One of the key defactors that affects neural net perforamnce is  is the {\it shape} of the network, 
 i.e., the number of layers, the number of neurons per layer, and the connections between
 layers.
