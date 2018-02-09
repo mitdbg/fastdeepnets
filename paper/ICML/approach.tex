@@ -20,7 +20,7 @@ size and yielding faster inference times. Broadly, these stages work as follows:
 \noindent\textbf{Deactivating Neurons On-The-Fly: }During the first stage,
 ShrinkNets applies an on/off switch to every neuron of an initially over-sized
 network. We model the on/off switches by multiplying each input (or output) of
-each layer by a parameter $\bm{\theta}\in\{0,1\}$. A value of $0$
+each layer by a parameter $\bm{\beta}\in\{0,1\}$. A value of $0$
 will deactivate the neuron, while $1$ will let the signal go through. These
 switches are part of a new layer, called the \textbf{switch layer}; this layer applies 
 to fully connected as well as convolutional layers.
@@ -30,17 +30,18 @@ as possible while preserving prediction accuracy. This can be achieved by jointl
 minimizing the objective of the network and a factor of the L0 norm of the
 vector containing all the switches. Because finding an optimal binary
 assignment is an NP-Hard problem, we relax the problem by allowing
- $\bm{\theta}$ to be a real number
+ $\bm{\beta}$ to be a real number
 instead of a binary value and constrain it using the L1 instead of L0 norm.
 
 \noindent\textbf{Neuron Removal: } During this stage, the neurons that are
 deactivated by the switch layers are actually removed from the network,
-effectively shrinking the network size. This step improves inference
-times, as we demonstrate in our evaluation. We choose to remove neurons at
-training time because we have observed that this allows the remaining active neurons to adapt
+effectively shrinking the network size. This step improves inference times, as
+we demonstrate in our evaluation. We choose to remove neurons at training time
+because we have observed that this allows the remaining active neurons to adapt
 to the new network architecture. Existing techniques focus on neuron removal
 after training, and require an extra fine-tuning process to compensate for the
-removal.\srm{cite something?}
+removal.\srm{cite something?} \gl{I think we are fine or we could actually
+cite any of these paper}
 
 In the remainder of this section we describe in detail the switch layer as well
 as and the training process for ShrinkNets, and then describe the removal process in Section~\ref{neuron_killing}.
@@ -56,18 +57,18 @@ is the number of output channels or feature maps.
 
 We want to tune the size of $L$ by applying a switch layer, $S$, containing $c$
 switches.  The switch
-layer is parametrized by a vector $\theta \in \mathbb{R}^c$ such that the result
+layer is parametrized by a vector $\beta \in \mathbb{R}^c$ such that the result
 of applying $S$ to $L(\bm{x})$ is a also a tensor size $\left(c \times d_1
 \times \dots \times d_n\right)$ such that: 
 %Suppose we wish to tune the size of $L$ by applying a switch layer.
 %A switch layer $S$ applied to the output of $L$ can be parametrized by a 
 %vector 
 \begin{equation} 
-S_{\theta}(L(\bm{x}))_{i,...} = \bm{\theta}_iL(\bm{x})_{i, ...} \forall i \in [1\ldots c]
+S_{\beta}(L(\bm{x}))_{i,...} = \bm{\beta}_iL(\bm{x})_{i, ...} \forall i \in [1\ldots c]
 \end{equation}
 Once passed through the switch layer, each output channel $i$
-produced by $L$ is scaled by the corresponding $\theta_i$. Note that when
-$\theta_i = 0$, the $i^{\text{th}}$ channel is multiplied by zero and will not
+produced by $L$ is scaled by the corresponding $\bm{\beta}_i$. Note that when
+$\bm{\beta}_i = 0$, the $i^{\text{th}}$ channel is multiplied by zero and will not
 contribute to any computation after the switch layer. If this happens, we say
 the switch layer has {\it deactivated} the neuron corresponding to channel $i$ of layer $L$.
 
@@ -87,13 +88,13 @@ ShrinkNets.
 %Formally, 
 For training, we need to account for the effect of the switch layers on the loss
 function. The effect of switch layers can be expressed in terms of a sparsity constraint
-that pushes values in the $\theta$ vector to 0. In this way, given a neural network
-parameterized by weights $\bm{W}$ and switch layer parameters $\bm{\theta}$, we
+that pushes values in the $\bm{\beta}$ vector to 0. In this way, given a neural network
+parameterized by weights $\bm{\theta}$ and switch layer parameters $\bm{\theta}$, we
 optimize ShrinkNet loss as follows 
 \begin{equation}
 \small
-  L_{SN}(\bm{x},\bm{y};\bm{W}, \bm{\theta}) = L(\bm{x}, \bm{y}; \bm{W}) +
-  \lambda\norm{\theta}_1 + \lambda_2\norm{\bm{W}}_p
+  L_{SN}(\bm{x},\bm{y};\bm{\theta}, \bm{\beta}) = L(\bm{x}, \bm{y}; \bm{\beta}) +
+  \lambda\norm{\beta}_1 + \lambda_2\norm{\bm{\theta}}_p^p
 \end{equation}
 This expression augments the regular training loss with a regularization
 term for the switch parameters and another on the network weights.
