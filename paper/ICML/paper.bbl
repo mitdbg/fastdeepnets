@@ -1,28 +1,9 @@
-\begin{thebibliography}{28}
+\begin{thebibliography}{27}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
-
-\bibitem[Abadi et~al.(2016)Abadi, Barham, Chen, Chen, Davis, Dean, Devin,
-  Ghemawat, Irving, Isard, Kudlur, Levenberg, Monga, Moore, Murray, Steiner,
-  Tucker, Vasudevan, Warden, Wicke, Yu, Zheng, Brain, Osdi, Barham, Chen, Chen,
-  Davis, Dean, Devin, Ghemawat, Irving, Isard, Kudlur, Levenberg, Monga, Moore,
-  Murray, Steiner, Tucker, Vasudevan, Warden, Wicke, Yu, and Zheng]{Abadi2016b}
-Abadi, Mart{\'{i}}n, Barham, Paul, Chen, Jianmin, Chen, Zhifeng, Davis, Andy,
-  Dean, Jeffrey, Devin, Matthieu, Ghemawat, Sanjay, Irving, Geoffrey, Isard,
-  Michael, Kudlur, Manjunath, Levenberg, Josh, Monga, Rajat, Moore, Sherry,
-  Murray, Derek~G, Steiner, Benoit, Tucker, Paul, Vasudevan, Vijay, Warden,
-  Pete, Wicke, Martin, Yu, Yuan, Zheng, Xiaoqiang, Brain, Google, Osdi,
-  Implementation, Barham, Paul, Chen, Jianmin, Chen, Zhifeng, Davis, Andy,
-  Dean, Jeffrey, Devin, Matthieu, Ghemawat, Sanjay, Irving, Geoffrey, Isard,
-  Michael, Kudlur, Manjunath, Levenberg, Josh, Monga, Rajat, Moore, Sherry,
-  Murray, Derek~G, Steiner, Benoit, Tucker, Paul, Vasudevan, Vijay, Warden,
-  Pete, Wicke, Martin, Yu, Yuan, and Zheng, Xiaoqiang.
-\newblock {TensorFlow : A System for Large-Scale Machine Learning}.
-\newblock In \emph{OSDI}, 2016.
-\newblock ISBN 9781931971331.
 
 \bibitem[Aghasi et~al.(2016)Aghasi, Abdi, Nguyen, and Romberg]{Aghasi2016}
 Aghasi, Alireza, Abdi, Afshin, Nguyen, Nam, and Romberg, Justin.
@@ -61,11 +42,19 @@ Guyon, I., Saffari, A., Dror, G., and Cawley, G.
   pp.\  829--834, Aug 2007.
 \newblock \doi{10.1109/IJCNN.2007.4371065}.
 
-\bibitem[Han et~al.(2015)Han, Mao, and Dally]{han2015deepcompression}
+\bibitem[Han et~al.(2015{\natexlab{a}})Han, Mao, and Dally]{Han2015}
+Han, Song, Mao, Huizi, and Dally, William~J.
+\newblock {Deep Compression: Compressing Deep Neural Networks with Pruning,
+  Trained Quantization and Huffman Coding}.
+\newblock 2015{\natexlab{a}}.
+\newblock \doi{abs/1510.00149/1510.00149}.
+
+\bibitem[Han et~al.(2015{\natexlab{b}})Han, Mao, and
+  Dally]{han2015deepcompression}
 Han, Song, Mao, Huizi, and Dally, William~J.
 \newblock Deep compression: Compressing deep neural networks with pruning,
   trained quantization and huffman coding.
-\newblock \emph{arXiv preprint arXiv:1510.00149}, 2015.
+\newblock \emph{arXiv preprint arXiv:1510.00149}, 2015{\natexlab{b}}.
 
 \bibitem[Hinton et~al.(2015)Hinton, Vinyals, and Dean]{hinton2015distilling}
 Hinton, Geoffrey, Vinyals, Oriol, and Dean, Jeff.
@@ -105,6 +94,14 @@ Li, Lisha, Jamieson, Kevin, DeSalvo, Giulia, Rostamizadeh, Afshin, and
   optimization.
 \newblock \emph{arXiv preprint arXiv:1603.06560}, 2016.
 
+\bibitem[Ma et~al.(2016)Ma, Suda, Cao, s.~Seo, and Vrudhula]{ma2016compilation}
+Ma, Yufei, Suda, N., Cao, Yu, s.~Seo, J., and Vrudhula, S.
+\newblock Scalable and modularized rtl compilation of convolutional neural
+  networks onto fpga.
+\newblock In \emph{2016 26th International Conference on Field Programmable
+  Logic and Applications (FPL)}, pp.\  1--8, Aug 2016.
+\newblock \doi{10.1109/FPL.2016.7577356}.
+
 \bibitem[Nair \& Hinton(2010)Nair and Hinton]{Nair2010}
 Nair, Vinod and Hinton, Geoffrey~E.
 \newblock {Rectified Linear Units Improve Restricted Boltzmann Machines}.
@@ -127,13 +124,6 @@ Philipp, George and Carbonell, Jaime~G.
 \newblock In \emph{Proc. International Conference on Learning Representations},
   number 2016, pp.\  1--27, 2017.
 
-\bibitem[Rasmussen \& Williams(2006)Rasmussen and Williams]{GaussianProcesses}
-Rasmussen, CE and Williams, CKI.
-\newblock \emph{Gaussian Processes for Machine Learning}.
-\newblock Adaptive Computation and Machine Learning. MIT Press, Cambridge, MA,
-  USA, 1 2006.
-\newblock ISBN 0-262-18253-X.
-
 \bibitem[Romero et~al.(2014)Romero, Ballas, Kahou, Chassang, Gatta, and
   Bengio]{romero2014fitnets}
 Romero, Adriana, Ballas, Nicolas, Kahou, Samira~Ebrahimi, Chassang, Antoine,
@@ -148,11 +138,6 @@ Scardapane, Simone, Comminiello, Danilo, Hussain, Amir, and Uncini, Aurelio.
 \newblock \emph{Neurocomputing}, 241:\penalty0 81--89, 2017.
 \newblock ISSN 18728286.
 \newblock \doi{10.1016/j.neucom.2017.02.029}.
-
-\bibitem[Shwartz-Ziv \& Tishby(2017)Shwartz-Ziv and Tishby]{Shwartz-Ziv2017}
-Shwartz-Ziv, Ravid and Tishby, Naftali.
-\newblock {Opening the Black Box of Deep Neural Networks via Information}.
-\newblock \emph{arXiv}, pp.\  1--19, mar 2017.
 
 \bibitem[Snoek et~al.(2012)Snoek, Larochelle, and Adams]{Snoek12}
 Snoek, Jasper, Larochelle, Hugo, and Adams, Ryan~P.
