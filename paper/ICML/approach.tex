@@ -1,51 +1,70 @@
-\section{Our Approach}
+\section{The ShrinkNets Approach}
 
-% from the universality theorem, we know that we can find a network that ca
-% arbitrarly fit a function. Therefore, for a given error tolreance there exists
-% an optimal size to solve a given problem.
+In this section we present the \emph{Switch layer}, a core concept of our
+ShrinkNets approach that allows to learn the network size as part of the
+training process. Then, we explain how to adapt the training procedure to
+support the new layer. We begin with a high-level overview of our method.
 
-Our approach is based on the insight that given enough capacity (and time), an 
-optimization routine can find a network that can fit an arbitrary function.
-Therefore, by starting with an oversize network and applying on/off switches to
-each of the neurons in it, we can identify a {\it pruned} version of the network
-that can achieve similar accuracy to the oversized network.
+\subsection{Overview}
 
+At a high-level, the ShrinkNets approach consists of two interconnected stages.
+The first stage is concerned with identifying neurons that are not contributing
+to increasing the prediction accuracy of the network and deacivate them. The
+second stage is concerned with actually removing the neurons from the network
+and shrinking its size, therefore leading to faster inference times. We give an
+overview of both processes next:
 
+\noindent\textbf{Deactivating Neurons On-The-Fly: }During the first stage,
+ShrinkNets applies an on/off switch to every neuron of an initially oversized
+network. We model the on/off switches by multiplying each input (or output) of
+each layer by a parameter $\bm{\theta}$, with values $0$ or $1$. A value of $0$
+will deactivate the neuron, while $1$ will let the signal go through. These
+switches are part of a new layer, which we call \textbf{Switch layer} which can
+be applied to fully connected as well as convolutional layers.
+
+We want to minimize the number of on switches to reduce the model size as much
+as we can, while preserving prediction accuracy. This can be achieved by jointly
+minimizing the objective of the network and a factor of the L0 norm of the
+vector containing all the on/off switches. Because finding an optimal binary
+assignement is an NP-Hard problem, we allow $\bm{\theta}$ to be a real number
+instead of a 0/1 value, thus constraining the L1 norm as opposed to the L0 norm.
+
+\noindent\textbf{Neuron Removal: } During this stage, the neurons that are
+deactivated by the Switch layers are actually removed from the network,
+effectively shrinking the network size. This is what leads to faster inference
+times, as we demonstrate in our evaluation. We choose to remove neurons at
+training time because we have observed that allows the active neurons to adapt
+to the new network architecture. Existing techniques focus on neuron removal
+after training, and require an extra fine-tuning process to compensate for the
+removal.
+
+In the remainder of this section we describe in detail the Switch layer as well
+as how to adapt the training process for ShrinkNets.
+
+%This approach assumes that we start with an upper bound on the model size. This
+%obviously translates in a computational overhead. Our insight is that some
+%usless neurons (we have multiple definitions below) can be removed early without
+%impacting the final solution. It has two practical implications: It mitigate the
+%issue we describe but it also allows other neurons to adapt as soon as one of
+%their peer is killed. Existing technique usually remove them after convergence
+%and require an extra fine-tuning process to compensate for the removal.
+
+%We implement our strategy of dynamically deactivating neurons by means of a 
+%specialized neural network layer called the \textbf{Switch Layer}.
+%We first describe the key concepts and theory backing the switch layer and then
+%provide a brief summary of our implementation of switch layers.
+
+%Our approach is based on the insight that given enough capacity (and time), an 
+%optimization routine can find a network that can fit an arbitrary function.
+%Therefore, by starting with an oversize network and applying on/off switches to
+%each of the neurons in it, we can identify a {\it pruned} version of the network
+%that can achieve similar accuracy to the oversized network.
+%
+%
 % If we have an oversized network then there exist a pruned version that can still
 % achieve our goal. The main idea is to consider an on/off switch for each neuron,
 % and we want to find an assignement for this switches that achieve a certain
 % size/accuracy tradeof. 
-We model these on/off switches by multiplying each input
-(or output) of each layer by a number $0$ or $1$. 
-$0$ will deactivate the
-neuron, $1$ will let the signal go through. 
-We want to minimize the number of on
-switches to reduce the model size as much as we can. 
-This can be modeled solved
-by jointly minimizing the objective of the network and a factor of the L0 norm
-of the vector containing all the on/off switches.
-
-Finding an optimal binary assignement is an NP-Hard problem. 
-% (\textbf{Should we
-% prove this ? I think it should be fairly doable reducing it to 3-SAT
-% considering the structure of neural networks. No.})
-We relax this problem
-% problem because this is what people usually do with NP-Hard problem. Our
-% relaxation is we allow 
-by allowing $\bm{\theta}$ to be a real number instead of a 0/1 value, thus
-constraining the L1 norm as opposed to the L0 norm.
-% , effectively
-% t We
-% also use L1 instead of L1. This way we obtain a non-convex, but at least
-% differentiable (almost everywhere).
-
-This approach assumes that we start with an upper bound on the model size. This
-obviously translates in a computational overhead. Our insight is that some
-usless neurons (we have multiple definitions below) can be removed early without
-impacting the final solution. It has two practical implications: It mitigate the
-issue we describe but it also allows other neurons to adapt as soon as one of
-their peer is killed. Existing technique usually remove them after convergence
-and require an extra fine-tuning process to compensate for the removal.
 
 % The key components of the system are: The filter vectors that simulate the
 % continuous on/off switches, a regularization that tries to kill neurons, the
@@ -85,23 +104,16 @@ and require an extra fine-tuning process to compensate for the removal.
 % $g(f(\bm{x})) = (f \circ g)(\bm{x})$ and for a long sequence of functions from 
 % $f_1$ to $f_n$ we use: $f_n(...f_1(\bm{x})) = \left(\bigcirc_{k = 1}^n f_k\right)(\bm{x})$.
 
-We implement our strategy of dynamically deactivating neurons by means of a 
-specialized neural network layer called the \textbf{Switch Layer}.
-We first describe the key concepts and theory backing the switch layer and then
-provide a brief summary of our implementation of switch layers.
-
 
 \subsection{The Switch Layer}
 
-% \textbf{Do you like the name of the layer ? Yes!}
+Let $L$ be a layer in a neural network that takes an input tensor $\bm{x}$ and
+produces an output tensor $y$ of shape $\left(c \times d_1 \times \dots \times
+d_n\right)$ where $c$ is the number of neurons in that layer.  For instance, for
+fully connected layers, $n$=0 and the output is single dimensional of size $c$
+(ignoring batch size for now) while for a 2-D convolutional layer, $n$=2 and $c$
+is the number of output channels or feature maps.
 
-Let $L$ be a layer in a neural network that takes an input tensor $\bm{x}$ and 
-produces an output tensor $y$ of shape $\left(c \times d_1 \times \dots \times 
-d_n\right)$ where $c$ is the number of neurons in that layer.
-For instance, for fully connected layers, $n$=0 and the output is single 
-dimensional of size $c$ (ignoring batch size for now) while for a 2-D 
-convolutional layer, $n$=2 and $c$ is the number of output channels or feature 
-maps.
 % maps
 % For instance, for fully connected layers, $n$=0 and the output is single 
 % dimensional of size $c$ (ignoring batch size for now) while for a 2-D 
@@ -158,7 +170,7 @@ neuron of layer $L$ corresponding to channel $i$.
 % next how the weights of the Switch Layer are initialized and adjusted during
 % training.
 
-\subsection{Training Procedure} 
+\subsection{Training ShrinkNets} 
 
 To tune the size of a network, we place Switch Layers after each layer whose size
 we wish to tune; these are typically the fully connected and convolutional layers
@@ -213,121 +225,4 @@ regularization term for the switch parameters and another on the network weights
 
 \input{theory}
 
-\subsubsection{Neuron killing}
-Once Switch layers are placed in a network and
-initialized (sampled from the $\mathcal{N}(0, 1)$ distribution),
 
-\textbf{Threshold strategy}:  We kill neurons based on a threshold (in absolute
-value), this is the method used by deep compression. It is bad because it is
-scale dependant and is not robust to noise in the gradients (explain that)
-\\ \textbf{Sign change strategy}:  We look at when the sign change. This is also
-sensitive to noise but has the advantage
-\textbf{Sign variance strategy}: We measure the variance of the sign ($-1, 1$) of each component in the \textit{Switch Layer}, and consider it dead when it goes over a predefined threshold. \gl{Maybe we should add some intuition on why it makes sense}. \gl{We should probably explain the impact of $\gamma$ and report numbers from the expertiment that show that it does not hurt too much to kill neurons, we have the data in this experiment in the evaluation that we probably want to remove later.}
-
-\subsection{Implementation}
-
-We have implemented \textbf{Switch Layers} and the associated training procedure
-as a library in pytorch~\cite{paszke2017automatic}. \gl{This is not a github citation but this is what they ask to cite}
-The layer can be freely mixed with other popular layers such as convolutional
-layers, batchnorm layers, fully connected layers etc.
-There are two key challenges that must be overcome while implementing 
-\textbf{Switch Layers}.
-First, since ShrinkNets kill off a large fraction of neurons, we must remove the
-overhead of carrying around dead neurons.
-And second, we must update the various network layers and training machinery (e.g.
-optimizer state) to reflect the deactivation of neurons.
-We address these challenges by augmenting every layer with additional information
-about neuron status and implementing a \emph{neural garbage collection} 
-mechanism which prunes deactivated neurons on-the-fly and updates the state of 
-the training machinery.
-% We do so by augmenting every layer with additional information such as what
-% neurons have been deactivated.
-% The layer then updates its size accordingly and this change is then propagated
-% to other parts of the training machinery including the optimizer which must
-% know the sizes of parameters.
-
-A second implementation challenge we address with ShrinkNets is the potentially
-higher inference time.
-This increase in inference time is both due to the extra computation introduced 
-by switch layers and because our switch layers are not currently optimized for 
-CUDA.
-Therefore, for now, our library provides a post-training routine to ``fold''
-switch layers into existing, optimized layers.
-Specifically, for every switch layer, we check if the parent or child of this 
-layer is a linearly scalable layer (e.g. convolutional layer, fully connected layer,
-batchnormalization layer) and if so, we fold the switch layer into this 
-neighboring layer by multiplying through by the switch weights.
-In the unlikely case that a switch layer is sandwiched between two non-linearly
-scalable layers, we leave the switch layer as is.
-
-
-% \subsection{Speeding up training}
-
-% In order to have a practical implementation of ShrinkNets it is absolutely
-% necessary to prune useless neurons as quick as possible. In order to try more
-% different strategies we split this task in two subproblems: detecting
-% potentially non-crucial neurons and setting their corresponding entry in the
-% switch layer to exactly 0, and neural garbage collection that 
-
-
-
-% In our library we implemented a variant of the second strategy and the last one.
-
-% \subsubsection{Neural garbage collection}
-
-
-
-
-% It is possible to reduce the overhead of the training process by removing
-% neurons as soon as they become deactivated by $\theta$ going to 0.
-%If
-%disabled neurons are not quickly removed, the overhead might cause the training
-%process to be significantly slower than classic neural networks. 
-% To do this, we implemented a \emph{neural garbage collection} mechanism which
-% prunes deactivated neurons on-the-fly,  reducing the processing time
-% and memory overhead. 
-% To support this feature, it is crucial to understand the
-% information flow between neurons and layers in the neural network. 
-% We achieve
-% this by representing such information flow as a graph. 
-% Vertices represent layers,
-% and edges are event-hubs responsible for propagating information about disabled
-% neurons to the relevant layers. 
-% As soon as a layer receive an event, it updates
-% his parameters to reflect the new size. 
-% Each operation is stored in a log that
-% is used later to update other component of the system. 
-% For example some
-% optimizers like Adam [Ref] store state about each parameter, their state needs
-% to be updated the exact same way and at the exact same time as layers in order
-% to obtain apropriate parameter updates.
-
-% \subsubsection{Speeding up Inference}
-% \mpv{This may be moved to discussion or ``other considerations'' or impl details.}
-
-
-
-% our post-processing code searches the 
-% network graph to identify a parent or child layer the linear layer closest (child or parent) to every 
-% switch layer and multiplies the weights of that layer by the corresponding
-% switch layer weights.
-
-
-% Our proposed \textit{Switch Layer} are relevant only during training, and can be
-% removed from the network architecture during inference if they can be ``folded''
-% into the nearest linear layer.
-% Specifically, we provide a post-processing routine that will, for each switch 
-% layer, search the network graph 
-
-% The sole puropose of \textit{Switch Layer} are to detect which neurons should be
-% killed and which should be left. When the training is over we will never remove
-% more neurons. Therefore, they loose all their interest at inference time. 
-% To
-% improve size and inference time we propose the following method to get rid of
-% them without changing the output of the model (modulo floating point errors).
-% The basic idea is to start from every \textit{Switch Layer} and try to find the
-% nearset linear operator (child or parent) and multiply its weights by the values
-% in the switch layer. For example we can merge Filter layers with surrounding
-% Convolutional layer, Linear layer or even BatchNormalization [ref] if they are
-% before the \textit{Switch Layer}. However we need to be extremely careful not to
-% cross a non-linearity otherwise it would change the output of network.
