@@ -11,14 +11,13 @@ performance (model quality, inference time and model size)  are largely
 optimized separately today, often with suboptimal results.
 
 Of course, the problem of finding compressed or small networks is not new.
-Existing techniques typically aim make a pre-trained neural network smaller
-by taking one of two approaches:  either by
-applying quantization \cite{quant} or code compilation~\cite{ma2016compilation}
-techniques that can be applied blindly to any network, or by analyzing the
-structure of the network and systematically pruning
+Existing techniques to make a pre-trained neural network smaller can be categorized in two approaches: (1) quantization \cite{quant} and code compilation~\cite{ma2016compilation}, 
+techniques that can be applied blindly to any network, and (2) techniches which analyze the
+structure of the network and systematically prune
 connections or neurons~\cite{han2015deepcompression,Cun}
-based on some loss function.  Although these techniques can substantially
-reduce model size, they have several drawbacks.  First, they often negatively
+based on some loss function. While the first category is always useful, but only has limited 
+impact on the network size, the second category can reduce the model size much more but has several 
+drawbacks:   First, those techniques often negatively
 impact model quality.  Second, they can (surprisingly) negatively impact
 inference time as they transform dense matrix operations into sparse ones,
 which can be substantially slower to execute on modern hardware
@@ -113,7 +112,8 @@ which allows us to optimize the network size while the network is trained.
 
 \item We implement our technique so as to remove entire neurons, therefore
 leading not only to small and well-performing networks, but also dense, which
-means higher inference performance.
+means higher inference performance. Furthermore, our switching layers used during training can be 
+savely removed before the model is used for inference, leading to zero additional overhead. 
 
 %\item \srm{xxx postprocessing techniques to strip out switch layers}
 

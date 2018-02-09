@@ -1,15 +1,15 @@
 %!TEX root=paper.tex
 \section{Appendix}
 
-\begin{figure}[t]
-\begin{center}
-\includegraphics[width=.7\columnwidth]{regressions}
-\vspace*{-5mm}
-\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknets on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
-
-\end{center}
-\vspace*{-4mm}
-\end{figure}
+%\begin{figure}[t]
+%\begin{center}
+%\includegraphics[width=.7\columnwidth]{regressions}
+%\vspace*{-5mm}
+%\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknets on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
+%
+%\end{center}
+%\vspace*{-4mm}
+%\end{figure}
 
 \subsection{Proofs}
 Unless stated explicitly, all the propositions consider the Multi-Target linear regression problem.
@@ -83,25 +83,29 @@ The two components of the expression are always positive so we know that this pr
 \\ \textbf{Part 2:} Let's consider one global minimum. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ does not change the the first part of the objective because the two factors cancel each other. The two norms do not change either because by definition the norm is independent of the sign. As a result these two sets of parameters have the same value and by extension also a global minimum. It is easy to see that going from this global minimum, we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
 
 \end{proof}
-\subsection{Multi-Target Linear and Multi-Class Logistic regressions experiments}
-As we showed, Group sparsity share similarities with our method, and we claim
-that ShrinkNets are a relaxation of Group sparsity.  In this experiment we want
-to compare the two approaches.  We decided to focus on multi-target linear
-regression because in the single target case, groups in the Group Sparsity
-problem would have a size of one ($\bm{A}$ would be a vector in this case).
 
-The evaluation will be done on two datasets \texttt{scm1d} and \texttt{oes97}
-\cite{Spyromitros-Xioufis2016} for linear regressions and we will use \texttt{gina\_prior2} \cite{4371065} and
-the \textit{Gas Sensor Array Drift Dataset} \cite{VERGARA2012320} (that we shorten in
-\texttt{gsadd}) for logistic regressions.
+%\subsection{Multi-Target Linear and Multi-Class Logistic regressions experiments}
+%As we showed, Group sparsity share similarities with our method, and we claim
+%that ShrinkNets are a relaxation of Group sparsity.  In this experiment we want
+%to compare the two approaches.  We decided to focus on multi-target linear
+%regression because in the single target case, groups in the Group Sparsity
+%problem would have a size of one ($\bm{A}$ would be a vector in this case).
+%
+%The evaluation will be done on two datasets \texttt{scm1d} and \texttt{oes97}
+%\cite{Spyromitros-Xioufis2016} for linear regressions and we will use \texttt{gina\_prior2} \cite{4371065} and
+%the \textit{Gas Sensor Array Drift Dataset} \cite{VERGARA2012320} (that we shorten in
+%\texttt{gsadd}) for logistic regressions.
+%
+%For each dataset we fit with different regularization parameters and measure
+%the error and sparsity obtained after convergence. In this context we define
+%sparsity as the ratio of columns that have all their weights under $10^{-3}$ in
+%absolute value. Regularization parameters were chosen in order to obtain the
+%widest sparsity spectrum. Loss is normalized depending on the problem to be in
+%the $[0, 1]$ range. We summarized the results in \cref{sparsity_accuracy}. From
+%our experiments it is clear that ShrinkNets can fit the data closer than Group
+%Sparsity for the same amount of sparsity. The fact that we are able to reach
+%very low loss demonstrate that even if our objective function is non convex, in
+%practice it works as good or better as convex alternatives.
 
-For each dataset we fit with different regularization parameters and measure
-the error and sparsity obtained after convergence. In this context we define
-sparsity as the ratio of columns that have all their weights under $10^{-3}$ in
-absolute value. Regularization parameters were chosen in order to obtain the
-widest sparsity spectrum. Loss is normalized depending on the problem to be in
-the $[0, 1]$ range. We summarized the results in \cref{sparsity_accuracy}. From
-our experiments it is clear that ShrinkNets can fit the data closer than Group
-Sparsity for the same amount of sparsity. The fact that we are able to reach
-very low loss demonstrate that even if our objective function is non convex, in
-practice it works as good or better as convex alternatives.
+
+

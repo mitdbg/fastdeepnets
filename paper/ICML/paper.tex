@@ -50,12 +50,12 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Learning Neural Network size with ShrinkNets}
+\icmltitlerunning{ShrinkNets: Learning Network Size while Training}
 
 \begin{document}
 
 \twocolumn[
-\icmltitle{Learning Network Size while Training with ShrinkNets}
+\icmltitle{ShrinkNets: Learning Network Size while Training}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -106,21 +106,21 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-As neural networks are being increasingly deployed in different applications and
+As neural networks are being widely in different applications and
 on different hardware, it has become increasingly important to optimize
 inference time and model size along with model accuracy.  Most current work
-optimizes model size, model accuracy and inference time in different stages and
-results in suboptimal results at the cost of computational inefficiency.  In
-this work, we propose a new techique called ShrinkNets that optimizes all three
+optimizes model size, model accuracy and inference time in different stages, 
+resulting in suboptimal results and computational inefficiency.  In
+this work, we propose a new technique called ShrinkNets that optimizes all three
 of these metrics simultaneously by learning optimal network size at training
 time.  Specifically our technique presents a new method to simultaneously
 optimize network size and model performance by neuron-level pruning.
 Neuron-level pruning not only produces much smaller networks for a given
 accuracy threshold but also produces dense weight matrices that are efficient at
 inference time.  By applying our technique to a variety of models with both
-convolutional and fully connected layers, we show that ShrinkNets can reduce by
-35\% the network size with respect to a static network for \texttt{CIFAR10}, and
-it can achieve speedups during inference time of up to 40X. In addition, the
+convolutional and fully connected layers, we show that ShrinkNets can reduce network size
+by 35x in comparison to to a static network on \texttt{CIFAR10}, with
+6x improvement in inference time. In addition, the
 most accurate networks found by ShrinkNets are similar or more accurate than
 those found by statically trained networks.  
 \end{abstract}
