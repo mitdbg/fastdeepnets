@@ -2,7 +2,7 @@ This is BibTeX, Version 0.99d (TeX Live 2013)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
 Case mismatch error between cite keys xxx and XXX
----line 44 of file paper.aux
+---line 41 of file paper.aux
  : \citation{xxx
  :              }
 I'm skipping whatever remains of this command
@@ -21,9 +21,6 @@ Repeated entry---line 823 of file general.bib
  : @inproceedings{Abadi2016b
  :                          ,
 I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for "googleapple"
-Warning--I didn't find a database entry for "languagetranslation"
-Warning--I didn't find a database entry for "autocomplete"
 Warning--I didn't find a database entry for "something1"
 Warning--I didn't find a database entry for "something2"
 Warning--I didn't find a database entry for "quant"
@@ -39,7 +36,7 @@ Warning--there's a number but no series in Philipp
 Warning--empty journal in Xiao2017
 You've used 28 entries,
             2773 wiz_defined-function locations,
-            800 strings with 11340 characters,
+            797 strings with 11298 characters,
 and the built_in function-call counts, 16481 in all, are:
 = -- 1413
 > -- 1329
