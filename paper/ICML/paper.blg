@@ -2,7 +2,7 @@ This is BibTeX, Version 0.99d (TeX Live 2013)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
 Case mismatch error between cite keys xxx and XXX
----line 30 of file paper.aux
+---line 44 of file paper.aux
  : \citation{xxx
  :              }
 I'm skipping whatever remains of this command
@@ -29,54 +29,53 @@ Warning--I didn't find a database entry for "something2"
 Warning--I didn't find a database entry for "quant"
 Warning--I didn't find a database entry for "something"
 Warning--I didn't find a database entry for "XXX"
-Warning--I didn't find a database entry for ""
 Warning--I didn't find a database entry for "nvidia-paper-xxx"
+Warning--I didn't find a database entry for ""
 Warning--empty journal in Aghasi2016
 Warning--empty school in Blackard:1998:CNN:928509
-Warning--empty year in meier
 Warning--there's a number but no volume in Nair2010
 Warning--empty journal in paszke2017automatic
 Warning--there's a number but no series in Philipp
 Warning--empty journal in Xiao2017
-You've used 31 entries,
+You've used 28 entries,
             2773 wiz_defined-function locations,
-            822 strings with 11980 characters,
-and the built_in function-call counts, 18165 in all, are:
-= -- 1555
-> -- 1460
-< -- 21
-+ -- 488
-- -- 457
-* -- 1593
-:= -- 2885
-add.period$ -- 119
-call.type$ -- 31
-change.case$ -- 242
-chr.to.int$ -- 31
-cite$ -- 69
-duplicate$ -- 690
-empty$ -- 1173
-format.name$ -- 508
-if$ -- 3733
+            800 strings with 11340 characters,
+and the built_in function-call counts, 16481 in all, are:
+= -- 1413
+> -- 1329
+< -- 18
++ -- 443
+- -- 415
+* -- 1451
+:= -- 2618
+add.period$ -- 108
+call.type$ -- 28
+change.case$ -- 219
+chr.to.int$ -- 28
+cite$ -- 62
+duplicate$ -- 629
+empty$ -- 1060
+format.name$ -- 463
+if$ -- 3386
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 30
-newline$ -- 187
-num.names$ -- 126
-pop$ -- 458
+missing$ -- 28
+newline$ -- 170
+num.names$ -- 114
+pop$ -- 410
 preamble$ -- 1
-purify$ -- 213
+purify$ -- 193
 quote$ -- 0
-skip$ -- 613
+skip$ -- 556
 stack$ -- 0
-substring$ -- 462
-swap$ -- 90
-text.length$ -- 8
+substring$ -- 416
+swap$ -- 82
+text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 336
-warning$ -- 7
-while$ -- 130
+type$ -- 303
+warning$ -- 6
+while$ -- 117
 width$ -- 0
-write$ -- 447
+write$ -- 406
 (There were 4 error messages)

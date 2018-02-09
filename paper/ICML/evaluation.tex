@@ -3,7 +3,7 @@
 
 The goal of our evaluation is to explore:
 
-\begin{itemize}
+\begin{compactitem}
 
 \item Whether, by varying $\lambda$, \textit{ShrinkNets} can efficiently
 explore (in terms of number of training runs)  the spectrum of high-accuracy
@@ -16,14 +16,14 @@ optimization.
 improved inference times on both CPUs and GPUs.
 
 \item Whether the ShrinkNets approach results in network architectures that are
-substantially different than the best network architecutres (in terms of
+substantially different than the best network architectures (in terms of
 relative number of neurons per layered) identified in the literature.
 
 \item \srm{something else?}
 
-\end{itemize}
+\end{compactitem}
 
-\noindent\textbf{Implementation: }We have implemented \textbf{switch Layers} and
+\noindent\textbf{Implementation: }We implemented \textbf{switch Layers} and
 the associated training procedure as a library in
 pytorch~\cite{paszke2017automatic}. The layer can be freely mixed with other
 popular layers such as convolutional layers, batchnorm layers, fully connected
@@ -74,7 +74,7 @@ excluding the \textit{Switch Layers} because as described in
 %\texttt{COVERTYPE}. In this section, we report how we employed ShrinkNets on
 %these datasets and compare our results to training without ShrinkNets.
 
-\subsubsection{Large Network Space: \texttt{CIFAR10}}
+\subsubsection{Large Network Setting: \texttt{CIFAR10}}
 
 %\ra{this is related work}Previous research~\cite{Scardapane2017} that attempts
 %to optimize network size during training focused on simple datasets and simple
@@ -143,7 +143,7 @@ best static model has \ra{xx} accuracy, while the ShrinkNets model is \ra{xx}
 times smaller. In addition, if we give up just 1\% error, ShrinkNets finds a
 model that is \ra{xx} times smaller. 
 
-\subsubsection{Small Network Space: \texttt{COVERTYPE}}
+\subsubsection{Small Network Setting: \texttt{COVERTYPE}}
 
 The \texttt{COVERTYPE} \cite{Blackard:1998:CNN:928509} dataset contains $581012$
 descriptions of geographical area (elevation, inclination, etc...) and the goal
@@ -190,7 +190,7 @@ model that is \ra{xx} times smaller.
 
 \subsubsection{Summary}
 
-We have demonstrated that it is possible to achieve networks with good accuracy
+We  demonstrated that it is possible to achieve networks with good accuracy
 when using ShrinkNets both when the network space cannot be explored entirely
 (\texttt{CIFAR10}) and when it can, e.g., \texttt{COVERTYPE}. The most important
 result is not that ShrinkNets finds networks of good accuracy, but that those
@@ -216,8 +216,8 @@ network size on inference time is the subject of our next evaluation goal.
 
 \subsection{Can ShrinkNets speed up inference?}
 
-We have demonstrated that ShrinkNets find networks of similar or better accuracy
-than static networks, and much smaller. Here we explore if the reduction in size
+The previous experiment showed that ShrinkNets finds networks of similar or better accuracy
+than static networks that are much smaller. We now explore if the reduction in size
 translates into an improvement of the inference time.
 
 %We showed in the previous experiments that the \textit{ShrinkNets} approach is
@@ -225,35 +225,49 @@ translates into an improvement of the inference time.
 %Networks}. In this experiment we want to determine benefits of the smaller size
 %we get.
 
-For some applications, the absolute best accuracy is not something desirable if
-it implies having enormous models. This observation motivates our experimental
-methodology: for a given desired target accuracy, we pick the smallest network
-that satisfies the accuracy constraint. For both \textit{ShrinkNets} and
-\textit{Static Networks} we measure multiple metrics and compute the ratio
-between the two. The metrics we are interested in are: the final model size (in
-number of parameters) and inference speed on CPU and GPU for small batch sizes
-($1$ input) and large batch sizes (depend on the dataset and hardware). Results
-are shown on \cref{figure_CIFAR10} and \cref{figure_COVER} after the
-distribution of sizes and accuracy. We limit our plot to the ($80-100\%$
-accuracy range because we consider that models with lower accuracy have less
-practical use).
+As noted in the introduction, for some applications, compact models that offer fast inference times
+are as important as absolute accuracy. 
+%This observation motivates our 
+% the experiment approach described in the previous section 
+% and shown in the top of Figure~\ref{figure_CIFAR10} 
+% and~\ref{figure_COVER}:
+% for a  desired target accuracy, the Pareto optimal line shows the smallest
+% network
+% that satisfies achieves a given accuracy. 
+In this section, we study the relationship between accuracy, network size and inference time.
+To do this, we select the smallest model 
+that achieves a given accuracy for the both ShrinkNets and Static approach.
+For each model, we measure the time to run inference with the model.  
+We then compute the ratio of the network size and inference time
+between ShrinkNets and Static at each accuracy level, and plot them on the bottom of 
+ Figure~\ref{figure_CIFAR10} 
+ and~\ref{figure_COVER}.
+We limit our plots to the models with $80-100\%$
+accuracy range because those are the ones that we consider to be practically useful.
 
-Regarding size, the key observation is that size improvements are significant
-for the \texttt{CIFAR10}. In the range of accuracies we are interested in,
-improvements in size go from 4x to 40x. On the \texttt{COVERTYPE} dataset even
-if the compression ratio is always above 1, it hardly exceeds 3x, except for
-very high accuracy where \textit{ShrinkNets} obtained some particularly good
-solutions.
+ The middle plot in each figure shows the ratio of model size between ShrinkNets and Static (values $>$1 mean ShrinkNets are smaller) at different accuracy levels.  These figures show that is that size improvements are are particularly significant
+for  \texttt{CIFAR10}. In the range of accuracies we are interested in,
+improvements in size go from 4x to 40x. On the \texttt{COVERTYPE} dataset,
+ the compression ratio is always above 1 but it rarely exceeds 3x, except for
+very high accuracies where \textit{ShrinkNets} finds excellent, small
+solutions.  The fact that the  \texttt{COVERTYPE} networks are not dramatically 
+smaller is expected:  as the distribution at the top of Figure~\ref{figure_COVER} shows,
+the static method is able to explore most of the parameter search space, so finds a range
+of models that perform well at different sizes.
 
-We observe that unlike local sparsity compression based method, our method's
-improvement on size translates directly to higher throughput at inference time.
-\ra{For example, when running on CPU, blah, when running on GPU blah.}
+For speedup, we experimented with both CPUs and GPUs, and with different batch sizes, where batch size indicates the number of inputs simultaneously fed to the model for inference.
+For each data set/GPU/CPU combination, we show results with batch size 1, as well as with a batch size large enough to fully utilize the hardware on each dataset and hardware configuration.  For example, for {\tt CIFAR10} on CPU, a batch size of 64 fully utilizes the CPU, whereas a GPU can execute many more models in parallel, so we use a larger batch size of 1024.  For {\tt COVERTYPE}, because the model is so much smaller, larger batches are needed to fully utilize the hardware.
+Note that when using a batch size of $1$ on GPU, we do not expect to (and do not) observe any improvement because inference times are very small (typically about 10 $\mu s$), such that setup time dominates overall runtime.  
 
-When using a batch size of $1$ on CPU for \texttt{CIFAR10} as well as when using
-a batch of $1$ on GPU, we do not observe any improvement due to the experiment
-being dominated by noise. However, we still expect to find a difference in
-latency if we were using a framework optimized for such goal.\ra{this is a bit
-vague}
+ The bottom four graphs in each figure 
+show the results.  Again, the {\tt CIFAR10} results show the benefit of the ShrinkNets approach
+most dramatically.  On CPU, speedups range up to 6x depending on the batch size, with many models exceeding 3x speedup. In general, speedups are less than compression ratios, due to overheads in problem setup, invocation, and result generation  in Python/PyTorch.
+  On GPU, the speedups are less substantial because the CUDA benchmarking utility that we use for evaluation can choose better algorithms for larger matrices which masks some of our benefit, although they are still often 1.5x--2x faster for large batch sizes.
+The speedup results on {\tt COVERTYPE} are similar to those for network size:  because the networks are not much smaller, they are not much faster either.
+
+A key takeaway of these speedup results is that, unlike local sparsity compression methods, our methods' improvement on size translates directly to higher throughput at inference time. \srm{Can we cite something showing that local sparsity does not improve performance even w/ small nets?}, at least for larger batches when hardware can be fully utilized.
+
+
 
 %In situations in which inference is already fast (\texttt{COVERTYPE}
 %with a batch size of $1$ and \texttt{CIFAR10} with a batch size of $1$ on GPU),
@@ -287,7 +301,7 @@ search over the hyper-parameters the \texttt{CIFAR10} dataset}
 \vspace*{-5mm}
 \caption{\label{figure_COVER} Summary of the result of random
 search over the hyper-parameters the \texttt{COVERTYPE} dataset
-\srm{label the x axes on the bottom plots}
+\srm{label the x axes on the bottom plots; change ``Desired accuracy`` ``Accuracy''}
 }
 \end{center}
 \vspace*{-4mm}
