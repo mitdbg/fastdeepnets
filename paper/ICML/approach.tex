@@ -1,6 +1,7 @@
 %!TEX root=paper.tex
 
 \section{The ShrinkNets Approach}
+\label{sec:approach}
 
 In this section we describe the \shrink approach, which allows us to learn
 the network size as part of the training process. The key idea is the addition
@@ -12,11 +13,11 @@ layer.
 \subsection{Overview}
 
 At a high-level, our approach consists of two interconnected stages.
-The first stage identifies neurons that do not improve the
+The first one identifies neurons that do not improve the
 prediction accuracy of the network and deactivates them. 
 The second stage then {\it removes} neurons from the network (explicitly
 shrinking weight matrices and updating optimizer state) thus leading to 
-smaller networks and also faster inference times. 
+smaller networks and faster inference. 
 
 \noindent\textbf{Deactivating Neurons On-The-Fly: }During the first stage,
 \shrink applies an on/off switch to every neuron of an initially over-sized
@@ -40,20 +41,21 @@ instead of a binary value.
 
 \noindent\textbf{Neuron Removal: } During this stage, the neurons that are
 deactivated by the switch layers are actually removed from the network,
-effectively shrinking the network size. This step improves inference times, as
-we demonstrate in our evaluation. We choose to remove neurons at training time
+effectively shrinking the network size. This step improves inference times.
+We choose to remove neurons at training time
 because we have observed that this allows the remaining active neurons to adapt
 to the new network architecture and we can avoid a post-training step to prune
 deactivated neurons.
+
 % Existing techniques focus on neuron removal
 % after training, and require an extra fine-tuning process to compensate for the
 % removal.
 % \srm{cite something?} \gl{I think we are fine or we could actually
 % cite any of these paper}
 
-In the remainder of this section we describe in detail the switch layer as well
-as and the training process for \shrink, and 
-then describe the removal process in Section~\ref{neuron_killing}.
+Next we describe in detail the switch layer as well as and the training process
+for \shrink, and then describe the removal process in
+Section~\ref{neuron_killing}.
 
 \subsection{The Switch Layer}
 
