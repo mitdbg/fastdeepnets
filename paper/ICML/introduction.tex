@@ -2,28 +2,28 @@
 
 \section{Introduction}
 
-Neural networks are increasingly being deployed in a wide variety  of
-applications  and on diverse hardware architectures ranging from laptops to
+Neural networks are being deployed in a wide variety of
+applications and on diverse hardware architectures ranging from laptops to
 phones to embedded sensors. This wide variety of deployment settings means
 that inference time and model size are becoming as important as  prediction
-quality when assessing model performance.  However, these three dimensions of
-performance (model quality, inference time and model size)  are largely
-optimized separately today, often with suboptimal results.
+accuracy when assessing model quality.  However, these three dimensions of
+performance (prediction accuracy, inference time and model size) are largely
+optimized independently, often with suboptimal results.
 
 Of course, the problem of finding compressed or small networks is not new.
 Existing techniques to make a pre-trained neural network smaller can be
-categorized in two approaches: (1) quantization \cite{quant} and code
-compilation~\cite{ma2016compilation}, techniques that can be applied blindly to
-any network, and (2) techniches which analyze the structure of the network and
-systematically prune connections or neurons~\cite{han2015deepcompression,Cun}
-based on some loss function. While the first category is always useful, but only
+categorized in two approaches: (1) quantization \cite{Jouppi:2017:IPA:3079856.3080246} and code
+compilation, techniques that can be applied blindly to
+any network, and (2) techniques which analyze the structure of the network and
+systematically prune connections or neurons~\cite{han2015deepcompression,Cun}. 
+While the first category is always useful, but only
 has limited impact on the network size, the second category can reduce the model
 size much more but has several drawbacks:   First, those techniques often
 negatively impact model quality.  Second, they can (surprisingly) negatively
 impact inference time as they transform dense matrix operations into sparse
-ones, which can be substantially slower to execute on modern hardware
-\cite{han2015deepcompression}, especially GPUs which do not efficiently support
-sparse linear algebra.  Third, these techniques generally start by optimizing a
+ones, which can be substantially slower to execute on GPUs which do not support
+efficiently sparse linear algebra\cite{han2015deepcompression}. 
+Third, these techniques generally start by optimizing a
 particular architecture for prediction performance, and then, as a post-
 processing step, applying compression  to generate a smaller model that meets
 the resource constraints of the deployment setting.  Because the network
@@ -37,29 +37,30 @@ configurations.
 
 In contrast, in this paper we present a new method to simultaneously optimize
  network size and model performance. The key idea is to learn the right
-network size at the same time that we optimize for prediction performance for a
-specific task. Our approach, called {\it ShrinkNets}, starts with an {\it
+network size at the same time that we optimize for prediction performance. 
+Our approach, called \shrink, starts with an {\it
 over-sized} network, and dynamically shrinks it by eliminating unimportant
 neurons---those that do not contribute to prediction performance---during
-training time. To do this, ShrinkNets must detect the unimportant neurons, and
+training time. To do this, \shrink must detect the unimportant neurons, and
 remove them from the network. The
-removal of entire neurons and not connections is crucial, because it leads to
+removal of entire neurons (vs. only connections) is crucial, because it leads to
 dense networks, which in turn leads to better inference performance. To support the
 detection and removal of unimportant neurons we introduce a new layer, called
-\textbf{Switch layer}. Introducing this new layer simply requires us to
+\swl. Introducing this new layer simply requires us to
 add a term to the
-loss function to optimize the weights of this layer during training. ShrinkNets has
+loss function to optimize the parameters of this layer during training. 
+\shrink has
 two main benefits. First, it explores the architecture of models that are both
-small and perform well, rather than starting with a high-performance model and
-making it small.  It does this using a single new hyperparameter that effectively 
-models the target network size.  This allows us to efficiently generate a family of smaller and
-accurate models without an exhaustive and expensive hyperparameter search over
-the number of neurons in each layer.  Second, in contrast to existing neural
+small and perform well, rather than starting with a high-performing model and
+making it small.  \shrink accomplishes this goal by using a single new 
+hyperparameter that effectively models the target network size.  
+% This allows us to efficiently generate a family of smaller and
+% accurate models without requiring an exhaustive and expensive hyperparameter search over
+% the number of neurons in each layer.  
+Second, in contrast to existing neural
 network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our
-approach results in models that are not only small, but where the layers are
-dense, which means that inference time is also improved, e.g., on GPUs.
-
-
+approach results in models that are not only small, but where the weight matrices
+are dense, leading to better inference time.
 
 
 
