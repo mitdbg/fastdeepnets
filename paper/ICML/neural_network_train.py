@@ -1,7 +1,10 @@
 import torch
 import numpy as np
+import os
+from collections import Counter
 from copy import deepcopy, copy
 from random import choice
+from uuid import uuid4
 from dataset_settings import SETTINGS as DATASETS, LOG_DISTRIBUTIONS, INTEGERS
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader, TensorDataset
@@ -13,6 +16,8 @@ from utils.misc import tn
 from multiprocessing import cpu_count
 from torch.optim import Adam, SGD, Adamax
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from dynnet.filters import SimpleFilter
+import sys
 
 def clean_params(params):
     result = {}
@@ -72,6 +77,14 @@ def prepare_loaders(config, split=0.8):
     training_dataset = IndexDataset(full_train_dataset_augmented, train_indices)
     validation_dataset = IndexDataset(full_train_dataset_simple, validation_indices)
 
+
+    weights = [0] * config['params']['output_features']
+
+    for _, labels in DataLoader(training_dataset, batch_size=100000, num_workers=cpu_count()):
+        for label in labels.cpu().numpy():
+            weights[label] +=1
+    class_weights = torch.from_numpy(1 / np.array(weights) / len(weights) * len(training_dataset)).float().cuda()
+
     if data_augmentations:
         training_dataloader = DataLoader(training_dataset,
                                          batch_size=config['params']['batch_size'],
@@ -85,19 +98,19 @@ def prepare_loaders(config, split=0.8):
                                             config['val_batch_size'])
     testing_dataloader = preload_dataset(testing_dataset,
                                          config['val_batch_size'])
-    return training_dataloader, validation_dataloader, testing_dataloader
+    return training_dataloader, validation_dataloader, testing_dataloader, class_weights
 
-def forward(model, dataloader, config, optimizer=None):
+def forward(model, dataloader, config, class_weights, optimizer=None):
     accs = []
     losses = []
     is_classification = config['mode'] == 'classification'
     if is_classification:
-        criterion = torch.nn.CrossEntropyLoss()
+            criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
     else:
         criterion = torch.nn.MSELoss()
     lamb = config['params']['lambda']
 
-    for inputs, labels in dataloader:
+    for i, (inputs, labels) in enumerate(dataloader):
         inputs = Variable(inputs.cuda(async=True), volatile=(optimizer is None))
         labels = Variable(labels.cuda(async=True), volatile=(optimizer is None))
         prediction = model(inputs)
@@ -128,15 +141,33 @@ def init_model(model):
             module.running_mean.fill_(0)
             module.running_var.fill_(0.9)
 
+def split_params(model):
+    filter_parameters = set()
+    for module in model.modules():
+        if isinstance(module, SimpleFilter):
+            for p in module.parameters():
+                filter_parameters.add(p)
+    other_parameters = set(model.parameters()) - filter_parameters
+    return other_parameters, filter_parameters
+
 def train(config, epochs=400):
 
     stats = TrainingStats()
     is_classification = config['mode'] == 'classification'
     model = config['model'](config['params']).cuda()
     init_model(model)
-    dl_train, dl_val, dl_test = prepare_loaders(config)
+    dl_train, dl_val, dl_test, class_weights = prepare_loaders(config)
     weight_decay = config['params']['weight_decay']
-    optimizer =  Adam(model.parameters(), weight_decay=weight_decay)
+    lr = config['params']['learning_rate']
+    other_parameters, filter_parameters = split_params(model)
+    optimizer = Adam([{
+        'params': other_parameters,
+        'lr': lr,
+        'weight_decay': weight_decay # Do not apply weight decay on filters
+    }, {
+        'params': filter_parameters,
+        'lr': lr,
+    }])
 
     if is_classification:
         direction = 'max'
@@ -148,7 +179,7 @@ def train(config, epochs=400):
             stats.next_epoch()
             model.train()
             with stats.time('training'):
-                train_loss, train_acc = forward(model, dl_train, config, optimizer)
+                train_loss, train_acc = forward(model, dl_train, config, class_weights, optimizer)
             stats.log('train_loss', train_loss)
             stats.log('train_acc', train_acc)
             model.eval()
@@ -158,41 +189,36 @@ def train(config, epochs=400):
                 with stats.time('optimizer_update'):
                     log.update_optimizer(optimizer)
                 sizes = compute_size(model)
+                print(sizes)
                 for i, value, in enumerate(sizes):
                     stats.log('size_%s' % (i + 1), value)
             with stats.time('inference_val'):
-                val_loss, val_acc = forward(model, dl_val, config)
+                val_loss, val_acc = forward(model, dl_val, config, class_weights)
             stats.log('val_loss', val_loss)
             stats.log('val_acc', val_acc)
             with stats.time('inference_test'):
-                test_loss, test_acc = forward(model, dl_test, config)
+                test_loss, test_acc = forward(model, dl_test, config, class_weights)
                 stats.log('test_loss', test_loss)
                 stats.log('test_acc', test_acc)
+            print(train_acc, test_acc)
             stats.log('learning_rate', optimizer.param_groups[0]['lr'])
             scheduler.step(val_acc)
             if optimizer.param_groups[0]['lr'] < 1e-6:
                 break
     except:
-        pass
-
+        raise
     return stats, model
 
 def train_simple_CIFAR10_dynamic():
-    for i in range(1, 10):
-        config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
-        config['params']['batch_norm'] = True
-        config['params']['dynamic'] = True
-        config['params']['weight_decay'] = 0.000001
-        config['params']['lambda'] = 0.0001
-        config['params']['factor'] = 2
-        config['params']['batch_size'] = 150
-        config['params']['learning_rate'] = 1e-2
-        stats, model = train(config)
-        with open('./experiments_results/simple_dynamic_CIFAR10_%s.pkl' % i, 'wb') as f:
-            torch.save((config, stats), f)
+    config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
+    print(config)
+    return
+    stats, model = train(config)
+    with open('./experiments_results/simple_dynamic_CIFAR10_%s.pkl' % i, 'wb') as f:
+        torch.save((config, stats), f)
 
 def train_simple_CIFAR10_static():
-    for i in range(10, 20):
+    for i in range(50, 100):
         config = deepcopy(sample_params(DATASETS['CIFAR10_VGG_DYNAMIC']))
         config['params']['batch_norm'] = True
         config['params']['dynamic'] = False
@@ -205,4 +231,20 @@ def train_simple_CIFAR10_static():
         with open('./experiments_results/simple_static_CIFAR10_%s.pkl' %i, 'wb') as f:
             torch.save((config, stats), f)
 
-train_simple_CIFAR10_static()
+def random_train(mode):
+    sampling_settings = DATASETS[mode]
+    config = deepcopy(sample_params(sampling_settings))
+    print(mode)
+    print(config)
+    filename_stats = './experiments_results/random_search/%s/%s.pkl' % (mode, uuid4())
+    filename_model = './experiments_results/random_search/%s/%s.model' % (mode, uuid4())
+    os.makedirs(os.path.dirname(filename_stats), exist_ok=True)
+    os.makedirs(os.path.dirname(filename_model), exist_ok=True)
+    stats, model = train(config)
+    with open(filename_stats, 'wb') as f:
+        torch.save((sampling_settings, config, stats), f)
+    with open(filename_model, 'wb') as f:
+        torch.save(model.cpu(), f)
+
+if __name__ == '__main__':
+    random_train(sys.argv[-1])

@@ -1,0 +1,69 @@
+\section{Appendix}
+\subsection{Proofs}
+Unless specified, all the proofs consider the Multi-Target linear regression problem
+\begin{proposition}
+\label{gps_equivalence}
+  $\forall (n, p) \in \mathbb{N}_+^2, \bm{y} \in \mathbb{R}^{n}, \bm{x} \in \mathbb{R}^{p} \lambda \in \mathbb{R}$
+  
+  \begin{align*}
+    & \min_{\bf{A}} \norm{\bf{y} - \bf{A}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A^T\right)_j}_2 \\
+     = &\min_{\bf{A'}, \bm{\beta}} \norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1 \\
+     & \text{s.t.} \forall j \in \intint{1, p}, \norm{\left(A'^T\right)_j}_2^2 = 1
+  \end{align*}
+\end{proposition}
+
+\begin{proof}
+  In order to prove this statement we will show that for any solution $\bm{A}$ in the first problem, there exists a solution in the second with the exact same value, and vice-versa.
+We now assume we have a potential solution $\bm{A}$ for the first problem and we define $\bm{\beta}$ such that $\bm{\beta}_j = \norm{\left(\bm{A}^T\right)_j}_2^2$, and $\bm{A}' = \bm{A}\left(\diag{\bm{\beta}}\right)^{-1}$. It is easy to see that the constraint on $\bm{A}'$ is statisfied by construction. Now:
+  \begin{align*}
+    & \norm{\bf{y} - \bf{A}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A^T\right)_j}_2 \\
+    = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A'^T\right)_j\beta_j}_2 \\
+    = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \abs{\beta_j} \cdot 1\\
+    = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
+  \end{align*}
+  Assuming we take an $\bm{A}'$ that satisfy the constraint and a $\bm{\beta}$, we can define $\bm{A} = \bm{A'}\diag{\bm{\beta}}$. We can apply the same operations in reverse order and obtain an instance of the first problem with the same value. We can now see that the two problems must have the same minimum otherwise we would be able to construct a solution to the other with exact same value.
+\end{proof}
+
+\begin{proposition}
+\label{unconstrained_non_convex}
+\begin{equation*}
+     \norm{\bf{y} - \bf{A}\diag{\bm{\beta}}\bf{x}}_2^2
+\end{equation*}
+is not convex in $\bm{A}$ and $\bm{\beta}$.
+\begin{proof}
+  To prove this we will take the simplest instance of the problem: with only scalars. We have $f(a, \beta) = \left(y - a\beta x\right)^2$. For simplicty let's take $y = $ and $x > 0$. If we take two candidates $s_1 = (0, 2)$ and $s_2 = (2, 0)$, we have $f(s_1) = f(s_2) = 0$. However $f(\frac{2}{2}, \frac{2}{2}) = x > \frac{1}{2} f(0, 2) + \frac{1}{2}f(2, 0)$, which break the convexity property. Since we showed that a particular case of the problem is non-convex then necessarly the general cannot be convex.
+\end{proof}
+\end{proposition}
+
+\begin{proposition}
+\label{unconstrained_shrinknet_no_min}
+\begin{equation*}
+     \min_{\bf{A}, \bm{\beta}} \norm{\bf{y} - \bf{A}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
+\end{equation*}
+has no solution if $\lambda > 0$.
+\end{proposition}
+\begin{proof}
+  Let's assume this problem has a minimum $\bm{A}^*, \bm{\beta}^*$. Let's consider $2\bm{A}^*, \frac{1}{2}\bm{\beta}^*$. Trivially the first component of the sum is identical for the two solutions, however $\lambda\norm{\frac{1}{2}\bm{\beta}} < \lambda\norm{\bm{\beta}}$. Therefore $\bm{A}^*, \bm{\beta}^*$ cannot be the minimum. We conclude that this problem has no solution.
+\end{proof}
+\begin{proposition}
+  \label{shrinknet_regularized_minimum}
+For this proposition we will not restrict ourselves to single layer but the composition of an an arbitrary large ($n$) layers as defined individually as $f_{\bm{A}_i, \bm{\beta}_i, \bm{b}_i}(x) = a(\bm{A_i}\diag{\bm{\beta_i}}\bm{x} + \bm{b_i})$. The entire network follows as: $N(\bm{x}) = \left(\bigcirc_{i=1}^n f_{\bm{A_i}, \bm{\beta_i}, \bm{b_i}}\right)(\bm{x})$. For $\lambda > 0$, $\lambda_2 > 0$ and $p > 0$ we have:
+  \begin{equation*}
+    \min \norm{\bm{y} - N(\bm{x})}_2^2 + \Omega_{\lambda, \lambda_2, p}^{rs}
+  \end{equation*}
+  has at least $2^k$ global minimum where $k = \sum_{i=1}^n \#\bm{\beta_i}$
+\end{proposition}
+
+\begin{proof}
+First let's prove that there is at least one minimum to this problem. The two components of the expression are always positive so we know that this problem is bounded by below by $0$. Let's assume this function does not have a minimum. Then there is a sequence of parameters $(S_n)_{n>0}$ such that the function evaluated at that point convereges to the infimum of the problem. Since the function is defined everywhere does not have a minimum then this sequence must diverge. Since the entire sequence deverge the there is at least one individual parameter that diverges. First case, the parameter is a component $k$ of some $\bm{\beta_i}$ for some $i$. Necessarly $\norm{\bm{\beta_i}}_1$ diverge towards $+ \infty$, which is incompatible with the fact that $(S_n)$ converges to the infimum. We can have the exact same argument if the diverging parameter is in $\bm{A_i}$ or $\bm{b_i}$ because $p > 0$. Since there is always a contradiction then our assumption that the function has no global minimum must be false. Therefore, this problem has at least one global minimum.
+
+\par Let's consider one optimal solution of the problem. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ does not change the the first part of the objetive because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and are both global minimum. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
+
+\end{proof}
+\subsection{Experiment details}
+\subsubsection{Multi-Target Linear and Logistic regressions}
+\label{linear_datasets}
+\subsubsection{Neuron Removal strategies}
+\subsubsection{Convergence and Training Dynamics of Neural networks}
+\subsubsection{Hyper-optimization of ShrinkNets}
+\subsubsection{Performance}

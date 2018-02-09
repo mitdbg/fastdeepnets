@@ -3,7 +3,7 @@ import re
 from paper.ICML.models.FullyConnected import FullyConnected
 from paper.ICML.models.VGG import VGG
 from copy import deepcopy
-from datasets import MNIST, FashionMNIST, CIFAR10
+from paper.ICML.datasets import MNIST, FashionMNIST, CIFAR10, covertype
 from torchvision import transforms
 import torchsample as ts
 
@@ -19,7 +19,7 @@ LOG_DISTRIBUTIONS = re.compile("(" + ")|(".join([
 INTEGERS = re.compile("(" + ")|(".join([
     'batch_size',
     'size_layer_[1-9]+',
-    'classifier_layer_[1-9]+'
+    'classifier_layer_[1-9]+',
     'layers'
 ]) + ")")
 
@@ -37,13 +37,39 @@ SETTINGS = {
             'input_features': [(1, 28, 28)],
             'output_features': [10],
             'layers': (1, 5),
-            'learning_rate': (0.1, 1e-6),
+            'learning_rate': (1e-2, 1e-5),
             'batch_size': (8, 512),
             'dropout': [0, 0.1, 0.2, 0.5],
-            'batch_norm': [True, False],
-            'weight_decay': (1e-2, 1e-5),
+            'batch_norm': [True],
+            'weight_decay': (1e-2, 1e-8),
             'dynamic': [True],
             'gamma': [0.99],
+            'size_layer_1': [5000],
+            'size_layer_2': [5000],
+            'size_layer_3': [5000],
+            'size_layer_4': [5000],
+            'size_layer_5': [5000],
+        },
+    },
+    'COVER_FC_DYNAMIC': {
+        'mode': 'classification',
+        'model': FullyConnected,
+        'dataset': covertype,
+        'val_batch_size': 10000,
+        'normalization': None,
+        'data_augmentations': [],
+        'params': {
+            'lambda': (0.1, 1e-6),
+            'input_features': [(98,)],
+            'output_features': [7],
+            'layers': [3],
+            'learning_rate': (1e-2, 1e-4),
+            'batch_size': [1000],
+            'dropout': [0],
+            'batch_norm': [False],
+            'weight_decay': (1e-1, 1e-7),
+            'dynamic': [True],
+            'gamma': [0.9, 0],
             'size_layer_1': [5000],
             'size_layer_2': [5000],
             'size_layer_3': [5000],
@@ -66,18 +92,18 @@ SETTINGS = {
             ts.transforms.RandomRotate(10),
         ],
         'params': {
-            'lambda': (1e-2, 1e-6),
+            'lambda': (1e-2, 1e-7),
             'name': ['VGG16'],
             'input_features': [(3, 32, 32)],
             'output_features': [10],
-            'learning_rate': (0.1, 1e-6),
-            'batch_size': (8, 512),
-            'weight_decay': (1e-2, 1e-5),
-            'factor': [1],
+            'learning_rate': (1e-2, 1e-4),
+            'batch_size': (32, 512),
+            'weight_decay': (1e-2, 1e-8),
+            'factor': [2],
             'classifier_layer_1': [5000],
             'classifier_layer_2': [5000],
-            'gamma': [0.9],
-            'batch_norm': [False],
+            'gamma': [0.9, 0.99, 0],
+            'batch_norm': [True],
             'dynamic': [True],
         },
     }
@@ -90,6 +116,16 @@ for i in range(1, 6):
     )
 SETTINGS['MNIST_FC_STATIC']['params']['dynamic'] = [False]
 
-# SETTINGS['FashionMNIST_FC_DYNAMIC'] = deepcopy(SETTINGS['MNIST_FC_DYNAMIC'])
-# SETTINGS['FashionMNIST_FC_STATIC'] = deepcopy(SETTINGS['MNIST_FC_STATIC'])
+SETTINGS['CIFAR10_VGG_STATIC'] = deepcopy(SETTINGS['CIFAR10_VGG_DYNAMIC'])
+SETTINGS['CIFAR10_VGG_STATIC']['params']['dynamic'] = [False]
+SETTINGS['CIFAR10_VGG_STATIC']['params']['classifier_layer_1'] = (32, 2500)
+SETTINGS['CIFAR10_VGG_STATIC']['params']['classifier_layer_2'] = (32, 2500)
+SETTINGS['CIFAR10_VGG_STATIC']['params']['factor'] = (0.1, 2)
 
+SETTINGS['COVER_FC_STATIC'] = deepcopy(SETTINGS['COVER_FC_DYNAMIC'])
+SETTINGS['COVER_FC_STATIC']['params']['dynamic'] = [False]
+SETTINGS['COVER_FC_STATIC'] = deepcopy(SETTINGS['COVER_FC_STATIC'])
+for i in range(1, 6):
+    SETTINGS['COVER_FC_STATIC']['params']['size_layer_%s' % i] = (
+        (20, SETTINGS['COVER_FC_STATIC']['params']['size_layer_%s' % i][0])
+    )

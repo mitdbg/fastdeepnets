@@ -16,12 +16,10 @@ class FullyConnected(torch.nn.Module):
         gamma = params['gamma']
         graph = Sequential()
         graph.add(Input, *input_features)
-        graph.add(Flatten)
+        if len(input_features) > 1:
+            graph.add(Flatten)
 
-        if dynamic:
-            Bn = CapNorm
-        else:
-            Bn = BatchNorm
+        Bn = BatchNorm
 
         assert layer_count > 0, "Need at least one layer"
         for i in range(layer_count):

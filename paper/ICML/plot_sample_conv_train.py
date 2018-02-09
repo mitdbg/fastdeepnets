@@ -165,5 +165,5 @@ def get_final_measure(mode, measure='test_acc'):
         return np.array([float(x.max().time) for x in best_results])
     else:
         return np.array([float(x[x.measure == measure].value) for x in best_results])
-plot_timings(read_file('dynamic', 0)[1])
-plot_shape(read_file('dynamic', 0)[1])
+# plot_timings(read_file('dynamic', 0)[1])
+# plot_shape(read_file('dynamic', 0)[1])

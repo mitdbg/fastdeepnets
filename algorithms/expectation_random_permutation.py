@@ -3,7 +3,7 @@ import numpy as np
 seq = [2, 3, 9, 4, 6, 8, 7, 5]
 
 def max_expectation(values, measure=None):
-    if measure == None:
+    if measure is None:
         measure = values
     values = np.array(values)
     measure = np.array(measure)

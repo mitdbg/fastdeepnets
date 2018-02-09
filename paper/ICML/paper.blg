@@ -1,46 +1,66 @@
-This is BibTeX, Version 0.99d (TeX Live 2017/Arch Linux)
-Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+This is BibTeX, Version 0.99d (TeX Live 2013)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
+White space in argument---line 28 of file paper.aux
+ : \citation{brain-
+ :                  damage,han2015deepcompression}
+I'm skipping whatever remains of this command
 The style file: icml2018.bst
 Database file #1: custom.bib
-You've used 1 entry,
+Repeated entry---line 117 of file custom.bib
+ : @article{zoph2017learning
+ :                          ,
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "googleapple"
+Warning--I didn't find a database entry for "languagetranslation"
+Warning--I didn't find a database entry for "autocomplete"
+Warning--I didn't find a database entry for "something1"
+Warning--I didn't find a database entry for "something2"
+Warning--I didn't find a database entry for "quant"
+Warning--I didn't find a database entry for "something"
+Warning--I didn't find a database entry for "brain-damage"
+Warning--I didn't find a database entry for "XXX"
+Warning--I didn't find a database entry for "Tibshirani1996"
+Warning--I didn't find a database entry for "Bergstra2012"
+You've used 10 entries,
             2773 wiz_defined-function locations,
-            605 strings with 5085 characters,
-and the built_in function-call counts, 599 in all, are:
-= -- 53
-> -- 39
-< -- 0
-+ -- 13
-- -- 12
-* -- 58
-:= -- 100
-add.period$ -- 5
-call.type$ -- 1
-change.case$ -- 7
-chr.to.int$ -- 1
-cite$ -- 2
-duplicate$ -- 21
-empty$ -- 40
-format.name$ -- 13
-if$ -- 116
+            676 strings with 7129 characters,
+and the built_in function-call counts, 5062 in all, are:
+= -- 441
+> -- 350
+< -- 5
++ -- 116
+- -- 106
+* -- 417
+:= -- 798
+add.period$ -- 37
+call.type$ -- 10
+change.case$ -- 63
+chr.to.int$ -- 10
+cite$ -- 20
+duplicate$ -- 228
+empty$ -- 368
+format.name$ -- 122
+if$ -- 1056
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 1
-newline$ -- 15
-num.names$ -- 4
-pop$ -- 10
+missing$ -- 11
+newline$ -- 63
+num.names$ -- 42
+pop$ -- 122
 preamble$ -- 1
-purify$ -- 6
+purify$ -- 54
 quote$ -- 0
-skip$ -- 17
+skip$ -- 187
 stack$ -- 0
-substring$ -- 21
-swap$ -- 1
-text.length$ -- 0
+substring$ -- 111
+swap$ -- 32
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 11
+type$ -- 105
 warning$ -- 0
-while$ -- 5
+while$ -- 39
 width$ -- 0
-write$ -- 24
+write$ -- 144
+(There were 2 error messages)

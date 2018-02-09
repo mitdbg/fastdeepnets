@@ -30,11 +30,16 @@ class VGG(nn.Module):
 
         config = cfg[params['name']]
 
+        layer_id = 0
         for descriptor in config:
             if descriptor == 'M':
                 graph.add(nn.MaxPool2d, kernel_size=2, stride=2)
             else:
-                descriptor = int(descriptor * params['factor'])
+                try:
+                    descriptor = int(descriptor * params['factor'])
+                except:
+                    descriptor = params['size_%s' % (layer_id + 1)]
+                    layer_id += 1
                 graph.add(Conv2d, out_channels=descriptor,
                           kernel_size=3, padding=1)
                 if batch_norm:
@@ -46,8 +51,9 @@ class VGG(nn.Module):
         graph.add(Flatten)
         for i in range(2):
             graph.add(Linear, out_features=params['classifier_layer_%s' % (i + 1)])
-            graph.add(SmoothFilter, starting_value='uniform',
-                      gamma=params['gamma'])
+            if dynamic:
+                graph.add(SmoothFilter, starting_value='uniform',
+                          gamma=params['gamma'])
             graph.add(ReLU, inplace=True)
         graph.add(Linear, out_features=params['output_features'])
 
