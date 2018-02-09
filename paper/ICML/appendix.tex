@@ -60,7 +60,7 @@ First let's prove that there is at least one minimum to this problem. The two co
 \par Let's consider one optimal solution of the problem. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ does not change the the first part of the objetive because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and are both global minimum. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
 
 \end{proof}
-\subsection{Additional Experiment}
+\subsection{Multi-Target Linear and Multi-Class Logistic regressions experiments}
 As we showed, Group sparsity share similarities with our method, and we claim
 that ShrinkNets are a relaxation of group sparsity.  In this experiment we want
 to compare the two aproaches.  We decided to focus on multi-target linear

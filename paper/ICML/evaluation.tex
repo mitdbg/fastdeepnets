@@ -14,23 +14,24 @@ Previous attempt at solving this problem focus on simple datasets and simple
 architectures (limited to Fully connected). We believe that self-resizing
 network really matter for problems where the architecture you need to solve them
 involve so many layers that it is impractical to explore the space of possible
-sizes. We considered ImageNet but the time required to train models is so long
+sizes. We considered ImageNet \cite{ILSVRC15} but the time required to train models is so long
 that it would have not been possible to train enough and get statistically
 significant results. This is why we picked \texttt{CIFAR10} \cite{Krizhevsky2009}. It is an
 image classification dataset containing $60000$ color images $(3 \times 32
 \times 32)$, belonging to $10$ different classes.
 
-To solve this task we use the \texttt{VGG16} model \cite{Srivastava2014}. It is constituted of
-alternating convolutional layers and \textit{MaxPool} layers interleaved by
-\textit{BatchNorm} [ref] and \textit{ReLU} [ref] layers. The two last layers are
-Fully connected layers separated by just a \textit{ReLU} activation function.
+To solve this task we use the \texttt{VGG16} model \cite{Srivastava2014}. It is
+constituted of alternating convolutional layers and \textit{MaxPool} layers
+interleaved by \textit{BatchNorm} \cite{DBLP:journals/corr/IoffeS15} and
+\textit{ReLU} \cite{Nair2010}  layers. The two last layers are Fully connected
+layers separated by just a \textit{ReLU} activation function.
 
 To turn it into a ShrinkNet we introduce \textit{Switch Layers} after each
 \textit{BatchNorm} and each Fully connected (except the last one).
 
 ShrinkNets assume that the starting size of the network is an upper bound on the
 optimal size. We though that picking two times the recommended size for each
-layer (that was designed for ImageNet[ref]), is a generous upper bound. For the
+layer (that was designed for ImageNet), is a generous upper bound. For the
 classification layers we use $5000$ neurons as an upper bound where the ImageNet
 version uses $4096$ \gl{This is on the top of my head, need to be double checked}.
 
@@ -53,7 +54,7 @@ before the size has converged. To be sure that accuracy measured corresponds to
 the final shape and not the starting shape, we only consider the second half of
 the training when picking the best epoch. For each model, we also measure the
 total size, in number of floating point parameters, excluding the
-\textit{Switch Layers} because as we saw in section \gl{REFERENCE\_ME}, we can
+\textit{Switch Layers} because as we saw in \cref{neuron_killing}, we can
 get rid of them when training is done.
 
 We want to compare against classical (\textit{Static}) networks. The number of
@@ -82,7 +83,7 @@ results obtained by the two methods.
 
 The only difference in terms of setup are minimal. We use the same architecture
 as \cite{Scardapane2017}, i.e. three layers Fully Connected neural network with  no
-\textit{Dropout} \cite{Srivastava2014} nor \textit{BatchNorm} \cite{DBLP:journals/corr/IoffeS15}. \gl{Should we say here that we
+\textit{Dropout} \cite{Srivastava2014} nor \textit{BatchNorm}. \gl{Should we say here that we
   don't expect Dropout to work here ? I could write an entire paragraph about it
   if needed}. In this case for the \textit{Static Networks}, we sample
 independently sizes of the three different layers to explore all possible
@@ -137,15 +138,15 @@ improvements are dominted by noise. However, on machine learning frameworks
 more focused on latency it should be possible to measure them.
 
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=\columnwidth]{neuron_removal}
-\vspace*{-5mm}
-\caption{\label{neuron_removal_figure}Effect of dynamic neuron removal for different $\gamma$. First column is the difference in the final loss in function of the removal factor. We plot theoretical baseline as a reference. Right column is a proxy of the total cost for training the model (i.e. the sum of input neurons at each epoch). Each row is a dataset/$\lambda$ combination. From top to bottom we have: \texttt{scm1d}/$0.1$, \texttt{oes97}/$0.1$}
-
-\end{center}
-\vspace*{-4mm}
-\end{figure}
+% \begin{figure}
+% \begin{center}
+% \includegraphics[width=\columnwidth]{neuron_removal}
+% \vspace*{-5mm}
+% \caption{\label{neuron_removal_figure}Effect of dynamic neuron removal for different $\gamma$. First column is the difference in the final loss in function of the removal factor. We plot theoretical baseline as a reference. Right column is a proxy of the total cost for training the model (i.e. the sum of input neurons at each epoch). Each row is a dataset/$\lambda$ combination. From top to bottom we have: \texttt{scm1d}/$0.1$, \texttt{oes97}/$0.1$}
+% 
+% \end{center}
+% \vspace*{-4mm}
+% \end{figure}
 
 \begin{figure}
 \begin{center}
@@ -171,17 +172,18 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset}
 \subsection{Architectures obtained after convergence}
 
 We sucessfully demonstrated that the architecture \textit{Shrinknets} converge
-to make sense both in term of size and performance. And for a given accuracy the
-size needed is significantly smaller than when we use the classic heursitc we
-commonly use to size convolutional neural networks. It might be an indication
-that this strategy is suboptimal and might need to be adjusted. During our
-experimentations on simpler datasets like \texttt{MNIST} \cite{Lecun1998} and
-\texttt{FashionMNIST} \cite{Xiao2017} we observed that even if they have the same number of
-classes, input features, and output distribution. For a fixed $\lambda$
-\textit{ShrinkNets} converged to considerably bigger networks in the case of
-\texttt{FashionMNIST}. This evidence shows that final architecture not only
-depends on the output distribution or shape of the data but actually reflects
-the dataset (we know that FASHIONMNIST is harder then MNIST)
+to make sense both in term of size and performance. And for a given accuracy
+the size needed is significantly smaller than when we use the classic heursitc
+we commonly use to size convolutional neural networks. It might be an
+indication that this strategy is suboptimal and might need to be adjusted.
+During our experimentations on simpler datasets like \texttt{MNIST}
+\cite{Lecun1998} and \texttt{FashionMNIST} \cite{Xiao2017} we observed that
+even if they have the same number of classes, input features, and output
+distribution. For a fixed $\lambda$ \textit{ShrinkNets} converged to
+considerably bigger networks in the case of \texttt{FashionMNIST}. This
+evidence shows that final architecture not only depends on the output
+distribution or shape of the data but actually reflects the dataset, indeed we
+know that \texttt{MNIST} is a much easier problem than \texttt{FashionMNIST}.
 
 We provide two examples of architectures learned by \textit{ShrinkNet}. One
 for the best test available test accuracy and a slightly underperforming but
@@ -191,26 +193,22 @@ give a sense how the convergence happen.
 
 \gl{Add the two plots}
 
-\subsection{Multi-Target Linear and Multi-Class Logistic regressions [To be
-  moved in the theoretical part]}
-
-
-\subsection{Neuron Removal strategies [TO be removed]}
-
-In our previous experiment, we showed that the ShrinkNet loss was
-reasonable in practice, we are now interested in the impact on
-early pruning. The method we suggest for early prunning uses a
-parameter $\gamma$ that control the aggressiveness of neuron removal
-so we will try to evaluate its impact on the final loss achieved by
-the model and the cost required to train the model. Our cost model
-is simple and hardware independant, we sum the number of input neurons
-at each epoch. In theory the cost in time should be asymptotically
-linear to this metric. To have a baseline we also train the same model
-but without neuron removal. Keep in mind that this is just in order to
-have some reference. Indeed, if we were to remove the neurons with small
-weights it would deteriorate the loss (and picking the threshould would
-be completely arbitrary). Therefore the baseline is evaluated with all neurons.
-One could consider it as a "theoretical lower bound" of the best achievable loss.
-
-
-We picked multiple combinations of dataset and regularization parameters ($\lambda$) and for each we fit with different aggressiveness parameters ($\gamma$). We measure the loss after convergence and the total cost and report the result in \cref{neuron_removal_figure}. In order to reduce the noise in the result, each experiment was performed $30$ times and we display the range arround $\pm$ $1$ standard deviation.
+% \subsection{Neuron Removal strategies [TO be removed]}
+% 
+% In our previous experiment, we showed that the ShrinkNet loss was
+% reasonable in practice, we are now interested in the impact on
+% early pruning. The method we suggest for early prunning uses a
+% parameter $\gamma$ that control the aggressiveness of neuron removal
+% so we will try to evaluate its impact on the final loss achieved by
+% the model and the cost required to train the model. Our cost model
+% is simple and hardware independant, we sum the number of input neurons
+% at each epoch. In theory the cost in time should be asymptotically
+% linear to this metric. To have a baseline we also train the same model
+% but without neuron removal. Keep in mind that this is just in order to
+% have some reference. Indeed, if we were to remove the neurons with small
+% weights it would deteriorate the loss (and picking the threshould would
+% be completely arbitrary). Therefore the baseline is evaluated with all neurons.
+% One could consider it as a "theoretical lower bound" of the best achievable loss.
+% 
+% 
+% We picked multiple combinations of dataset and regularization parameters ($\lambda$) and for each we fit with different aggressiveness parameters ($\gamma$). We measure the loss after convergence and the total cost and report the result in \cref{neuron_removal_figure}. In order to reduce the noise in the result, each experiment was performed $30$ times and we display the range arround $\pm$ $1$ standard deviation.

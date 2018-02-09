@@ -801,3 +801,45 @@ url = {http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf},
 volume = {13},
 year = {2012}
 }
+@article{Nair2010,
+abstract = {Restricted Boltzmann machines were developed using binary stochastic hidden units. These can be generalized by replacing each binary unit by an inﬁnite number of copies that all have the same weights but have progressively more negative biases. The learning and inference rules for these “Stepped Sigmoid Units” are unchanged. They can be approximated eﬃciently by noisy, rectiﬁed linear units. Compared with binary units, these units learn features that are better for object recognition on the NORB dataset and face veriﬁcation on the Labeled Faces in the Wild dataset. Unlike binary units, rectiﬁed linear units preserve information about relative intensities as information travels through multiple layers of feature detectors.},
+archivePrefix = {arXiv},
+arxivId = {1111.6189v1},
+author = {Nair, Vinod and Hinton, Geoffrey E},
+doi = {10.1.1.165.6419},
+eprint = {1111.6189v1},
+file = {:home/guillaume/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Nair, Hinton - Unknown - Rectified Linear Units Improve Restricted Boltzmann Machines.pdf:pdf},
+isbn = {9781605589077},
+issn = {1935-8237},
+journal = {Proceedings of the 27th International Conference on Machine Learning},
+number = {3},
+pages = {807--814},
+pmid = {22404682},
+title = {{Rectified Linear Units Improve Restricted Boltzmann Machines}},
+url = {http://www.cs.toronto.edu/{~}fritz/absps/reluICML.pdf},
+year = {2010}
+}
+
+@inproceedings{Abadi2016b,
+archivePrefix = {arXiv},
+arxivId = {1605.08695},
+author = {Abadi, Mart{\'{i}}n and Barham, Paul and Chen, Jianmin and Chen, Zhifeng and Davis, Andy and Dean, Jeffrey and Devin, Matthieu and Ghemawat, Sanjay and Irving, Geoffrey and Isard, Michael and Kudlur, Manjunath and Levenberg, Josh and Monga, Rajat and Moore, Sherry and Murray, Derek G and Steiner, Benoit and Tucker, Paul and Vasudevan, Vijay and Warden, Pete and Wicke, Martin and Yu, Yuan and Zheng, Xiaoqiang and Brain, Google and Osdi, Implementation and Barham, Paul and Chen, Jianmin and Chen, Zhifeng and Davis, Andy and Dean, Jeffrey and Devin, Matthieu and Ghemawat, Sanjay and Irving, Geoffrey and Isard, Michael and Kudlur, Manjunath and Levenberg, Josh and Monga, Rajat and Moore, Sherry and Murray, Derek G and Steiner, Benoit and Tucker, Paul and Vasudevan, Vijay and Warden, Pete and Wicke, Martin and Yu, Yuan and Zheng, Xiaoqiang},
+booktitle = {OSDI},
+eprint = {1605.08695},
+file = {:home/guillaume/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Abadi et al. - 2016 - TensorFlow A System for Large-Scale Machine Learning.pdf:pdf},
+isbn = {9781931971331},
+title = {{TensorFlow : A System for Large-Scale Machine Learning}},
+year = {2016}
+}
+
+@article{Aghasi2016,
+abstract = {We introduce and analyze a new technique for model reduction for deep neural networks. While large networks are theoretically capable of learning arbitrarily complex models, overfitting and model redundancy negatively affects the prediction accuracy and model variance. Our Net-Trim algorithm prunes (sparsifies) a trained network layer-wise, removing connections at each layer by solving a convex optimization program. This program seeks a sparse set of weights at each layer that keeps the layer inputs and outputs consistent with the originally trained model. The algorithms and associated analysis are applicable to neural networks operating with the rectified linear unit (ReLU) as the nonlinear activation. We present both parallel and cascade versions of the algorithm. While the latter can achieve slightly simpler models with the same generalization performance, the former can be computed in a distributed manner. In both cases, Net-Trim significantly reduces the number of connections in the network, while also providing enough regularization to slightly reduce the generalization error. We also provide a mathematical analysis of the consistency between the initial network and the retrained model. To analyze the model sample complexity, we derive the general sufficient conditions for the recovery of a sparse transform matrix. For a single layer taking independent Gaussian random vectors of length {\$}N{\$} as inputs, we show that if the network response can be described using a maximum number of {\$}s{\$} non-zero weights per node, these weights can be learned from {\$}\backslashmathcal{\{}O{\}}(s\backslashlog N){\$} samples.},
+archivePrefix = {arXiv},
+arxivId = {1611.05162},
+author = {Aghasi, Alireza and Abdi, Afshin and Nguyen, Nam and Romberg, Justin},
+eprint = {1611.05162},
+file = {:home/guillaume/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Aghasi et al. - Unknown - Net-Trim Convex Pruning of Deep Neural Networks with Performance Guarantee.pdf:pdf},
+title = {{Net-Trim: Convex Pruning of Deep Neural Networks with Performance Guarantee}},
+url = {https://papers.nips.cc/paper/6910-net-trim-convex-pruning-of-deep-neural-networks-with-performance-guarantee.pdf http://arxiv.org/abs/1611.05162},
+year = {2016}
+}

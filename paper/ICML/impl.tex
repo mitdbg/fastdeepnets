@@ -1,20 +1,34 @@
 \section{ShrinkNets in Practice}
 
-\subsubsection{Neuron killing}
+\subsection{Neuron killing}
+\label{neuron_killing}
 Once Switch layers are placed in a network and
 initialized (sampled from the $\mathcal{N}(0, 1)$ distribution),
 
 \textbf{Threshold strategy}:  We kill neurons based on a threshold (in absolute
 value), this is the method used by deep compression. It is bad because it is
-scale dependant and is not robust to noise in the gradients (explain that)
-\\ \textbf{Sign change strategy}:  We look at when the sign change. This is also
-sensitive to noise but has the advantage
-\textbf{Sign variance strategy}: We measure the variance of the sign ($-1, 1$) of each component in the \textit{Switch Layer}, and consider it dead when it goes over a predefined threshold. \gl{Maybe we should add some intuition on why it makes sense}. \gl{We should probably explain the impact of $\gamma$ and report numbers from the expertiment that show that it does not hurt too much to kill neurons, we have the data in this experiment in the evaluation that we probably want to remove later.}
+scale dependant and is not robust to noise in the gradients (explain that) \\
+
+\textbf{Sign change strategy}:  When using this strategy we consider a neuron
+dead when it changes its sign. This strategy works well in practice but is
+sensible to noise. If we sample a gradient that is not representative of the
+dataset when performing gradient descent then we might wrongly kill a neuron. \\
+
+\textbf{Sign variance strategy}: We measure the exponnential moving variance of
+the sign ($-1, 1$) of each component in the \textit{Switch Layer}, and consider
+it dead when it goes over a predefined threshold. Thus, this strategy introduce
+two extra parameters, one that controls the behavior of the innertia of the
+variance, and the other is the threshold.
+
+According to our experiments on linear and logistic regressions the
+two last strategies reduce the number of parameter update performed during
+training by at least an order of magnitude with only minimal impact on the final
+error obtained by the model.
 
 \subsection{Implementation}
 
 We have implemented \textbf{Switch Layers} and the associated training procedure
-as a library in pytorch~\cite{github}.
+as a library in pytorch~\cite{paszke2017automatic}.
 The layer can be freely mixed with other popular layers such as convolutional
 layers, batchnorm layers, fully connected layers etc.
 There are two key challenges that must be overcome while implementing 

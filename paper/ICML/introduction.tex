@@ -18,7 +18,7 @@ Existing techniques typically aim make a pre-trained neural network smaller
 applying quantitazation \cite{quant} or code compilation~\cite{something}
 techniques that can be applied blindly to any network, or they analyze the
 structure of the network and systematically prune
-connections~\cite{han2015deepcompression,brain-damage} or neurons~\cite{XXX}
+connections~\cite{han2015deepcompression,Cun} or neurons~\cite{XXX}
 based on some loss function.  Although these techniques can substantially
 reduce model size, they have several drawbacks.  First, they often negatively
 impact model quality.  Second, they can (surprisingly) negatively impact
@@ -46,8 +46,7 @@ that are both small and perform well, rather than starting with a high-
 performance model and making it small.  This allows us to efficiently generate
 a family of smaller and accurate models without an exhaustive and expensive
 hyperparameter search over the number of neurons in each layer. Second, in
-contrast to existing neural network compression techniques~\cite{brain-
-damage,han2015deepcompression}, our approach results in models that are both
+contrast to existing neural network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our approach results in models that are both
 not only small, but where the  layers are dense, which means that inference
 time is also improved, e.g., on GPUs.
 
