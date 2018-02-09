@@ -1,14 +1,20 @@
+%!TEX root=paper.tex
+
 \section{The ShrinkNets Approach}
 
-In this section we present the \emph{Switch layer}, a core concept of our
-ShrinkNets approach that allows to learn the network size as part of the
-training process. Then, we explain how to adapt the training procedure to
-support the new layer. We begin with a high-level overview of our method.
+In this section describe the
+ShrinkNets approach, which allows us to learn the network size as part of the
+training process. The key idea is the addition of 
+\emph{switch layers} added after each layer in the network;  these 
+layers allow us to disable certain neurons during training.
+ Once we've introducd the basic method, we
+ explain how to adapt the training procedure to
+support this new layer. %We begin with a high-level overview of our method.
 
 \subsection{Overview}
 
 At a high-level, the ShrinkNets approach consists of two interconnected stages.
-The first stage is concerned with identifying neurons that are not contributing
+The first stage identifies neurons that do not contribute
 to increasing the prediction accuracy of the network and deacivate them. The
 second stage is concerned with actually removing the neurons from the network
 and shrinking its size, therefore leading to faster inference times. We give an

@@ -1,3 +1,4 @@
+%!TEX root=paper.tex
 \section{Evaluation}
 
 The goal of our evaluation is to show two main properties of
@@ -71,15 +72,15 @@ two distributions of models we obtain on the first plot of \cref{figure_CIFAR10}
 
 \subsubsection{\texttt{COVERTYPE} dataset}
 
-Our second dataset we will evaluate on is \texttt{COVERTYPE} \cite{Blackard:1998:CNN:928509}. This dataset
+The second dataset we use for evaluation the \texttt{COVERTYPE} \cite{Blackard:1998:CNN:928509} dataset. This dataset
 contains $581012$ description of geographical area (elevation, inclination,
 etc...) and the goal is to predict the type of forest growing there. We picked
-this one for couple of reasons. First it is simple that we can reach good
+this dataset for several reasons. First it is simple, such that we can reach good
 accuracy with only a few layers. This important because we want to show that
 \textit{ShrinkNets} find sizes as good as \textit{Static Networks}, even if we
-are sampling the entire space of possible sizes. The second reason is that [ref]
+are sampling the entire space of possible network sizes. The second reason is that Scardapane et al~\cite{Scardapane2017}
 also perform their evaluation on this dataset, which allow us to compare the
-results obtained by the two methods.
+results obtained by the two methods. \srm{what two methods?}
 
 The only difference in terms of setup are minimal. We use the same architecture
 as \cite{Scardapane2017}, i.e. three layers Fully Connected neural network with  no
@@ -163,7 +164,9 @@ search over the hyper-parameters the \texttt{CIFAR10} dataset}
 \includegraphics[width=\columnwidth]{COVER_FC_summary}
 \vspace*{-5mm}
 \caption{\label{figure_COVER} Summary of the result of random
-search over the hyper-parameters the \texttt{COVERTYPE} dataset}
+search over the hyper-parameters the \texttt{COVERTYPE} dataset
+\srm{label the x axes on the bottom plots}
+}
 \end{center}
 \vspace*{-4mm}
 \end{figure}
@@ -191,13 +194,13 @@ significantly smaller that it's equivalent \textit{Static Network}. For
 these two architectures we show the size at different time during training to
 give a sense how the convergence happen.
 
-\begin{figure}
+\begin{figure}[t]
 \begin{center}
 \includegraphics[width=\columnwidth]{size_evolution}
 \vspace*{-5mm} \caption{\label{network_size_evolution} Evolution of the size of
   each layer over time (lighter: beginning, darker: end). On top a very large
   network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
-  accuracy
+  accuracy. 
 } \end{center}
 \vspace*{-4mm}
 \end{figure}

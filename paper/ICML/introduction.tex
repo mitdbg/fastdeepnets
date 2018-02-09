@@ -7,7 +7,7 @@ applications  -- ranging from improving camera quality on mobile phones
 \cite{googleapple} to language translation \cite{languagetranslation} to text
 auto-completion \cite{autocomplete} -- and on diverse hardware architectures
 -- from laptops to phones to embedded sensors --  inference performance and
-model size are becoming equally as important as  traditional measures of
+model size are becoming as important in learning as metrics measures of
 prediction quality. However, these three aspect of model performance --
 quality, performance and size -- are largely optimized separately today, often
 with suboptimal results.
@@ -15,9 +15,9 @@ with suboptimal results.
 Of course, the problem of finding compressed or small networks is not new.
 Existing techniques typically aim make a pre-trained neural network smaller
 \cite{something1,something2} by taking one of two approaches:  either by
-applying quantitazation \cite{quant} or code compilation~\cite{something}
-techniques that can be applied blindly to any network, or they analyze the
-structure of the network and systematically prune
+applying quantization \cite{quant} or code compilation~\cite{something}
+techniques that can be applied blindly to any network, or by analyzing the
+structure of the network and systematically pruning
 connections~\cite{han2015deepcompression,Cun} or neurons~\cite{XXX}
 based on some loss function.  Although these techniques can substantially
 reduce model size, they have several drawbacks.  First, they often negatively
@@ -25,13 +25,13 @@ impact model quality.  Second, they can (surprisingly) negatively impact
 inference time as they transform dense matrix operations into sparse ones,
 which can be substantially slower to execute on modern hardware
 \cite{something}, especially GPUs which do not efficiently support sparse
-linear algebra.  Third, these techniques generally start by optimizing
+linear algebra.  Third, these techniques generally start by optimizing a
 particular architecture for prediction performance, and then, as a post-
-processing step, apply compression  to generate a smaller model that meets the
-resource constraints of the   deployment setting.  Because the network
-architecture is essentially fixed during compression,   model architectures
+processing step, applying compression  to generate a smaller model that meets the
+resource constraints of the deployment setting.  Because the network
+architecture is essentially fixed during this post-processing,   model architectures
 that work better in small settings may be missed -- this is especially true in
-large networks like many- layered CNNs,  where it is infeasible to try explore
+large networks like many-layered CNNs,  where it is infeasible to try explore
 even a small fraction of possible network configurations.
 
 %I am still not super happy with the flow. Will work on it more. 
@@ -46,7 +46,7 @@ that are both small and perform well, rather than starting with a high-
 performance model and making it small.  This allows us to efficiently generate
 a family of smaller and accurate models without an exhaustive and expensive
 hyperparameter search over the number of neurons in each layer. Second, in
-contrast to existing neural network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our approach results in models that are both
+contrast to existing neural network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our approach results in models that are
 not only small, but where the  layers are dense, which means that inference
 time is also improved, e.g., on GPUs.
 
@@ -97,14 +97,16 @@ In summary, our contributions are as follows:
 \begin{compactenum}
 \item We propose a novel technique based on dynamically switching on and off neurons, 
 which allows us to optimize the network size as the network is trained. 
-\item We show that our technique is a relaxation of group LASSO~\cite{Yuan2006} and prove that our problem admit many global minima.
+\item We show that our technique is a relaxation of group LASSO~\cite{Yuan2006} and prove that our problem admits many global minima.
 \item \srm{Some claim about model size vs performance}
 \item We demonstrate the efficacy of our technique on both convolutional and fully-connected neural nets,
 showing that 
 ShrinkNets finds networks within +/-X\% of best hand-crafted accuracy in XX\% of
-training time compared to existing hyperparameter optimization methods.
-\item We also demonstrate that ShrinkNets can achieve this accuracy with only YY\% 
-of neurons.
+training time compared to existing hyperparameter optimization methods. \srm{Mention the specific 
+model/dataset where this is true.}
+\item We demonstrate that ShrinkNets can achieve this accuracy with only YY\% 
+of neurons. \srm{This claim should be something about how much smaller a network with say 99\%
+accuracy is one some real dataset}
 \item \srm{Something about dense networks and then benefit over optimal brain damage}
 \item \srm{Some claim about inference time}
 \item \srm{Some claim about compatibility with existing compression techniques?}
