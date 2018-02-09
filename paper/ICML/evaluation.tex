@@ -122,7 +122,7 @@ The results are shown in the top figure of \cref{figure_CIFAR10}, with blue dots
 indicating models produced by \shrink and orange dots indicating static networks. 
 For each
 model, we plot its accuracy and model size. The lines show the Pareto frontier
-of models in each of the two optimization settings. ShrinkNets explore the
+of models in each of the two optimization settings. \shrink explore the
 trade-off between model size and accuracy more effectively. 
 %\srm{Summarize
 %more quantitatively -- best model performance, model performance drop off for a
@@ -133,9 +133,9 @@ trade-off between model size and accuracy more effectively.
 %finds a model that is z times smaller.'' (If we do this, would be good to
 %highlight these points in the figure somehow)}
 
-Note that the best performing ShrinkNets models has $92.07\%$ accuracy which
-is identical to the accuracy of the static network, while the ShrinkNets model
-is $2.22$ times smaller. In addition, if we give up just 1\% error, ShrinkNets
+Note that the best performing \shrink models has $92.07\%$ accuracy which
+is identical to the accuracy of the static network, while the \shrink model
+is $2.22$ times smaller. In addition, if we give up just 1\% error, \shrink
 finds a model that is 35.5 times smaller than any static network that performs
 as good or better.
 
@@ -153,7 +153,7 @@ allows us to compare the results obtained by our method with the method in
 ~\cite{Scardapane2017}.
 
 %The experimental setup on this dataset is similar to {\tt CIFAR10}. 
-We compare ShrinkNets against the same architecture
+We compare \shrink against the same architecture
 used in \cite{Scardapane2017}, i.e., a three fully-connected layers network with no
 \textit{Dropout} \cite{Srivastava2014} and no \textit{BatchNorm}. 
 %\gl{Should we say
@@ -165,13 +165,13 @@ sizes of the three different layers to explore all possible architectures.
 The results are shown in the top figure of \cref{figure_COVER}, with the two
 optimization methods plotted as before. Here, {\it Static} method finds models
 that perform well at a variety of sizes, because it is able to explore the
-entire parameter space.  This is as expected;  the fact that ShrinkNets performs
-as well as the Static indicates that ShrinkNets is doing an effective job of
+entire parameter space.  This is as expected;  the fact that \shrink performs
+as well as the Static indicates that \shrink is doing an effective job of
 exploring the parameter space using just the single $\lambda$ parameter.
 
-Note that the best performing ShrinkNets models has $96.91\%$ accuracy while the
-best static model is only $96.66\%$ accurate, while the ShrinkNets model is $2.51$
-times smaller. In addition, if we give up just 0.5\% error, ShrinkNets finds a
+Note that the best performing \shrink models has $96.91\%$ accuracy while the
+best static model is only $96.66\%$ accurate, while the \shrink shrink model is $2.51$
+times smaller. In addition, if we give up just 0.5\% error, \shrink finds a
 model that is 38.6 times smaller than any static network with equivalent accuracy.
 
 %\srm{Summarize more quantitatively -- best model performance, model performance
@@ -187,9 +187,9 @@ model that is 38.6 times smaller than any static network with equivalent accurac
 \subsubsection{Summary}
 
 We  demonstrated that it is possible to achieve networks with good accuracy
-when using ShrinkNets both when the network space cannot be explored entirely
+when using \shrink both when the network space cannot be explored entirely
 (\texttt{CIFAR10}) and when it can, e.g., \texttt{COVERTYPE}. The most important
-result is not that ShrinkNets finds networks of good accuracy, but that those
+result is not that \shrink finds networks of good accuracy, but that those
 networks are much smaller than those found by a static method. The impact of the
 network size on inference time is the subject of our next evaluation goal.
 
@@ -212,7 +212,7 @@ network size on inference time is the subject of our next evaluation goal.
 
 \subsection{Can ShrinkNets speed up inference?}
 
-The previous experiment showed that ShrinkNets finds networks of similar or better accuracy
+The previous experiment showed that \shrink finds networks of similar or better accuracy
 than static networks that are much smaller. We now explore if the reduction in size
 translates into an improvement of the inference time.
 
@@ -232,20 +232,20 @@ are as important as absolute accuracy.
 % that satisfies achieves a given accuracy. 
 In this section, we study the relationship between accuracy, network size and inference time.
 To do this, we select the smallest model 
-that achieves a given accuracy for the both ShrinkNets and Static approach.
+that achieves a given accuracy for the both \shrink and Static approach.
 For each model, we measure the time to run inference with the model.  
 We then compute the ratio of the network size and inference time
-between ShrinkNets and Static at each accuracy level, and plot them on the bottom of 
+between \shrink and Static at each accuracy level, and plot them on the bottom of 
  Figure~\ref{figure_CIFAR10} 
  and~\ref{figure_COVER}.
 We limit our plots to the models with $80-100\%$
 accuracy range because those are the ones that we consider to be practically useful.
 
- The middle plot in each figure shows the ratio of model size between ShrinkNets and Static (values $>$1 mean ShrinkNets are smaller) at different accuracy levels.  These figures show that is that size improvements are are particularly significant
+ The middle plot in each figure shows the ratio of model size between \shrink and Static (values $>$1 mean \shrink are smaller) at different accuracy levels.  These figures show that is that size improvements are are particularly significant
 for  \texttt{CIFAR10}. In the range of accuracies we are interested in,
 improvements in size go from 4x to 40x. On the \texttt{COVERTYPE} dataset,
  the compression ratio is always above 1 but it rarely exceeds 3x, except for
-very high accuracies where \textit{ShrinkNets} finds excellent, small
+very high accuracies where \shrink finds excellent, small
 solutions.  The fact that the  \texttt{COVERTYPE} networks are not dramatically 
 smaller is expected:  as the distribution at the top of Figure~\ref{figure_COVER} shows,
 the static method is able to explore most of the parameter search space, so finds a range
@@ -256,7 +256,7 @@ For each data set/GPU/CPU combination, we show results with batch size 1, as wel
 Note that when using a batch size of $1$ on GPU, we do not expect to (and do not) observe any improvement because inference times are very small (typically about 10 $\mu s$), such that setup time dominates overall runtime.  
 
  The bottom four graphs in each figure 
-show the results.  Again, the {\tt CIFAR10} results show the benefit of the ShrinkNets approach
+show the results.  Again, the {\tt CIFAR10} results show the benefit of the \shrink approach
 most dramatically.  On CPU, speedups range up to 6x depending on the batch size, with many models exceeding 3x speedup. In general, speedups are less than compression ratios, due to overheads in problem setup, invocation, and result generation  in Python/PyTorch.
   On GPU, the speedups are less substantial because the CUDA benchmarking utility that we use for evaluation can choose better algorithms for larger matrices which masks some of our benefit, although they are still often 1.5x--2x faster for large batch sizes.
 The speedup results on {\tt COVERTYPE} are similar to those for network size:  because the networks are not much smaller, they are not much faster either.
@@ -321,7 +321,7 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 \end{figure}
 
 \ra{the following is interesting, but how is it related to the above?}
-ShrinkNets effectively explores the frontier of model size and accuracy. For a
+\shrink effectively explores the frontier of model size and accuracy. For a
 given target accuracy, the size needed is significantly smaller than when we use the
 "channel doubling" heuristic commonly used to size convolutional neural networks.
 This suggests that this conventional heuristic may not in fact be optimal,
@@ -330,14 +330,14 @@ often be the case.  For example, during our experimentations on the
 \texttt{MNIST} \cite{Lecun1998} and \texttt{FashionMNIST} \cite{Xiao2017}
 datasets (not reported here due to space constraints), we observed that even
 though these datasets have the same number of classes, input features, and
-output distributions, for a fixed $\lambda$ \textit{ShrinkNets} converged to
+output distributions, for a fixed $\lambda$ \shrink converged to
 considerably bigger networks in the case of \texttt{FashionMNIST}. This evidence
 shows that optimal architecture not only depends on the output distribution or
 shape of the data but actually reflects the dataset.  This makes sense, as
 \texttt{MNIST} is a much easier problem than \texttt{FashionMNIST}.
 
 To illustrate this point on a larger dataset, we show two examples of
-architectures learned by \textit{ShrinkNets} in
+architectures learned by \shrink in
 Figure~\ref{fig:network_size_evolution}.  The top plot shows the model with the
 best test accuracy, with identical performance to the best static
 network; the bottom shows a network that slightly under-performs the best in
