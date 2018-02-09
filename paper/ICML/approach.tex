@@ -2,30 +2,28 @@
 
 \section{The ShrinkNets Approach}
 
-In this section describe the
-ShrinkNets approach, which allows us to learn the network size as part of the
-training process. The key idea is the addition of 
-\emph{switch layers} added after each layer in the network;  these 
-layers allow us to disable certain neurons during training.
- Once we've introducd the basic method, we
- explain how to adapt the training procedure to
-support this new layer. %We begin with a high-level overview of our method.
+In this section we describe the ShrinkNets approach, which allows us to learn
+the network size as part of the training process. The key idea is the addition
+of \emph{switch layers} added after each layer in the network;  these layers
+allow us to disable certain neurons during training.  Once we've introducd the
+basic method, we explain how to adapt the training procedure to support this new
+layer. 
 
 \subsection{Overview}
 
 At a high-level, the ShrinkNets approach consists of two interconnected stages.
-The first stage identifies neurons that do not contribute
-to increasing the prediction accuracy of the network and deacivate them. The
-second stage is concerned with actually removing the neurons from the network
-and shrinking its size, therefore leading to faster inference times. We give an
-overview of both processes next:
+The first stage identifies neurons that do not contribute to increasing the
+prediction accuracy of the network and deacivates them. The second stage is
+concerned with actually removing the neurons from the network and shrinking its
+size, therefore leading to faster inference times. We give an overview of both
+stages next:
 
 \noindent\textbf{Deactivating Neurons On-The-Fly: }During the first stage,
 ShrinkNets applies an on/off switch to every neuron of an initially oversized
 network. We model the on/off switches by multiplying each input (or output) of
 each layer by a parameter $\bm{\theta}$, with values $0$ or $1$. A value of $0$
 will deactivate the neuron, while $1$ will let the signal go through. These
-switches are part of a new layer, which we call \textbf{Switch layer} which can
+switches are part of a new layer, called \textbf{switch layer}, which can
 be applied to fully connected as well as convolutional layers.
 
 We want to minimize the number of on switches to reduce the model size as much
@@ -36,7 +34,7 @@ assignement is an NP-Hard problem, we allow $\bm{\theta}$ to be a real number
 instead of a 0/1 value, thus constraining the L1 norm as opposed to the L0 norm.
 
 \noindent\textbf{Neuron Removal: } During this stage, the neurons that are
-deactivated by the Switch layers are actually removed from the network,
+deactivated by the switch layers are actually removed from the network,
 effectively shrinking the network size. This is what leads to faster inference
 times, as we demonstrate in our evaluation. We choose to remove neurons at
 training time because we have observed that allows the active neurons to adapt
@@ -44,72 +42,8 @@ to the new network architecture. Existing techniques focus on neuron removal
 after training, and require an extra fine-tuning process to compensate for the
 removal.
 
-In the remainder of this section we describe in detail the Switch layer as well
+In the remainder of this section we describe in detail the switch layer as well
 as how to adapt the training process for ShrinkNets.
-
-%This approach assumes that we start with an upper bound on the model size. This
-%obviously translates in a computational overhead. Our insight is that some
-%usless neurons (we have multiple definitions below) can be removed early without
-%impacting the final solution. It has two practical implications: It mitigate the
-%issue we describe but it also allows other neurons to adapt as soon as one of
-%their peer is killed. Existing technique usually remove them after convergence
-%and require an extra fine-tuning process to compensate for the removal.
-
-%We implement our strategy of dynamically deactivating neurons by means of a 
-%specialized neural network layer called the \textbf{Switch Layer}.
-%We first describe the key concepts and theory backing the switch layer and then
-%provide a brief summary of our implementation of switch layers.
-
-%Our approach is based on the insight that given enough capacity (and time), an 
-%optimization routine can find a network that can fit an arbitrary function.
-%Therefore, by starting with an oversize network and applying on/off switches to
-%each of the neurons in it, we can identify a {\it pruned} version of the network
-%that can achieve similar accuracy to the oversized network.
-%
-%
-% If we have an oversized network then there exist a pruned version that can still
-% achieve our goal. The main idea is to consider an on/off switch for each neuron,
-% and we want to find an assignement for this switches that achieve a certain
-% size/accuracy tradeof. 
-
-% The key components of the system are: The filter vectors that simulate the
-% continuous on/off switches, a regularization that tries to kill neurons, the
-% neuron removal strategy that detects neurons that should probably be removed,
-% and the garbage collection that effectively remove dead neurons from the model,
-% and the simplifaction procedure that remove the filter vector for fast
-% inference.
-
-% We will describe these components in the upcoming sections.
-
-% \subsection{Notations}
-
-% \par In order to avoid any potential ambiguity, in this section we will
-% describe in details the mathematical notations used in this article. 
-% Non-bold
-% letters represent scalar values, while bold lowercase and upper case
-% repectively denote vectors and matrices. 
-% $\bm{A}^T$ stands for the transpose of
-% the matrix $\bm{A}$. 
-% Subscripts are used to index particular elements of
-% vectors and matrices. 
-% $\bm{x}_i$, $\bm{A}_i$, $\left(\bm{A}^T\right)_j$ and
-% $\bm{A}_{i,j}$ respectively correspond to the $i^{th}$ component of $\bm{x}$,
-% the $i^{th}$ row of $\bm{A}$, the $j^{th}$ column of $\bm{A}$ and the $j^{th}$
-% component of the $i^{th}$ row of $\bm{A}$. 
-% All the following definitions assume
-% $\bm{A}$ to be an $n\times p$ matrix.  
- 
-% For any $l \in \left[0, +\infty\right]$ we define the norm: $\norm{\bm{A}}_l =
-% \left(\sum_{i=1}^n \sum_{j=1}^p \abs{\bm{A}_{i, j}}^l\right)^{\frac{1}{p}}$. 
-% For the rest of this paper and unless stated otherwise, $\bm{y}$ will represent the output of a network, $\bm{x}$ the input, $\bm{b}$ a bias, $\lambda$ regularization factors, $\Omega$ regularization methods, $\bm{\theta}$ general model parameters and $a$ will stand for any element-wise activation function. 
-% The only constraint that we want to enforce is that $a(0) = 0$. 
-% We use $\intint{u, v}$ to denote inteveral of integers, 
-% $\bm{0}$ is the null vector (size depending on the context). 
-% $\#S$ is meant to represent the cardinality of a set $S$. 
-% To simplify the notation of function composition we use the following operator: 
-% $g(f(\bm{x})) = (f \circ g)(\bm{x})$ and for a long sequence of functions from 
-% $f_1$ to $f_n$ we use: $f_n(...f_1(\bm{x})) = \left(\bigcirc_{k = 1}^n f_k\right)(\bm{x})$.
-
 
 \subsection{The Switch Layer}
 
@@ -120,81 +54,56 @@ fully connected layers, $n$=0 and the output is single dimensional of size $c$
 (ignoring batch size for now) while for a 2-D convolutional layer, $n$=2 and $c$
 is the number of output channels or feature maps.
 
-% maps
-% For instance, for fully connected layers, $n$=0 and the output is single 
-% dimensional of size $c$ (ignoring batch size for now) while for a 2-D 
-% convolutional layer, $n$=2 and $c$ is the number of output channels or feature 
-% maps.
-%  and furthermore, let the output
-% of layer $l$ be a tensor of shape $\left(C \times D_1 \times \dots \times 
-% D_n\right)$ where $C$ is the number of neurons in $l$.
-% In the case of a fully connected layer, $C$ is the dimensionality of the output
-% of the layer whereas in the case of a convolutional layer, $C$ is the number of
-% feature maps and $\left(D_1 \times \dots \times D_n\right)$ is the size of those feature
-% maps.
+We want to tune the size of $L$ by applying a switch layer, $S$. The switch
+layer is parametrized by a vector $\theta \in \mathbb{R}^c$ such that the result
+of applying $S$ to $L(\bm{x})$ is a tensor also of size $\left(c \times d_1
+\times \dots \times d_n\right)$ such that: 
 
-Suppose we wish to tune the size of $L$ by applying a switch layer.
-A switch layer $S$ applied to the output of $L$ can be parametrized by a 
-vector $\theta \in \mathbb{R}^c$ such that the result of applying $S$ to $L(\bm{x})$
-is a tensor also of size $\left(c \times d_1 \times \dots \times d_n\right)$
-such that: 
+%Suppose we wish to tune the size of $L$ by applying a switch layer.
+%A switch layer $S$ applied to the output of $L$ can be parametrized by a 
+%vector 
+
 \begin{equation} 
 S_{\theta}(L(\bm{x}))_{i,...} = \bm{\theta}_iL(\bm{x})_{i, ...}
 \end{equation}
-% where $\diag{\bm{\theta}}$ is a $c\times c$ matrix such that: $\forall
-% 1 \leq i \leq c$, $\diag{\bm{\theta}}_{i, i} = \bm{\theta}_i$ and $0$ otherwise. 
-Effectively, once passed through the switch layer, each output channel $i$ 
-produced by $L$ is scaled by the corresponding $\theta_i$.
-If for any $k$, if $\theta_i = 0$, the $i^{\text{th}}$ channel is multiplied by 
-zero and wont contribute to any computations after the switch layer.
-If this happens, we say the Switch layer has {\it deactivated} or killed the 
-neuron of layer $L$ corresponding to channel $i$. 
-% Switch layers have weights in the range $[-\infty,+\infty]$ and are usually 
-% placed after linear and convolutional layers.
-% The \textit{Switch Layer} takes an input of size $\left(B \times C \times D_1
-%   \times \dots \times D_n\right)$, where $B$ is the batch size, $C$ the number
-% of features (or channels, in the case of convolutional layers), and $D$ any
-% additional dimension. 
-% This structure makes it compatible with fully connected
-% layers with $n=0$ or convolutional layers with $n=2$. 
-% Their crucial property is
-% a parameter $\theta \in \mathbb{R}^C$. 
-% The output is defined as follows: \vspace{-1em}
-% \begin{equation} 
-% Switch(\bm{I};\bm{\theta}) = \diag{\bm{\theta}} \bm{I}  
-% \end{equation}
-% where $\diag{\bm{b}}$ a $n\times n$ matrix such that: $\forall
-% 1 \leq i \leq n$, $\diag{\bm{b}}_{i, i} = \bm{b}_i$ and $0$ otherwise. 
 
-% Where $\theta$ is expanded in all
-% dimensions to match the input size (except the second one since they are equal
-% by definition). 
+Effectively, once passed through the switch layer, each output channel $i$
+produced by $L$ is scaled by the corresponding $\theta_i$. Note that when
+$\theta_i = 0$, the $i^{\text{th}}$ channel is multiplied by zero and will not
+contribute to any computations after the switch layer. If this happens, we say
+the switch layer has {\it deactivated} the neuron of layer $L$ corresponding to
+channel $i$. 
 
-% These disabled neurons/channels can be removed from the network
-% without changing its output. 
-% Before explaining how that is achieved, we explain
-% next how the weights of the Switch Layer are initialized and adjusted during
-% training.
+We place switch layers after each layer whose size we wish to tune; these are
+typically fully connected and convolutional layers. We discuss next how to train
+ShrinkNets.
 
 \subsection{Training ShrinkNets} 
 
-To tune the size of a network, we place Switch Layers after each layer whose size
-we wish to tune; these are typically the fully connected and convolutional layers
-in a network.
-Since the switch layers are adept at deactivating neurons, we start with an
-oversized network (i.e. network with more capacity than required) and then use
-switch layers to deactivate or kill off neurons that are unnecessary.
+%To tune the size of a network, we place Switch Layers after each layer whose size
+%we wish to tune; these are typically the fully connected and convolutional layers
+%in a network.
+%Since the switch layers are adept at deactivating neurons, we start with an
+%oversized network (i.e. network with more capacity than required) and then use
+%switch layers to deactivate or kill off neurons that are unnecessary.
 
-Formally, we can express this procedure in terms of a sparsity constraint that pushes
-values in the $\theta$ vector to 0.
-Given a neural network parameterized by weights $\bm{W}$ and switch layer 
-parameters $\bm{\theta}$, we optimize the following ShrinkNet loss that 
-augments the regular training loss with a 
-regularization term for the switch parameters and another on the network weights.
+%Formally, 
+For training, we need to account for the effect of the swith layers in the loss
+function. The effect of switch layers can be expressed in terms of a sparsity constraint
+that pushes values in the $\theta$ vector to 0. Then, given a neural network
+parameterized by weights $\bm{W}$ and switch layer parameters $\bm{\theta}$, we
+optimize the following ShrinkNet loss:
+
 \begin{equation}
   L_{SN}(\bm{x},\bm{y};\bm{W}, \bm{\theta}) = L(\bm{x}, \bm{y}; \bm{W}) +
   \lambda\norm{\theta}_1 + \lambda_2\norm{\bm{W}}_p
 \end{equation}
+
+i.e., the expression augments the regular training loss with a regularization
+term for the switch parameters and another on the network weights.
+
+We next analyze why such loss function works to train ShrinkNets and its
+connection to group sparsity:
 
 %To train networks we need start with a substantially oversized network, then we
 %insert \textit{Switch Layers}  (usually after every linear or convolutional
