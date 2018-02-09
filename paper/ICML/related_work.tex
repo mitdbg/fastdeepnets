@@ -7,8 +7,7 @@
 %  \item training dynamics paper: first overfitting and then randomization?, \gl{Here is the ref, if you can introduce it in the flow \cite{Shwartz-Ziv2017}}
 %\end{itemize}
 
-There are several lines of work related to finding a good network structure. We
-describe them next:
+There are several lines of work related to optimizing network structure. 
 
 %Given the importance of network structure, many researchers have explored the
 %problem of finding the best network structure for a given learning task.  The
@@ -16,25 +15,30 @@ describe them next:
 %force search, hyperparameter optimization, model compression after training,
 %resizing models during training, and automated architecture search methods.
 
-\noindent\textbf{Hyperparameter optimization techniques: }The most popular
-techniques for hyperparameter optimization include simple methods such as random
-search~\cite{BergstraJAMESBERGSTRA2012} which have been shown to work
-suprisingly well compared to more complex methods such as those based on
-Bayesian optimization~\cite{Snoek12}.  Brute force search of network sizes is
-also become more practical due to faster and more powerful
-hardware~\cite{molchanov2016pruning}.  The more complex methods for
-hyperparameter optimization include techniques such as~\cite{Snoek12} which
-model generalization performance via Gaussian Processes~\cite{GaussianProcesses}
-and select hyperparameter combinations that come from uncertain areas of the
-hyperparameter space. Recently, methods based on bandit algorithms (e.g.
+\noindent\textbf{Hyperparameter optimization techniques: }
+One way to optimize network architecture is to use 
+hyperparameter optimization.  Although many methods have been 
+proposed, e.g., \cite{BergstraJAMESBERGSTRA2012,Snoek12},
+randomized search has been shown to work surprising well.
+%  Brute force search of network sizes is
+%also become more practical due to faster and more powerful
+%hardware~\cite{molchanov2016pruning}.  
+The more complex methods for
+hyperparameter optimization include techniques, e.g., ~\cite{Snoek12} typically
+ select hyperparameter combinations that come from uncertain areas of the
+hyperparameter space to search efficiency. 
+As a generalization of this,  methods based on bandit algorithms (e.g.
 ~\cite{li2016hyperband, jamieson2016}) have also become a popular way to tune
-hyperparameters. With respect to our work, these methods require many tens of
-hundreds of models to be trained, which makes the process computationally
-inefficient and slow. In contrast, with ShrinkNets all the hyperparameters
-related to network size are reduced to a single parameter, as we explain next.
-More importantly, none of the hyperparameter optimization methods focuses on
-finding small networks, which is a crucial property of ShrinkNets, necessary to
-achieve good inference times.
+hyperparameters by quickly discarding 
+model configurations that perform badly. 
+Although these methods could in theory be used to tune the number of neurons per layer
+of a network, in practice no related work proposes this, because treating each layer as a hyperparameter
+would lead an excessively large search space.
+In contrast, with ShrinkNets the size of the network can be tuned with 
+a single parameter, as we explain in the next section..
+% More importantly, none of the hyperparameter optimization methods focuses on
+% finding small networks, which is a crucial property of ShrinkNets, necessary to
+% achieve good inference times.
 
 %As noted before, all of the above techniques require many tens
 %to hundreds of models to be trained, making this process computationally
@@ -53,7 +57,9 @@ addition to pruning connections, it quantizes weights to make inference
 extremely efficient.  A different vein of work such as ~\cite{romero2014fitnets,
 hinton2015distilling} proposes techniques for distilling a network into a
 simpler network or a different model. Because these techniques work after
-training, they are orthogonal and complementary to ShrinkNets. 
+training, they are orthogonal and complementary to ShrinkNets. Further,
+some of these techniques, e.g.,~\cite{Han2015,Cun}, produce sparse matrices that
+are not likely to improve inference times even though they reduce network size.
 %Unlike our technique which works during
 %training, these techiques are used after training and it would be interesting to
 %apply them to ShrinkNets as well. 
@@ -61,7 +67,7 @@ training, they are orthogonal and complementary to ShrinkNets.
 %removing entire blocks of parameter to maintain dense matrices, however their
 %method only applies to convolutional layers.
 
-\noindent\textbf{Auto-ML: }There is work that focuses on automatically learning
+\noindent\textbf{Auto-ML: } Some work that focuses on automatically learning
 model architecture through the use of genetic algorithms and reinforcement
 learning techniques~\cite{DBLP:journals/corr/ZophL16, zoph2017learning}. These
 techniques are focused on learning higher-level architectures (e.g.,
@@ -71,13 +77,13 @@ goal of ShrinkNets.
 
 \noindent\textbf{Dynamically Sizing Networks: }The techniques closest to our
 proposed method are those based on group sparsity such as
-~\cite{Scardapane2017}, and those like~\cite{Philipp} who grow and shrink
-dynamically the size of the network during training.  \cite{Scardapane2017}
+~\cite{Scardapane2017}, and those like~\cite{Philipp} that dynamically grow and shrink
+ the size of the network during training.  \cite{Scardapane2017}
 presents a method that also deactivates neurons using a loss function based on
 group-sparsity.  However, the exact details of how their method works are not
 given, and their experimental results (on a small, fully connected network), are
 substantially worse than ours as shown in Section~\ref{sec:experiments}.
-~\cite{Philipp} propose a method called Adaptive Radial-Angular Gradient Descent
+\cite{Philipp} propose a method called Adaptive Radial-Angular Gradient Descent
 that adds neurons on the fly and removes neurons via an $l_2$ penalty.  However,
 this approach requires a new optimizer and takes longer to converge compared to
 ShrinkNets.
