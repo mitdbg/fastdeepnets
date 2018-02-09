@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{27}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -93,6 +93,14 @@ Li, Lisha, Jamieson, Kevin, DeSalvo, Giulia, Rostamizadeh, Afshin, and
 \newblock Hyperband: A novel bandit-based approach to hyperparameter
   optimization.
 \newblock \emph{arXiv preprint arXiv:1603.06560}, 2016.
+
+\bibitem[Ma et~al.(2016)Ma, Suda, Cao, s.~Seo, and Vrudhula]{ma2016compilation}
+Ma, Yufei, Suda, N., Cao, Yu, s.~Seo, J., and Vrudhula, S.
+\newblock Scalable and modularized rtl compilation of convolutional neural
+  networks onto fpga.
+\newblock In \emph{2016 26th International Conference on Field Programmable
+  Logic and Applications (FPL)}, pp.\  1--8, Aug 2016.
+\newblock \doi{10.1109/FPL.2016.7577356}.
 
 \bibitem[Nair \& Hinton(2010)Nair and Hinton]{Nair2010}
 Nair, Vinod and Hinton, Geoffrey~E.

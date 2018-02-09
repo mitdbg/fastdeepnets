@@ -12,17 +12,17 @@ optimized separately today, often with suboptimal results.
 
 Of course, the problem of finding compressed or small networks is not new.
 Existing techniques typically aim make a pre-trained neural network smaller
-\cite{something1,something2} by taking one of two approaches:  either by
-applying quantization \cite{quant} or code compilation~\cite{something}
+by taking one of two approaches:  either by
+applying quantization \cite{quant} or code compilation~\cite{ma2016compilation}
 techniques that can be applied blindly to any network, or by analyzing the
 structure of the network and systematically pruning
-connections~\cite{han2015deepcompression,Cun} or neurons~\cite{XXX}
+connections or neurons~\cite{han2015deepcompression,Cun}
 based on some loss function.  Although these techniques can substantially
 reduce model size, they have several drawbacks.  First, they often negatively
 impact model quality.  Second, they can (surprisingly) negatively impact
 inference time as they transform dense matrix operations into sparse ones,
 which can be substantially slower to execute on modern hardware
-\cite{something}, especially GPUs which do not efficiently support sparse
+\cite{han2015deepcompression}, especially GPUs which do not efficiently support sparse
 linear algebra.  Third, these techniques generally start by optimizing a
 particular architecture for prediction performance, and then, as a post-
 processing step, applying compression  to generate a smaller model that meets the
@@ -144,11 +144,11 @@ are 35\% smaller. All in all, this leads to speedups in inference time of up to
 
 \end{compactenum}
 
-The remaining of this paper is organized as follows. In section
-\ref{sec:relatedwork} we discuss the related work. In section
-\ref{sec:approach}, we introduce our approach ShrinkNets, followed by the
-practical considerations we implemented to make it work in section
-\ref{sec:impl}. Then, we evaluate the approach in section \ref{sec:evaluation}
-and conclude the paper in section \ref{sec:conclusions}.
+% The remaining of this paper is organized as follows. In section
+% \ref{sec:relatedwork} we discuss the related work. In section
+% \ref{sec:approach}, we introduce our approach ShrinkNets, followed by the
+% practical considerations we implemented to make it work in section
+% \ref{sec:impl}. Then, we evaluate the approach in section \ref{sec:evaluation}
+% and conclude the paper in section \ref{sec:conclusions}.
 
 
