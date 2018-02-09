@@ -7,18 +7,21 @@ i.e., inputs and outputs of layers. For a fully connected layer defined as:
   f_{\bm{A}, \bm{b}}(\bm{x})=a(\bm{Ax + b})
 \end{equation}
 %
+where $\bm{A}$ represents the connections and $\bm{b}$ the bias,
 removing an input neuron $j$ is equivalent to having $\left(\bm{A}^T\right)_j =
 \bm{0}$. Removing an output neuron $i$ is the same as setting $\bm{A}_i = \bm{0}$
 and $\bm{b}_i = 0$. Solving optimization problems while trying to set entire
 group of parameters to zero is the goal of group sparsity regularization
-\cite{XXX}. In  any partitioning of the set of parameters $\theta$ defining a model in $p$
-groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$, group sparsity is defined as: \srm{you used to say ``we define `it' as:'' -- I am assume `it' is group sparsity}
+\cite{Scardapane2017}. In  any partitioning of the set of parameters $\bm{\theta}$ defining a model in $p$
+groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$, group sparsity is defined as: 
 %
 \begin{equation}
   \Omega_\lambda^{gp} = \lambda \sum_{i=1}^p \sqrt{\#\bm{\theta_i}} \norm{\bm{\theta_i}}_2 \\
 \end{equation}
 %
-\srm{define notation -- what is $\lambda$;  what is $\#\theta$, what is $\Omega$? Where does the square root come from?}
+\srm{define notation -- what is $\lambda$;  what is $\#\theta$, what is $\Omega$? Where does the square root come from?} \gl{This is how it is defined in the
+original paper, it would require a few sentences to explain that, do really
+need to do ?}
 In fully-connected layers, the groups are either: columns of
 $\bm{A}$ if we want to remove inputs, or rows of $\bm{A}$ and the corresponding
 entry in $\bm{b}$ if we want to remove outputs. For simplicity, we focus
@@ -31,12 +34,12 @@ group sparsity regularization then becomes:
 \end{equation}
 %
 Because $\forall i, \#\bm{\theta}_i = n$, \ra{is \# the general way of expressing
-cardinality? why not $|x|$?}to make the notation simpler, we
+cardinality? why not $|x|$?,}  \gl{In europe |x| is for the abolute value, and I was using it in the notation section that someone removed, therefore there would have been a notation conflict}to make the notation simpler, we
 embedded $\sqrt{n}$ inside $\lambda$.
 
 Group sparsity and ShrinkNets try to achieve the same goal. We discuss next how
-they are related to each other. First let's recall the two problems. The
-original ShrinkNet problem is \srm{do you mean ``can be defined formally as'' -- we never gave this definition of ShrinkNets.  Also, you need to explain the formula / notation;  what is $y$, what is $\beta$, what is this equation representing (the optimization function?)}:
+they are related to each other. First let's recall the two problems. In the context of approximating $\bm{y}$ with a linear regression from features $\bm{x}$), the
+original ShrinkNet problem is 
 %
 \begin{equation}
   \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
@@ -62,13 +65,14 @@ by adding an extra term to the ShrinkNet regularization term we can prove that:
 %
 has global minimums for all $p>0$ (\cref{shrinknet_regularized_minimum}).
 This is the reason we defined the \textit{regularized ShrinkNet penalty} above
-as \srm{where?}:\ra{the notation is slightly different, better to make it consistent}
+as:
 %
 \begin{equation}
   \Omega_{\lambda, \lambda_2, p}^{rs} = \lambda\norm{\bm{\beta}}_1 + \lambda_2\norm{\bm\theta}_p^p
 \end{equation}
 %
 In practice we observed that $p=2$ or $p=1$ are good a choice; note that the latter
-will also introduce additional sparsity into the parameters. \srm{why?}
+will also introduce additional sparsity into the parameters because the $L_1$ is, 
+thest best convex approximation of the $L_0$ norm.
 
 

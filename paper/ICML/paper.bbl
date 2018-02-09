@@ -1,4 +1,4 @@
-\begin{thebibliography}{31}
+\begin{thebibliography}{28}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -90,14 +90,6 @@ Kingma, Diederik~P. and Ba, Jimmy.
 \newblock Adam: {A} method for stochastic optimization.
 \newblock \emph{CoRR}, abs/1412.6980, 2014.
 
-\bibitem[Krizhevsky(2009)]{Krizhevsky2009}
-Krizhevsky, Alex.
-\newblock {Learning Multiple Layers of Features from Tiny Images}.
-\newblock \emph{{\ldots} Science Department, University of Toronto, Tech.
-  {\ldots}}, pp.\  1--60, 2009.
-\newblock ISSN 1098-6596.
-\newblock \doi{10.1.1.222.9220}.
-
 \bibitem[LeCun et~al.(2001)LeCun, Bottou, Bengio, and Haffner]{Lecun1998}
 LeCun, Y, Bottou, L, Bengio, Yoshua, and Haffner, P.
 \newblock {Gradient-Based Learning Applied to Document Recognition}.
@@ -112,10 +104,6 @@ Li, Lisha, Jamieson, Kevin, DeSalvo, Giulia, Rostamizadeh, Afshin, and
 \newblock Hyperband: A novel bandit-based approach to hyperparameter
   optimization.
 \newblock \emph{arXiv preprint arXiv:1603.06560}, 2016.
-
-\bibitem[Meier()]{meier}
-Meier, Benjamin.
-\newblock Going deeper: Infinite deep neural networks.
 
 \bibitem[Nair \& Hinton(2010)Nair and Hinton]{Nair2010}
 Nair, Vinod and Hinton, Geoffrey~E.
@@ -152,16 +140,6 @@ Romero, Adriana, Ballas, Nicolas, Kahou, Samira~Ebrahimi, Chassang, Antoine,
   Gatta, Carlo, and Bengio, Yoshua.
 \newblock Fitnets: Hints for thin deep nets.
 \newblock \emph{arXiv preprint arXiv:1412.6550}, 2014.
-
-\bibitem[Russakovsky et~al.(2015)Russakovsky, Deng, Su, Krause, Satheesh, Ma,
-  Huang, Karpathy, Khosla, Bernstein, Berg, and Fei-Fei]{ILSVRC15}
-Russakovsky, Olga, Deng, Jia, Su, Hao, Krause, Jonathan, Satheesh, Sanjeev, Ma,
-  Sean, Huang, Zhiheng, Karpathy, Andrej, Khosla, Aditya, Bernstein, Michael,
-  Berg, Alexander~C., and Fei-Fei, Li.
-\newblock {ImageNet Large Scale Visual Recognition Challenge}.
-\newblock \emph{International Journal of Computer Vision (IJCV)}, 115\penalty0
-  (3):\penalty0 211--252, 2015.
-\newblock \doi{10.1007/s11263-015-0816-y}.
 
 \bibitem[Scardapane et~al.(2017)Scardapane, Comminiello, Hussain, and
   Uncini]{Scardapane2017}

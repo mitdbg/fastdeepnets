@@ -5,14 +5,6 @@
 In this section we discuss practical aspects of ShrinkNets, including the
 neuron removal  process and several additional optimizations.
 
-%The previous section described the switch layers, which deactivate neurons
-%on-the-fly. To benefit from ShrinkNets in practice, we must overcome two
-%challenges. First, to effectively reduce the network size we must remove the
-%deactivated neurons. Since removed neurons will no longer contribute to
-%improving prediction accuracy, we must be confident when removing them. Second,
-%for inference, we must remove the switch layers from the network. We describe
-%our solution for both challenges in this section.
-
 \subsection{On-The-Fly Neuron Removal}
 \label{neuron_killing}
 
@@ -22,8 +14,7 @@ or \emph{off} neurons. When neurons are deactivated by switch layers, we need
 to remove them to actually shrink the network size. Since after removing a
 neuron it will no longer be able to contribute to  prediction accuracy, we
 must devise strategies that remove neurons while remaining robust to changing
-values. We observe three strategies:
-
+gradient values. We observe three strategies:
 
 \textbf{Threshold strategy}: Under this strategy neurons are removed based on
 a fixed threshold expressed in terms of its absolute value. This is the method
@@ -32,15 +23,13 @@ in the gradients---which occurs commonly when training networks with
 stochastic gradient descent---because the threshold depends on the scale of
 each weight.
 
-\textbf{Sign change strategy}: Under this strategy neurons are removed when
-the weight value changes its sign. This strategy works well in practice but it
-is also sensitive to gradient noise. \ra{explain what's the consequence of
-that} If we sample the gradient in a way that is not fully representative of
-the dataset we might  experience one-time zero crossing which could wrongly
-kill a neuron.
+\textbf{Sign change strategy}: Under this strategy neurons are removed when the
+weight value changes its sign. This strategy works well in practice but it is
+also sensitive to gradient noise. If we sample the gradient in a way that is
+not fully representative of the dataset we might experience one-time zero
+crossing which could wrongly remove a neuron.
 
-
-\textbf{Sign variance strategy}: Instead of killing  on the first zero
+\textbf{Sign variance strategy}: Instead of removing on the first zero
 crossing, we can instead measure the exponential moving variance of the sign
 ($-1, 1$) of each parameter in the \textit{switch layer}. When the value of
 the exponential moving variances goes over a predefined threshold, we consider
@@ -51,60 +40,25 @@ practice.
 
 The last two strategies perform better than the threshold strategy.  Both
 effectively allow us to shrink the network by varying $\lambda$, and result in
-networks that are both small and perform well.
-
-%According to our experiments on linear and logistic regressions the
-%two last strategies reduce the number of parameter update performed during
-%training by at least an order of magnitude with only minimal impact on the final
-%error obtained by the model.
+networks that are both small and perform well. We use the third one in our
+evaluation section. 
 
 \subsection{Additional Optimizations for ShrinkNets}
 
-\noindent\textbf{Preparing for Inference: } With ShrinkNets we obtain reduced-
-sized networks during training, which is the first steps towards faster
+\noindent\textbf{Preparing for Inference: } With ShrinkNets we obtain
+reduced-sized networks during training, which is the first steps towards faster
 inference. This networks are readily available for inference. However, because
 they include switch layers---and therefore more parameters---they introduce
 unnecessary overhead at inference time. To avoid this overhead, we reduce the
 network parameters by combining each switch layer with its respective network
-layer by multiplying the respective parameters before emitting the final
-trained network.   \ra{can't we just simply prevent the following problem at
-network design time?}In the unlikely case that a switch layer is sandwiched
-between two non-linearly scalable layers, we leave the switch layer as is.
+layer by multiplying the respective parameters before emitting the final trained
+network. 
 
-\noindent\textbf{Neural Garbage Collection: }ShrinkNets decides on-the-fly
-which neurons to remove. Since ShrinkNets removes a large fraction of neurons,
-we must dynamically resize the network at runtime to not unnecessarily impact
-network training time. We implemented a neural garbage collection method as
-part of our library which takes care of updating the necessary network layers
-as well as updating optimizer state to reflect the neuron removal.
+\noindent\textbf{Neural Garbage Collection: }ShrinkNets decides on-the-fly which
+neurons to remove. Since ShrinkNets removes a large fraction of neurons, we must
+dynamically resize the network at runtime to not unnecessarily impact network
+training time. We implemented a neural garbage collection method as part of our
+library which takes care of updating the necessary network layers as well as
+updating optimizer state to reflect the neuron removal.
 
-
-%\ra{move to eval:implementation, retrieve the neuran garbace collection and
-%place it somewhere here}
-%We have implemented \textbf{Switch Layers} and the associated training procedure
-%as a library in pytorch~\cite{paszke2017automatic}.  The layer can be freely
-%mixed with other popular layers such as convolutional layers, batchnorm layers,
-%fully connected layers etc.  There are two key challenges that must be overcome
-%while implementing \textbf{Switch Layers}.  
-%First, since ShrinkNets kill off a
-%large fraction of neurons, we must remove the overhead of carrying around dead
-%neurons.  And second, we must update the various network layers and training
-%machinery (e.g.  optimizer state) to reflect the deactivation of neurons.  We
-%address these challenges by augmenting every layer with additional information
-%about neuron status and implementing a \emph{neural garbage collection}
-%mechanism which prunes deactivated neurons on-the-fly and updates the state of
-%the training machinery.
-
-%A second implementation challenge we address with ShrinkNets is the potentially
-%higher inference time.  This increase in inference time is both due to the extra
-%computation introduced by switch layers and because our switch layers are not
-%currently optimized for CUDA.  Therefore, for now, our library provides a
-%post-training routine to ``fold'' switch layers into existing, optimized layers.
-%Specifically, for every switch layer, we check if the parent or child of this
-%layer is a linearly scalable layer (e.g. convolutional layer, fully connected
-%layer, batchnormalization layer) and if so, we fold the switch layer into this
-%neighboring layer by multiplying through by the switch weights.  
-%In the unlikely
-%case that a switch layer is sandwiched between two non-linearly scalable layers,
-%we leave the switch layer as is.
 

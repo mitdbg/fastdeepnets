@@ -38,17 +38,29 @@ even a small fraction of possible network configurations.
 
 In contrast, in this paper we present a new method to simultaneously optimize
 both network size and model performance. The key idea is to learn the right
-network size at the same time that we optimize for prediction performance. Our
-approach, called {\it ShrinkNets}, starts with an {\it oversized} network, and
-dynamically shrinks it by eliminating neurons during training time.  Our
-approach has two main benefits.  First, we explore the architecture of models
-that are both small and perform well, rather than starting with a high-
-performance model and making it small.  This allows us to efficiently generate
-a family of smaller and accurate models without an exhaustive and expensive
-hyperparameter search over the number of neurons in each layer. Second, in
-contrast to existing neural network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our approach results in models that are
-not only small, but where the  layers are dense, which means that inference
-time is also improved, e.g., on GPUs.
+network size at the same time that we optimize for prediction performance for a
+specific task. Our approach, called {\it ShrinkNets}, starts with an {\it
+oversized} network, and dynamically shrinks it by eliminating unimportant
+neurons---those that do not contribute to prediction performance---during
+training time. For that, ShrinkNets must detect the unimportant neurons, and
+remove them from the network, thus drastically reducing the network size. The
+removal of entire neurons and not connections is crucial, because it leads to
+dense networks, which lead to better inference performance. To support the
+detection and removal of unimportant neurons we introduce a new layer, called
+\textbf{Switch layer}. Introducing this new layer means we must redefine the
+loss function to account for the sparsity effect it introduces. ShrinkNets has
+two main benefits. First, it explores the architecture of models that are both
+small and perform well, rather than starting with a high-performance model and
+making it small.  This allows us to efficiently generate a family of smaller and
+accurate models without an exhaustive and expensive hyperparameter search over
+the number of neurons in each layer.  Second, in contrast to existing neural
+network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our
+approach results in models that are not only small, but where the layers are
+dense, which means that inference time is also improved, e.g., on GPUs.
+
+
+
+
 
 XXX people actually don't treat network size as a hyperparameter;  we do!
 
@@ -114,3 +126,12 @@ accuracy is one some real dataset}
 \item \srm{Some claim about inference time}
 \item \srm{Some claim about compatibility with existing compression techniques?}
 \end{compactenum}
+
+The remaining of this paper is organized as follows. In section
+\ref{sec:relatedwork} we discuss the related work. In section
+\ref{sec:approach}, we introduce our approach ShrinkNets, followed by the
+practical considerations we implemented to make it work in section
+\ref{sec:impl}. Then, we evaluate the approach in section \ref{sec:evaluation}
+and conclude the paper in section \ref{sec:conclusions}.
+
+
