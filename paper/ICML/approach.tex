@@ -3,12 +3,16 @@
 \section{The ShrinkNets Approach}
 \label{sec:approach}
 
-In this section we describe the \shrink approach, which allows us to learn
-the network size as part of the training process. The key idea is the addition
-of \swls after each layer in the network;  these layers
-allow us to selectively deactivate neurons during training.  We start by introducing the
-basic method, and then explain how to adapt the training procedure to support this new
-layer. 
+In this section we describe the \shrink approach. We discuss first the new \swls
+which are used to deactivate neurons, followed by a description of how we adapt
+the training loss function.
+
+%In this section we describe the \shrink approach, which allows us to learn
+%the network size as part of the training process. The key idea is the addition
+%of \swls after each layer in the network;  these layers
+%allow us to selectively deactivate neurons during training.  We start by introducing the
+%basic method, and then explain how to adapt the training procedure to support this new
+%layer. 
 
 \subsection{Overview}
 
