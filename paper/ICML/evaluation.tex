@@ -187,11 +187,20 @@ know that \texttt{MNIST} is a much easier problem than \texttt{FashionMNIST}.
 
 We provide two examples of architectures learned by \textit{ShrinkNet}. One
 for the best test available test accuracy and a slightly underperforming but
-significantly (40x smaller that it's equivalent \textit{Static Network}). For
+significantly smaller that it's equivalent \textit{Static Network}. For
 these two architectures we show the size at different time during training to
 give a sense how the convergence happen.
 
-\gl{Add the two plots}
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{size_evolution}
+\vspace*{-5mm} \caption{\label{network_size_evolution} Evolution of the size of
+  each layer over time (lighter: beginning, darker: end). On top a very large
+  network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
+  accuracy
+} \end{center}
+\vspace*{-4mm}
+\end{figure}
 
 % \subsection{Neuron Removal strategies [TO be removed]}
 % 
