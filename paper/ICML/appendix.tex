@@ -5,14 +5,14 @@
 \begin{center}
 \includegraphics[width=.7\columnwidth]{regressions}
 \vspace*{-5mm}
-\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknet on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
+\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknets on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
 
 \end{center}
 \vspace*{-4mm}
 \end{figure}
 
 \subsection{Proofs}
-Unless stated explicitely, all the propositions consider the Multi-Target linear regression problem.
+Unless stated explicitly, all the propositions consider the Multi-Target linear regression problem.
 \begin{proposition}
 \label{gps_equivalence}
   $\forall (n, p) \in \mathbb{N}_+^2, \bm{y} \in \mathbb{R}^{n}, \bm{x} \in \mathbb{R}^{p} \lambda \in \mathbb{R}$
@@ -25,12 +25,12 @@ Unless stated explicitely, all the propositions consider the Multi-Target linear
 \end{proposition}
 
 \begin{proof}
-  we will split this proof in two different sections. the first one will
-  demonstrate that there is at least one global minimum. and the second
-  will show how to construct $2^k$ distinct solutions from a single global
+  We split the proof into two parts. First, we
+  demonstrate that there is at least one global minimum. Then, we 
+    how to construct $2^k$ distinct solutions from a single global
   minimum.
-  In order to prove this statement we will show that for any solution $\bm{A}$ in the first problem, there exists a solution in the second with the exact same value, and vice-versa.
-  \\ \textbf{Part 1:} We assume we have a potential solution $\bm{A}$ for the first problem and we define $\bm{\beta}$ such that $\bm{\beta}_j = \norm{\left(\bm{A}^T\right)_j}_2^2$, and $\bm{A}' = \bm{A}\left(\diag{\bm{\beta}}\right)^{-1}$. It is easy to see that the constraint on $\bm{A}'$ is statisfied by construction. Now:
+  In order to prove this second statement, we first show that for any solution $\bm{A}$ to the first problem, there exists a solution in the second with the exact same value, and vice-versa.
+  \\ \textbf{Part 1:} Assume we have a potential solution $\bm{A}$ for the first problem.  We define $\bm{\beta}$ such that $\bm{\beta}_j = \norm{\left(\bm{A}^T\right)_j}_2^2$, and $\bm{A}' = \bm{A}\left(\diag{\bm{\beta}}\right)^{-1}$. It is easy to see that the constraint on $\bm{A}'$ is satisfied by construction. Now:
   \begin{align*}
     & \norm{\bf{y} - \bf{A}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A^T\right)_j}_2 \\
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A'^T\right)_j\beta_j}_2 \\
@@ -38,7 +38,7 @@ Unless stated explicitely, all the propositions consider the Multi-Target linear
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
   \end{align*}
   Which concludes the first part.
-  \\ \textbf{Part 2:} Assuming we take an $\bm{A}'$ that satisfy the constraint and a $\bm{\beta}$, we can define $\bm{A} = \bm{A'}\diag{\bm{\beta}}$. We can apply the same operations in reverse order and obtain an instance of the first problem with the same value.
+  \\ \textbf{Part 2:} Assuming we take an $\bm{A}'$ that satisfies the constraint and a $\bm{\beta}$, we can define $\bm{A} = \bm{A'}\diag{\bm{\beta}}$. We can apply the same operations in reverse order and obtain an instance of the first problem with the same value.
   \\ \textbf{Conclusion} There is no way these two problems have different minima,
   because we are able to construct a solution to a problem from the solution
   of the other while preserving the value of the objective.
@@ -51,7 +51,7 @@ Unless stated explicitely, all the propositions consider the Multi-Target linear
 \end{equation*}
 is not convex in $\bm{A}$ and $\bm{\beta}$.
 \begin{proof}
-  To prove this we will take the simplest instance of the problem: where everything is a scalar. We have $f(a, \beta) = \left(y - a\beta x\right)^2$. For simplicty let's take $y = 0$ and $x > 0$. If we consider two candidates $s_1 = (0, 2)$ and $s_2 = (2, 0)$, we have $f(s_1) = f(s_2) = 0$. However $f(\frac{2}{2}, \frac{2}{2}) = x > \frac{1}{2} f(0, 2) + \frac{1}{2}f(2, 0)$, which break the convexity property. Since we showed that a particular case of the problem is non-convex then necessarly the general case cannot be convex.
+  To prove this we will take the simplest instance of the problem: where everything is a scalar. We have $f(a, \beta) = \left(y - a\beta x\right)^2$. For simplicty we's take $y = 0$ and $x > 0$. If we consider two candidates $s_1 = (0, 2)$ and $s_2 = (2, 0)$, we have $f(s_1) = f(s_2) = 0$. However $f(\frac{2}{2}, \frac{2}{2}) = x > \frac{1}{2} f(0, 2) + \frac{1}{2}f(2, 0)$, which break the convexity property. Since we showed that a particular case of the problem is non-convex then necessarily the general case cannot be convex.
 \end{proof}
 \end{proposition}
 
@@ -75,18 +75,18 @@ For this proposition we will not restrict ourselves to single layer but the comp
 \end{proposition}
 
 \begin{proof}
-  We will split this proof in two parts. First we will show that there is at least
+  We  split this proof into two parts. First we show that there is at least
   one global minimum, then we will show how to construct $2^n - 1$ other distinct
   solutions with the same objective.
 \\ \textbf{Part 1:}
-The two components of the expression are always positive so we know that this problem is bounded by below by $0$. $\Omega_{\lambda, \lambda_2, p}^{rs}$ is trivially coercive. Since we have a sum of terms, all bounded by below by $0$ and one of them is coercive, then the entire function admit at least one global minimum.
-\\ \textbf{Part 2:} Let's consider one global minimum. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ do not change the the first part of the objective because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and by extension also global minimuma. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
+The two components of the expression are always positive so we know that this problem is bounded by below by $0$. $\Omega_{\lambda, \lambda_2, p}^{rs}$ is trivially coercive. Since we have a sum of terms, all bounded by below by $0$ and one of them is coercive, so the entire function admits at least one global minimum.
+\\ \textbf{Part 2:} Let's consider one global minimum. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ does not change the the first part of the objective because the two factors cancel each other. The two norms do not change either because by definition the norm is independent of the sign. As a result these two sets of parameters have the same value and by extension also a global minimum. It is easy to see that going from this global minimum, we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
 
 \end{proof}
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions experiments}
 As we showed, Group sparsity share similarities with our method, and we claim
 that ShrinkNets are a relaxation of Group sparsity.  In this experiment we want
-to compare the two aproaches.  We decided to focus on multi-target linear
+to compare the two approaches.  We decided to focus on multi-target linear
 regression because in the single target case, groups in the Group Sparsity
 problem would have a size of one ($\bm{A}$ would be a vector in this case).
 
@@ -98,7 +98,7 @@ the \textit{Gas Sensor Array Drift Dataset} \cite{VERGARA2012320} (that we short
 For each dataset we fit with different regularization parameters and measure
 the error and sparsity obtained after convergence. In this context we define
 sparsity as the ratio of columns that have all their weights under $10^{-3}$ in
-absolute value. Regularization parameters were choosen in order to obtain the
+absolute value. Regularization parameters were chosen in order to obtain the
 widest sparsity spectrum. Loss is normalized depending on the problem to be in
 the $[0, 1]$ range. We summarized the results in \cref{sparsity_accuracy}. From
 our experiments it is clear that ShrinkNets can fit the data closer than Group
