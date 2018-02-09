@@ -294,24 +294,24 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 \end{minipage}
 \end{figure*}
 
-\subsection{Architectures obtained after convergence}
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics[width=.7\columnwidth]{size_evolution}
+\vspace{-.1in}
+\includegraphics[width=.6\columnwidth]{size_evolution}
 \vspace*{-5mm} 
 \caption{ Evolution of the size of
   each layer over time (lighter: beginning, darker: end). On top a very large
   network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
   accuracy. 
 } 
-\vspace*{-5mm} 
 \label{fig:network_size_evolution}
 \end{center}
 \vspace*{-4mm}
 \end{figure}
 
-\ra{the following is interesting, but how is it related to the above?}
+\subsection{Architectures obtained after convergence}
+%\ra{the following is interesting, but how is it related to the above?}
 \shrink effectively explores the frontier of model size and accuracy. For a
 given target accuracy, the size needed is significantly smaller than when we use the
 "channel doubling" heuristic commonly used to size convolutional neural networks.
