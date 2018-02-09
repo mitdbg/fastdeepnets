@@ -1,77 +1,86 @@
 %!TEX root=paper.tex
 \section{Related Work}
 
-\begin{itemize}
-  \item post-training compression techniques -- brain damage , 
-  \item group sparsity e.g., \cite{Scardapane2017} and non-parametric neural networks -- 
-  \item training dynamics paper: first overfitting and then randomization?, \gl{Here is the ref, if you can introduce it in the flow \cite{Shwartz-Ziv2017}}
-\end{itemize}
+%\begin{itemize}
+%  \item post-training compression techniques -- brain damage , 
+%  \item group sparsity e.g., \cite{Scardapane2017} and non-parametric neural networks -- 
+%  \item training dynamics paper: first overfitting and then randomization?, \gl{Here is the ref, if you can introduce it in the flow \cite{Shwartz-Ziv2017}}
+%\end{itemize}
 
-Given the importance of network structure, many researchers have explored the
-problem of finding the best network structure for a given learning task.  
-The proposed techniques broadly fall into five categories: 
-random search andbrute force search,
-hyperparameter optimization,
-model compression after training,
-resizing models during training, and 
-automated architecture search methods.
+There are several lines of work related to finding a good network structure. We
+describe them next:
 
-The most popular techniques for hyperparameter optimization include simple
-methods such as random search~\cite{BergstraJAMESBERGSTRA2012} which have been
-shown to work suprisingly well compared to more complex methods such as those
-based on Bayesian optimization~\cite{Snoek12}.
-Brute force search of network sizes is also become more practical due to faster
-and more powerful hardware~\cite{molchanov2016pruning}.
-The more complex methods for hyperparameter optimization include techniques 
-such as~\cite{Snoek12} which model generalization performance via Gaussian
-Processes~\cite{GaussianProcesses} and select hyperparameter combinations that
-come from uncertain areas of the hyperparameter space.  
-Recently, methods based
-on bandit algorithms (e.g. ~\cite{li2016hyperband, jamieson2016}) have also
-become a popular way to tune hyperparameters.
-As noted before, all of the
-above techniques require many tens to hundreds of models to be trained, making
-this process computationally inefficient and slow.
-More practically, the hyperparameter optimization literature does not evaluate
-their methods on network size and instead focuses on optimization hyperparameters
-such as learning rates and weight decay parameters.
+%Given the importance of network structure, many researchers have explored the
+%problem of finding the best network structure for a given learning task.  The
+%proposed techniques broadly fall into five categories: random search andbrute
+%force search, hyperparameter optimization, model compression after training,
+%resizing models during training, and automated architecture search methods.
 
-In contrast with size search techniques, there are techniques that 
-reduce network size {\it once the network has been traiend}.
-Popular techniques in this class include optimal brain damage~\cite{Cun} and
-compression techniques such as DeepCompression~\cite{han2015deepcompression}.
-Optimal brain damage identifies connections in a network that are unimportant
-and then prunes these connections.
-DeepCompression takes this one step further and in addition to pruning connections,
-it quantizes weights to make inference extremely efficient.
-% In contrast with hyperparameter tuning methods, some methods such as
-% DeepCompression~\cite{han2015deepcompression} seek to compress the network to
-% make inference more efficient.  This is accomplished by pruning connections and
-% quantizing weights.  
-A different vein of work such as ~\cite{romero2014fitnets, hinton2015distilling}
-proposes techniques for distilling a network into a simpler network or 
-a different model.  Unlike our
-technique which works during training, these techiques are used after training
-and it would be interesting to apply them to ShrinkNets as well. 
-\cite{Abadi2016b} share the common goal of removing entire blocks of parameter to maintain dense matrices, however their method only applies to convolutional layers.
+\noindent\textbf{Hyperparameter optimization techniques: }The most popular
+techniques for hyperparameter optimization include simple methods such as random
+search~\cite{BergstraJAMESBERGSTRA2012} which have been shown to work
+suprisingly well compared to more complex methods such as those based on
+Bayesian optimization~\cite{Snoek12}.  Brute force search of network sizes is
+also become more practical due to faster and more powerful
+hardware~\cite{molchanov2016pruning}.  The more complex methods for
+hyperparameter optimization include techniques such as~\cite{Snoek12} which
+model generalization performance via Gaussian Processes~\cite{GaussianProcesses}
+and select hyperparameter combinations that come from uncertain areas of the
+hyperparameter space. Recently, methods based on bandit algorithms (e.g.
+~\cite{li2016hyperband, jamieson2016}) have also become a popular way to tune
+hyperparameters. With respect to our work, these methods require many tens of
+hundreds of models to be trained, which makes the process computationally
+inefficient and slow. In contrast, with ShrinkNets all the hyperparameters
+related to network size are reduced to a single parameter, as we explain next.
+More importantly, none of the hyperparameter optimization methods focuses on
+finding small networks, which is a crucial property of ShrinkNets, necessary to
+achieve good inference times.
 
-The techniques closest to our proposed method are those based on group sparsity 
-such as ~\cite{Scardapane2017}, and those like~\cite{Philipp} who grow and shrink
-dynamically the size of the network during training.
+%As noted before, all of the above techniques require many tens
+%to hundreds of models to be trained, making this process computationally
+%inefficient and slow.  More practically, the hyperparameter optimization
+%literature does not evaluate their methods on network size and instead focuses
+%on optimization hyperparameters such as learning rates and weight decay
+%parameters.
 
-\cite{Scardapane2017} presents a method that also deactivates neurons using a 
-loss function based on group-sparsity.
-However, the exact details of how their method works are not given, and 
-their experimental results (on a small, fully connected network), 
-are substantially worse than ours as shown in Section~\ref{sec:experiments}.
+\noindent\textbf{Model Compression: }Model compression techniques focus on
+reducing the model size \emph{after} training, in contrast to ShrinkNets, which
+reduces it \emph{while} training. 
+Optimal brain damage~\cite{Cun} identifies connections in a network that are
+unimportant and then prunes these connections.
+DeepCompression~\cite{han2015deepcompression} takes this one step further and in
+addition to pruning connections, it quantizes weights to make inference
+extremely efficient.  A different vein of work such as ~\cite{romero2014fitnets,
+hinton2015distilling} proposes techniques for distilling a network into a
+simpler network or a different model. Because these techniques work after
+training, they are orthogonal and complementary to ShrinkNets. 
+%Unlike our technique which works during
+%training, these techiques are used after training and it would be interesting to
+%apply them to ShrinkNets as well. 
+%\cite{Abadi2016b} share the common goal of
+%removing entire blocks of parameter to maintain dense matrices, however their
+%method only applies to convolutional layers.
+
+\noindent\textbf{Auto-ML: }There is work that focuses on automatically learning
+model architecture through the use of genetic algorithms and reinforcement
+learning techniques~\cite{DBLP:journals/corr/ZophL16, zoph2017learning}. These
+techniques are focused on learning higher-level architectures (e.g.,
+building blocks for neural network architectures). In particular, they do not
+focus on finding small but well-performing networks for inference, which is the
+goal of ShrinkNets.
+
+\noindent\textbf{Dynamically Sizing Networks: }The techniques closest to our
+proposed method are those based on group sparsity such as
+~\cite{Scardapane2017}, and those like~\cite{Philipp} who grow and shrink
+dynamically the size of the network during training.  \cite{Scardapane2017}
+presents a method that also deactivates neurons using a loss function based on
+group-sparsity.  However, the exact details of how their method works are not
+given, and their experimental results (on a small, fully connected network), are
+substantially worse than ours as shown in Section~\ref{sec:experiments}.
 ~\cite{Philipp} propose a method called Adaptive Radial-Angular Gradient Descent
-that adds neurons on the fly and removes neurons via an $l_2$ penalty.
-However, this approach requires a new optimizer and takes longer to converge 
-compared to ShrinkNets.
+that adds neurons on the fly and removes neurons via an $l_2$ penalty.  However,
+this approach requires a new optimizer and takes longer to converge compared to
+ShrinkNets.
 
-Finally, there has also been recent work in automatically learning model
-architecture through the use of genetic algorithms and reinforcement learning
-techniques~\cite{DBLP:journals/corr/ZophL16, zoph2017learning}.  These
-techniques are focused more on learning higher-level architectures (e.g.
-building blocks for neural network architectures) as opposed to learning
-network size.
+
+
