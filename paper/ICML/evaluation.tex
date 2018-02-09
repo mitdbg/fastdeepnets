@@ -137,7 +137,7 @@ descriptions of geographical area (elevation, inclination, etc...) and the goal
 is to predict the type of forest growing in each area. We picked this dataset
 for two reasons. First it is simple, such that we can reach good accuracy with
 only a few fully-connected layers. This is important because we want to show
-that \textit{ShrinkNets} find sizes as good as \textit{Static Networks}, even if
+that \shrink find sizes as good as \textit{Static Networks}, even if
 we are sampling the entire space of possible network sizes. Second, Scardapane
 et al~\cite{Scardapane2017} perform their evaluation on this dataset, which
 allows us to compare the results obtained by our method with the method in
@@ -165,13 +165,24 @@ best static model is only $96.66\%$ accurate, while the ShrinkNets model is $2.5
 times smaller. In addition, if we give up just 0.5\% error, ShrinkNets finds a
 model that is 38.6 times smaller than any static network with equivalent accuracy.
 
-\noindent\textbf{Summary.} We demonstrated that it is possible to achieve
-networks with good accuracy when using ShrinkNets both when the network space
-cannot be explored entirely (\texttt{CIFAR10}) as well as when it can, e.g.,
-\texttt{COVERTYPE}. The most important result is not that ShrinkNets finds
-networks of good accuracy, but that those networks are much smaller than those
-found by a static method. The impact of the network size on inference time is
-the subject of our next evaluation goal.
+%\srm{Summarize more quantitatively -- best model performance, model performance
+%drop off for a factor of 10 reduction in seize, etc. so that we can repeat a
+%quantitative claim in the intro, i.e., ``Here, the best performing ShrinkNets
+%models has 9x.x\% accuracy while the best static model has 9x.x\% accuracy,
+%while the ShrinkNets model is x times smaller.  Further, note that ShrinkNets
+%finds a model with 9x.x\% accuracy that is y times than the best performing
+%model.  Also, as on CIFAR10, if we give up just 1\% error, ShrinkNets finds a
+%model that is z times smaller.'' (If we do this, would be good to highlight
+%these points in the figure somehow)}
+
+\subsubsection{Summary}
+
+We  demonstrated that it is possible to achieve networks with good accuracy
+when using ShrinkNets both when the network space cannot be explored entirely
+(\texttt{CIFAR10}) and when it can, e.g., \texttt{COVERTYPE}. The most important
+result is not that ShrinkNets finds networks of good accuracy, but that those
+networks are much smaller than those found by a static method. The impact of the
+network size on inference time is the subject of our next evaluation goal.
 
 %\srm{we may not need to keep this unless we can think of something more to say}
 %
@@ -300,6 +311,7 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 \vspace*{-4mm}
 \end{figure}
 
+\ra{the following is interesting, but how is it related to the above?}
 ShrinkNets effectively explores the frontier of model size and accuracy. For a
 given target accuracy, the size needed is significantly smaller than when we use the
 "channel doubling" heuristic commonly used to size convolutional neural networks.
