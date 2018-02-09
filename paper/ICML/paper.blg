@@ -3,71 +3,55 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
 The style file: icml2018.bst
 Database file #1: custom.bib
-Repeated entry---line 117 of file custom.bib
- : @article{zoph2017learning
- :                          ,
-I'm skipping whatever remains of this entry
 Database file #2: general.bib
-Repeated entry---line 752 of file general.bib
- : @article{Srivastava2014
- :                        ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 823 of file general.bib
- : @inproceedings{Abadi2016b
- :                          ,
-I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for "something1"
-Warning--I didn't find a database entry for "something2"
 Warning--I didn't find a database entry for "quant"
-Warning--I didn't find a database entry for "something"
-Warning--I didn't find a database entry for "XXX"
-Warning--I didn't find a database entry for "nvidia-paper-xxx"
 Warning--I didn't find a database entry for ""
 Warning--empty journal in Aghasi2016
 Warning--empty school in Blackard:1998:CNN:928509
+Warning--empty journal in Han2015
 Warning--there's a number but no volume in Nair2010
 Warning--empty journal in paszke2017automatic
 Warning--there's a number but no series in Philipp
 Warning--empty journal in Xiao2017
-You've used 28 entries,
+You've used 27 entries,
             2773 wiz_defined-function locations,
-            797 strings with 11298 characters,
-and the built_in function-call counts, 16481 in all, are:
-= -- 1413
-> -- 1329
-< -- 18
-+ -- 443
-- -- 415
-* -- 1451
-:= -- 2618
-add.period$ -- 108
-call.type$ -- 28
-change.case$ -- 219
-chr.to.int$ -- 28
-cite$ -- 62
-duplicate$ -- 629
-empty$ -- 1060
-format.name$ -- 463
-if$ -- 3386
-int.to.chr$ -- 1
+            779 strings with 10374 characters,
+and the built_in function-call counts, 14137 in all, are:
+= -- 1257
+> -- 957
+< -- 16
++ -- 320
+- -- 292
+* -- 1197
+:= -- 2203
+add.period$ -- 104
+call.type$ -- 27
+change.case$ -- 176
+chr.to.int$ -- 26
+cite$ -- 61
+duplicate$ -- 609
+empty$ -- 1026
+format.name$ -- 335
+if$ -- 2949
+int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 28
-newline$ -- 170
-num.names$ -- 114
-pop$ -- 410
+missing$ -- 26
+newline$ -- 165
+num.names$ -- 110
+pop$ -- 325
 preamble$ -- 1
-purify$ -- 193
+purify$ -- 150
 quote$ -- 0
-skip$ -- 556
+skip$ -- 499
 stack$ -- 0
-substring$ -- 416
-swap$ -- 82
+substring$ -- 407
+swap$ -- 81
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 303
-warning$ -- 6
-while$ -- 117
+type$ -- 297
+warning$ -- 7
+while$ -- 113
 width$ -- 0
-write$ -- 406
-(There were 3 error messages)
+write$ -- 391
+(There were 9 warnings)
