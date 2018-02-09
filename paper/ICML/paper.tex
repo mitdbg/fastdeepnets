@@ -106,22 +106,26 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-As neural networks are being widely in different applications and on different
+As neural networks become widely deployed in different applications and 
+on different
 hardware, it has become increasingly important to optimize inference time and
-model size along with model accuracy.  Most current work optimizes model size,
+model size along with model accuracy.  
+Most current techniques optimize model size,
 model accuracy and inference time in different stages, resulting in suboptimal
-results and computational inefficiency.  In this work, we propose a new
-technique called ShrinkNets that optimizes all three of these metrics
-simultaneously by learning optimal network size at training time.  Specifically
-our technique presents a new method to simultaneously optimize network size and
-model performance by neuron-level pruning.  Neuron-level pruning not only
+results and computational inefficiency.  
+In this work, we propose a new
+technique called \shrink that optimizes all three of these metrics
+simultaneously.  
+Specifically we present a new method to simultaneously optimize network size and
+model performance by neuron-level pruning during training.  
+Neuron-level pruning not only
 produces much smaller networks for a given accuracy threshold but also produces
-dense weight matrices that are efficient at inference time.  By applying our
-technique to a variety of models with both convolutional and fully connected
-layers, we show that ShrinkNets can reduce network size by 35x in comparison to
-to a static network on \texttt{CIFAR10}, with 6x improvement in inference time.
-In addition, the most accurate networks found by ShrinkNets are similar or more
-accurate than those found by statically trained networks.  
+dense weight matrices that are amenable to efficient inference.  
+By applying our
+technique to convolutional as well as fully connected models, we show that 
+\shrink can reduce network size by 35X with a 6X improvement in inference time.
+In addition, the most accurate networks found by \shrink have accuracy that is
+similar to or better than those found by statically-sized networks.  
 \end{abstract}
 
 %\section{Tentative outline}
@@ -210,9 +214,6 @@ accurate than those found by statically trained networks.
 \appendix
 \input{appendix}
 \FloatBarrier
-
-
-\clearpage
 
 \bibliographystyle{icml2018}
 \bibliography{custom,general}
