@@ -1,72 +1,74 @@
+%!TEX root=paper.tex
 %\subsection{Relation to Group Sparsity}
 \noindent\textbf{Relation to Group Sparsity (LASSO): } ShrinkNets removes neurons,
 i.e., inputs and outputs of layers. For a fully connected layer defined as:
-
+%
 \begin{equation} \label{fully_connected}
   f_{\bm{A}, \bm{b}}(\bm{x})=a(\bm{Ax + b})
 \end{equation}
-
-Removing an input neuron $j$ is equivalent to have $\left(\bm{A}^T\right)_j =
-\bm{0}$. Removing an output neuron $i$ is the same as having $\bm{A}_i = \bm{0}$
+%
+removing an input neuron $j$ is equivalent to having $\left(\bm{A}^T\right)_j =
+\bm{0}$. Removing an output neuron $i$ is the same as setting $\bm{A}_i = \bm{0}$
 and $\bm{b}_i = 0$. Solving optimization problems while trying to set entire
 group of parameters to zero is the goal of group sparsity regularization
-\cite{}. For any partitioning of the set of parameter defining a model in $p$
-groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$ we define it the following
-way:
-
+\cite{xxx}. In  any partitioning of the set of parameters $\theta$ defining a model in $p$
+groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$, group sparsity is defined as: \srm{you used to say ``we define `it' as:'' -- I am assume `it' is group sparsity}
+%
 \begin{equation}
   \Omega_\lambda^{gp} = \lambda \sum_{i=1}^p \sqrt{\#\bm{\theta_i}} \norm{\bm{\theta_i}}_2 \\
 \end{equation}
-
+%
+\srm{define notation -- what is $\lambda$;  what is $\#\theta$, what is $\Omega$? Where does the square root come from?}
 In fully-connected layers, the groups are either: columns of
 $\bm{A}$ if we want to remove inputs, or rows of $\bm{A}$ and the corresponding
 entry in $\bm{b}$ if we want to remove outputs. For simplicity, we focus
 our analysis in the simple one-layer case. In this case, filtering outputs does
-not make sense, this is why we will only consider the former case. The
+not make sense, so we only consider removing inputs. The
 group sparsity regularization then becomes:
-
+%
 \begin{equation} \label{group_sparsity_regularization}
   \Omega_\lambda^{gp} = \lambda \sum_{j=1}^p \norm{\bm{\left(A^T\right)_j}}_2 \\
 \end{equation}
-
+%
 Because $\forall i, \#\bm{\theta}_i = n$, \ra{is \# the general way of expressing
-cardinality? why not |x|?}to make the notation simpler, we
+cardinality? why not $|x|$?}to make the notation simpler, we
 embedded $\sqrt{n}$ inside $\lambda$.
 
 Group sparsity and ShrinkNets try to achieve the same goal. We discuss next how
 they are related to each other. First let's recall the two problems. The
-original ShrinkNet problem is:
-
+original ShrinkNet problem is \srm{do you mean ``can be defined formally as'' -- we never gave this definition of ShrinkNets.  Also, you need to explain the formula / notation;  what is $y$, what is $\beta$, what is this equation representing (the optimization function?)}:
+%
 \begin{equation}
   \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
 \end{equation}
-
+%
 And the Group Sparsity problem is:
-
+%
 \begin{equation}
   \min_{\bm{A}} \norm{\bm{y} - \bm{A}\bm{x}}_2^2 + \Omega_\lambda^{gp}
 \end{equation}
+%
 
 We can prove that under the condition: $\forall j\in \intint{1, p},
 \norm{\left(\bm{A}^T\right)_j}_2 = 1$ the two problems are equivalent
-(\cref{gps_equivalence}). However if we relax this constraint then shrinknet
+(\cref{gps_equivalence}, see Apendix). However if we relax this constraint then ShrinkNets
 becomes non-convex and has no global minimum
-(\cref{unconstrained_non_convex,unconstrained_shrinknet_no_min}). Fortunately,
-by adding an extra term to the ShrinkNet regularization term we can proove that:
-
+(\cref{unconstrained_non_convex,unconstrained_shrinknet_no_min}, also in Appendix). Fortunately,
+by adding an extra term to the ShrinkNet regularization term we can prove that:
+%
 \begin{equation}
   \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s + \lambda_2\norm{A}_p^p
 \end{equation}
-
+%
 has global minimums for all $p>0$ (\cref{shrinknet_regularized_minimum}).
-This is the reason we defined the \textit{regularized ShrinkNet penalty} earlier
-this way:\ra{the notation is slightly different, better to make it consistent}
-
+This is the reason we defined the \textit{regularized ShrinkNet penalty} above
+as \srm{where?}:\ra{the notation is slightly different, better to make it consistent}
+%
 \begin{equation}
   \Omega_{\lambda, \lambda_2, p}^{rs} = \lambda\norm{\bm{\beta}}_1 + \lambda_2\norm{\bm\theta}_p^p
 \end{equation}
-
-In practice we observed that $p=2$ or $p=1$ are good choice, while the latter
-will also introduce additional sparsity in the parameters.
+%
+In practice we observed that $p=2$ or $p=1$ are good a choice; note that the latter
+will also introduce additional sparsity into the parameters. \srm{why?}
 
 

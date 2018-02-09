@@ -1,6 +1,11 @@
 This is BibTeX, Version 0.99d (TeX Live 2013)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: paper.aux
+Case mismatch error between cite keys xxx and XXX
+---line 30 of file paper.aux
+ : \citation{xxx
+ :              }
+I'm skipping whatever remains of this command
 The style file: icml2018.bst
 Database file #1: custom.bib
 Repeated entry---line 117 of file custom.bib
@@ -74,4 +79,4 @@ warning$ -- 7
 while$ -- 130
 width$ -- 0
 write$ -- 447
-(There were 3 error messages)
+(There were 4 error messages)

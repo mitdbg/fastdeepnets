@@ -1,6 +1,9 @@
+%!TEX root=paper.tex
+
 \section{ShrinkNets in Practice}
 
-In this section we discuss practical aspects of ShrinkNets.
+In this section we discuss practical aspects of ShrinkNets, including the
+neuron removal  process and several additional optimizations.
 
 %The previous section described the switch layers, which deactivate neurons
 %on-the-fly. To benefit from ShrinkNets in practice, we must overcome two
@@ -13,38 +16,42 @@ In this section we discuss practical aspects of ShrinkNets.
 \subsection{On-The-Fly Neuron Removal}
 \label{neuron_killing}
 
-Switch layers are initialized with weights sampled from $\mathcal{N}(0,1)$, and
-their values change as part of the training process so as to swith \emph{on} or
-{off} neurons. When neurons are deactivated by switch layers, we want to remove
-them to shrink the network size. Because after removing a neuron it will no
-longer contribute to improving prediction accuracy, we must devise strategies
-that remove neurons while being robust to changing values. We observe three
-strategies:
+Switch layers are initialized with weights sampled from $\mathcal{N}(0,1)$;
+their values change as part of the training process so as to switch \emph{on}
+or \emph{off} neurons. When neurons are deactivated by switch layers, we need
+to remove them to actually shrink the network size. Since after removing a
+neuron it will no longer be able to contribute to  prediction accuracy, we
+must devise strategies that remove neurons while remaining robust to changing
+values. We observe three strategies:
 
-\textbf{Threshold strategy}: Under this strategy neurons are removed based on a
-fixed threshold expressed in terms of its absolute value. This is the method
-used by deep compression \cite{}. We found this method is not robust to noise in
-the gradients---which occurs commonly when training networks with stochastic
-gradient descent---because the threshold depends on the scale of each weight.
 
-\textbf{Sign change strategy}: Under this strategy neurons are removed when the
-weight value changes its sign. This strategy works well in practice but it is
-also sensible to gradient noise. \ra{explain what's the consequence of that} If
-we sample a gradient that is not representative of the dataset when performing
-gradient descent then we might wrongly kill a neuron.\ra{last sentence is
-unclear}
+\textbf{Threshold strategy}: Under this strategy neurons are removed based on
+a fixed threshold expressed in terms of its absolute value. This is the method
+used by deep compression \cite{}. We found this method is not robust to noise
+in the gradients---which occurs commonly when training networks with
+stochastic gradient descent---because the threshold depends on the scale of
+each weight.
 
-\textbf{Sign variance strategy}: We measure the exponential moving variance of
-the sign ($-1, 1$) of each parameter in the \textit{switch layer}. When the
-value of the exponential moving variances goes over a predefined threshold, we
-consider the parameter is deactivating the neuron, and therefore we remove it.
-This strategy introduces two extra parameters, one to control the behavior of
-the inertia of the variance, and the threshold, but we have found it is the
-best performing in practice.
+\textbf{Sign change strategy}: Under this strategy neurons are removed when
+the weight value changes its sign. This strategy works well in practice but it
+is also sensitive to gradient noise. \ra{explain what's the consequence of
+that} If we sample the gradient in a way that is not fully representative of
+the dataset we might  experience one-time zero crossing which could wrongly
+kill a neuron.
 
-The last two strategies perform the best in practice; they reduce the network
-parameters by an order of magnitude with only a minimal impact on the final
-error obtained by the model.
+
+\textbf{Sign variance strategy}: Instead of killing  on the first zero
+crossing, we can instead measure the exponential moving variance of the sign
+($-1, 1$) of each parameter in the \textit{switch layer}. When the value of
+the exponential moving variances goes over a predefined threshold, we consider
+the neuron deactivated, and therefore we remove it. This strategy introduces
+two extra parameters, one to control the behavior of the inertia of the
+variance, and the threshold, but we have found it is the best performing in
+practice.
+
+The last two strategies perform better than the threshold strategy.  Both
+effectively allow us to shrink the network by varying $\lambda$, and result in
+networks that are both small and perform well.
 
 %According to our experiments on linear and logistic regressions the
 %two last strategies reduce the number of parameter update performed during
@@ -53,23 +60,23 @@ error obtained by the model.
 
 \subsection{Additional Optimizations for ShrinkNets}
 
-\noindent\textbf{Preparing for Inference: } With ShrinkNets we obtain
-reduced-sized networks while training, which is the first benefit towards faster
+\noindent\textbf{Preparing for Inference: } With ShrinkNets we obtain reduced-
+sized networks during training, which is the first steps towards faster
 inference. This networks are readily available for inference. However, because
 they include switch layers---and therefore more parameters---they introduce
 unnecessary overhead at inference time. To avoid this overhead, we reduce the
 network parameters by combining each switch layer with its respective network
-layer by multiplying the respective parameters.  \ra{can't we just simply
-prevent the following problem at network design time?}In the unlikely case that a switch
-layer is sandwiched between two non-linearly scalable layers, we leave the
-switch layer as is.
+layer by multiplying the respective parameters before emitting the final
+trained network.   \ra{can't we just simply prevent the following problem at
+network design time?}In the unlikely case that a switch layer is sandwiched
+between two non-linearly scalable layers, we leave the switch layer as is.
 
-\noindent\textbf{Neural Garbage Collection: }ShrinkNets decide on-the-fly which
-neurons to remove. Since ShrinkNets remove a large fraction of neurons, we must
-dynamically resize the network at runtime to not carry on the 
-unnecessary overhead. We implement a neural garbage collection method as part of
-our library which takes care of updating the necessary network layers as well as
-updating optimizer state to reflect the neuron removal. 
+\noindent\textbf{Neural Garbage Collection: }ShrinkNets decides on-the-fly
+which neurons to remove. Since ShrinkNets removes a large fraction of neurons,
+we must dynamically resize the network at runtime to not unnecessarily impact
+network training time. We implemented a neural garbage collection method as
+part of our library which takes care of updating the necessary network layers
+as well as updating optimizer state to reflect the neuron removal.
 
 
 %\ra{move to eval:implementation, retrieve the neuran garbace collection and
