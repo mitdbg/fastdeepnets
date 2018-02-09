@@ -105,21 +105,43 @@ dense, which means that inference time is also improved, e.g., on GPUs.
 % faster as well as with less computational overhead.
 
 In summary, our contributions are as follows: 
+
 \begin{compactenum}
+
 \item We propose a novel technique based on dynamically switching on and off neurons, 
-which allows us to optimize the network size as the network is trained. 
-\item \srm{xxx postprocessing techniques to strip out switch layers}
-\item We show that our technique is a relaxation of group LASSO~\cite{Yuan2006} and prove that our problem admits many global minima.
-\item We demonstrate the efficacy of our technique on both convolutional and fully-connected neural nets,
-showing that 
-ShrinkNets finds networks within +/-X\% of best hand-crafted accuracy in XX\% of
-training time compared to existing hyperparameter optimization methods. \srm{Mention the specific 
-model/dataset where this is true.}
-\item We demonstrate that ShrinkNets can achieve this accuracy with only YY\% 
-of neurons. \srm{This claim should be something about how much smaller a network with say 99\%
-accuracy is one some real dataset}
-\item \srm{Some claim about inference time}
-\item \srm{Some claim about model size vs performance}
+which allows us to optimize the network size while the network is trained. 
+
+\item We implement our technique so as to remove entire neurons, therefore
+leading not only to small and well-performing networks, but also dense, which
+means higher inference performance.
+
+%\item \srm{xxx postprocessing techniques to strip out switch layers}
+
+\item We show that our technique is a relaxation of group LASSO~\cite{Yuan2006}
+and prove that our problem admits many global minima.
+
+\item We demonstrate our claims with both fully-connected and convolutional well
+known neural network architectures. We show that with ShrinkNets for
+\texttt{CIFAR10} we achieve the same accuracy than a traditionally trained
+network while reducing the network size by a factor of $2.2x$. Further, when
+willing to sacrifice only $1$\% of performance, ShrinkNets finds networks which
+are 35\% smaller. All in all, this leads to speedups in inference time of up to
+40X. 
+
+%\item We demonstrate the efficacy of our technique on both convolutional and
+%fully-connected neural nets, showing that ShrinkNets finds networks within
+%+/-X\% of best hand-crafted accuracy in XX\% of training time compared to
+%existing hyperparameter optimization methods. \srm{Mention the specific
+%model/dataset where this is true.}
+
+%\item We demonstrate that ShrinkNets can achieve this accuracy with only YY\% of
+%neurons. \srm{This claim should be something about how much smaller a network
+%with say 99\% accuracy is one some real dataset}
+%
+%\item \srm{Some claim about inference time}
+%
+%\item \srm{Some claim about model size vs performance}
+
 \end{compactenum}
 
 The remaining of this paper is organized as follows. In section
