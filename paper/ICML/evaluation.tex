@@ -1,13 +1,24 @@
 \section{Evaluation}
 
-\subsection{Core evaluation (CHANGE\_MY\_NAME)}
+The goal of our evaluation is to show two main properties of
+\textit{ShrinkNets}: they are exploring the space of possible sizes in a "smart"
+way, and that as a result we obtain the smaller or equal size than
+\textit{Static Networks}. We will then evaluate the performance benefits implied
+by these gains in size.
 
-To show the versatility of our aproach we evaluate both on two very different
-scenario
+\subsection{Datasets and Setup}
 
-\subsubsection{\texttt{CIFAR10} dataset}
+\subsubsection{\texttt{CIFAR10}}
 
-\gl{Cite and describe the dataset}
+Previous attempt at solving this problem focus on simple datasets and simple
+architectures (limited to Fully connected). We believe that self-resizing
+network really matter for problems where the architecture you need to solve them
+involve so many layers that it is impractical to explore the space of possible
+sizes. We considered ImageNet but the time required to train models is so long
+that it would have not been possible to train enough and get statistically
+significant results. This is why we picked \texttt{CIFAR10} [ref]. It is an
+image classification dataset containing $60000$ color images $(3 \times 32
+\times 32)$, belonging to $10$ different classes.
 
 To solve this task we use the \texttt{VGG16} model [ref]. It is constituted of
 alternating convolutional layers and \textit{MaxPool} layers interleaved by
@@ -26,6 +37,14 @@ version uses $4096$ \gl{This is on the top of my head, need to be double checked
 We assume no prior knowledge on the optimal batch size, learning rate,
 $\lambda$ or weight decay ($\lambda_2$). This is why, we randomly sample them
 from a range of reasonable values (\gl{should we make them explicit ?}).
+Training is done using our library, based on \texttt{PyTorch} [ref], that
+support dynamically resized layers. We train the network using gradient descent
+and \textit{Adam} optimizer [ref]. We start with the learning rate sampled
+randomly and every $5$ epochs of non improvement in validation accuracy we
+divide the learning rate by $10$. We stop training after $400$ epochs or when
+the learning rate is under $10^{-7}$ whichever comes first. \gl{Should I also
+  give the details about the removal strategy we used and the $\gamma$ and
+  threshold I used ? because this is clearly getting boring}
 For each of the models we trained, we pick the epoch with the best validation
 accuracy and report the corresponding testing accuracy. For each model, we also
 measure the total size, in number of floating point parameters, excluding the
@@ -46,17 +65,53 @@ two distributions of models we obtain on the first plot of \cref{figure_CIFAR10}
 
 \subsubsection{\texttt{COVERTYPE} dataset}
 
-We followed the same procedure 
-\gl{Cite and describe the dataset}
+Our second dataset we will evaluate on is \texttt{COVERTYPE} [ref]. \gl{TODO
+  rephrase the description taken from the UCI website} We picked
+this one for couple of reasons. First it is simply enough that we can reach good
+accuracy with small models. This important because we want to show that
+\textit{ShrinkNets} find sizes as good as \textit{Static Networks}, even if we
+are sampling the entire space of possible sizes. The second reason is that [ref]
+are also doing their evaluation on this dataset, which allow us to compare the
+results obtained by the two methods.
 
-We try to fit 
+The only difference in terms of setup are minimal. We use the same architecture
+as [ref], i.e. three layers Fully Connected neural network with  no
+\textit{Dropout} [ref] nor \textit{BatchNorm} [ref]. \gl{Should we say here that we
+  don't expect Dropout to work here ? I could write an entire paragraph about it
+  if needed}. In this case for the \textit{Static Networks}, we sample
+independently sizes of the three different layers to explore all possible
+architectures.
+
+\gl{Todo for me: explain how I select the best epoch to get rid of the outliers}
+
+\subsection{Intepretation of the result of random search}
+
+\gl{TODO draw conclusions from the plots}:
+\begin{itemize}
+  \item Pareto frontier better or as good, even when we sample the entire search
+    space
+  \item Static NEts are much more spread in terms of size for a given accuracy
+    while shrinknets are smarter and always lie close to the frontier (I am
+    changing the way I select the best epoch so the outliers in the COVER
+    dataset will go away in the next version of the plot)
+  \item We reach as good or better accuracies than normal networks
+\end{itemize}
 
 
 \subsection{Benefits of smaller sizes}
 
 We showed in the previous section that \textit{ShrinkNets} were able to find
 more or at least as efficient as \textit{Static Networks}. In this experiment we
-want to determine the perf
+want to determine benefits of the smaller size we get.
+
+For some applications, the absolute best accuracy is not something desirable if
+it implies having enormous models. This observation motivates our methodology:
+for a given target accuracy that you want your model to achieve, we pick the
+smallest that satisfy the constraint. For both \textit{ShrinkNets} and
+\textit{Static Networks} we measure multiple metrics and compute the ratio
+between the two. The metrics are interested in are: the final model size (in
+number of parameters) and inference speed on CPU and GPU for small batch sizes
+($1$ input) and large batch sizes (depend on the dataset and hardware).
 
 
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions}
