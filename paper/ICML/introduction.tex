@@ -11,25 +11,27 @@ performance (model quality, inference time and model size)  are largely
 optimized separately today, often with suboptimal results.
 
 Of course, the problem of finding compressed or small networks is not new.
-Existing techniques to make a pre-trained neural network smaller can be categorized in two approaches: (1) quantization \cite{quant} and code compilation~\cite{ma2016compilation}, 
-techniques that can be applied blindly to any network, and (2) techniches which analyze the
-structure of the network and systematically prune
-connections or neurons~\cite{han2015deepcompression,Cun}
-based on some loss function. While the first category is always useful, but only has limited 
-impact on the network size, the second category can reduce the model size much more but has several 
-drawbacks:   First, those techniques often negatively
-impact model quality.  Second, they can (surprisingly) negatively impact
-inference time as they transform dense matrix operations into sparse ones,
-which can be substantially slower to execute on modern hardware
-\cite{han2015deepcompression}, especially GPUs which do not efficiently support sparse
-linear algebra.  Third, these techniques generally start by optimizing a
+Existing techniques to make a pre-trained neural network smaller can be
+categorized in two approaches: (1) quantization \cite{quant} and code
+compilation~\cite{ma2016compilation}, techniques that can be applied blindly to
+any network, and (2) techniches which analyze the structure of the network and
+systematically prune connections or neurons~\cite{han2015deepcompression,Cun}
+based on some loss function. While the first category is always useful, but only
+has limited impact on the network size, the second category can reduce the model
+size much more but has several drawbacks:   First, those techniques often
+negatively impact model quality.  Second, they can (surprisingly) negatively
+impact inference time as they transform dense matrix operations into sparse
+ones, which can be substantially slower to execute on modern hardware
+\cite{han2015deepcompression}, especially GPUs which do not efficiently support
+sparse linear algebra.  Third, these techniques generally start by optimizing a
 particular architecture for prediction performance, and then, as a post-
-processing step, applying compression  to generate a smaller model that meets the
-resource constraints of the deployment setting.  Because the network
-architecture is essentially fixed during this post-processing,   model architectures
-that work better in small settings may be missed -- this is especially true in
-large networks like many-layered CNNs,  where it is infeasible to try explore
-even a small fraction of possible network configurations.
+processing step, applying compression  to generate a smaller model that meets
+the resource constraints of the deployment setting.  Because the network
+architecture is essentially fixed during this post-processing,   model
+architectures that work better in small settings may be missed -- this is
+especially true in large networks like many-layered CNNs,  where it is
+infeasible to try explore even a small fraction of possible network
+configurations.
 
 %I am still not super happy with the flow. Will work on it more. 
 
@@ -126,7 +128,7 @@ known neural network architectures. We show that with ShrinkNets for
 network while reducing the network size by a factor of $2.2x$. Further, when
 willing to sacrifice only $1$\% of performance, ShrinkNets finds networks which
 are 35\% smaller. All in all, this leads to speedups in inference time of up to
-40X. 
+6x. 
 
 %\item We demonstrate the efficacy of our technique on both convolutional and
 %fully-connected neural nets, showing that ShrinkNets finds networks within
