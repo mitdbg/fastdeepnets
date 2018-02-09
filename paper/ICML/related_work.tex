@@ -2,44 +2,72 @@
 \section{Related Work}
 
 \begin{itemize}
-  \item Other techniques for choosing network size (e.g., hyperparmeter optimization) -- manual effort vs optimal techniques -- people actually don't treat network size as a hyperparameter;  we do!  Also brute force techniques~\cite{nvidia-paper-xxx}
-  \item distillation techniques -- train a big net, then train a smaller net from it 
   \item post-training compression techniques -- brain damage , 
   \item group sparsity e.g., \cite{Scardapane2017} and non-parametric neural networks -- 
   \item training dynamics paper: first overfitting and then randomization?, \gl{Here is the ref, if you can introduce it in the flow \cite{Shwartz-Ziv2017}}
 \end{itemize}
 
-Given the importance of network structure, many techniques have been proposed
-to find the best network structure for a given learning task.  These techniques
-broadly fall into four categories: hyperparameter optimization strategies,
-post-training model compression for inference as well as model simplification,
-techniques to resize models during training, and automated architecture search
-methods.
+Given the importance of network structure, many researchers have explored the
+problem of finding the best network structure for a given learning task.  
+The proposed techniques broadly fall into five categories: 
+random search andbrute force search,
+hyperparameter optimization,
+model compression after training,
+resizing models during training, and 
+automated architecture search methods.
 
 The most popular techniques for hyperparameter optimization include simple
 methods such as random search~\cite{BergstraJAMESBERGSTRA2012} which have been
 shown to work suprisingly well compared to more complex methods such as those
-based on Bayesian optimization~\cite{Snoek12}.  Techniques such
-as~\cite{Snoek12} model generalization performance via Gaussian
+based on Bayesian optimization~\cite{Snoek12}.
+Brute force search of network sizes is also become more practical due to faster
+and more powerful hardware~\cite{molchanov2016pruning}.
+The more complex methods for hyperparameter optimization include techniques 
+such as~\cite{Snoek12} which model generalization performance via Gaussian
 Processes~\cite{GaussianProcesses} and select hyperparameter combinations that
-come from uncertain areas of the hyperparameter space.  Recently, methods based
+come from uncertain areas of the hyperparameter space.  
+Recently, methods based
 on bandit algorithms (e.g. ~\cite{li2016hyperband, jamieson2016}) have also
-become a popular way to tune hyperparameters.  As noted before, all of the
+become a popular way to tune hyperparameters.
+As noted before, all of the
 above techniques require many tens to hundreds of models to be trained, making
 this process computationally inefficient and slow.
+More practically, the hyperparameter optimization literature does not evaluate
+their methods on network size and instead focuses on optimization hyperparameters
+such as learning rates and weight decay parameters.
 
-In contrast with hyperparameter tuning methods, some methods such as
-DeepCompression~\cite{han2015deepcompression} seek to compress the network to
-make inference more efficient.  This is accomplished by pruning connections and
-quantizing weights.  On similar lines, multiple techniques such
-as~\cite{romero2014fitnets, hinton2015distilling} have been proposed for
-distilling a network into a simpler network or a different model.  Unlike our
+In contrast with size search techniques, there are techniques that 
+reduce network size {\it once the network has been traiend}.
+Popular techniques in this class include optimal brain damage~\cite{Cun} and
+compression techniques such as DeepCompression~\cite{han2015deepcompression}.
+Optimal brain damage identifies connections in a network that are unimportant
+and then prunes these connections.
+DeepCompression takes this one step further and in addition to pruning connections,
+it quantizes weights to make inference extremely efficient.
+% In contrast with hyperparameter tuning methods, some methods such as
+% DeepCompression~\cite{han2015deepcompression} seek to compress the network to
+% make inference more efficient.  This is accomplished by pruning connections and
+% quantizing weights.  
+A different vein of work such as ~\cite{romero2014fitnets, hinton2015distilling}
+proposes techniques for distilling a network into a simpler network or 
+a different model.  Unlike our
 technique which works during training, these techiques are used after training
-and it would be interesting to apply them to ShrinkNets as well. \cite{Abadi2016b} share the common goal of removing entire blocks of parameter to maintain dense matrices, however their method only applies to convolutional layers.
+and it would be interesting to apply them to ShrinkNets as well. 
+\cite{Abadi2016b} share the common goal of removing entire blocks of parameter to maintain dense matrices, however their method only applies to convolutional layers.
 
-The techniques closed to our work are those based on group sparsity such as
-~\cite{Scardapane2017}, and those like ~\cite{Philipp} who grow and shrink
+The techniques closest to our proposed method are those based on group sparsity 
+such as ~\cite{Scardapane2017}, and those like~\cite{Philipp} who grow and shrink
 dynamically the size of the network during training.
+
+\cite{Scardapane2017} presents a method that also deactivates neurons using a 
+loss function based on group-sparsity.
+However, the exact details of how their method works are not given, and 
+their experimental results (on a small, fully connected network), 
+are substantially worse than ours as shown in Section~\ref{sec:experiments}.
+~\cite{Philipp} propose a method called Adaptive Radial-Angular Gradient Descent
+that adds neurons on the fly and removes neurons via an $l_2$ penalty.
+However, this approach requires a new optimizer and takes longer to converge 
+compared to ShrinkNets.
 
 Finally, there has also been recent work in automatically learning model
 architecture through the use of genetic algorithms and reinforcement learning
