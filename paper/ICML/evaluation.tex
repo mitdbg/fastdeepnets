@@ -111,7 +111,16 @@ smallest that satisfy the constraint. For both \textit{ShrinkNets} and
 \textit{Static Networks} we measure multiple metrics and compute the ratio
 between the two. The metrics are interested in are: the final model size (in
 number of parameters) and inference speed on CPU and GPU for small batch sizes
-($1$ input) and large batch sizes (depend on the dataset and hardware).
+($1$ input) and large batch sizes (depend on the dataset and hardware). Results
+are shown on \cref{figure_CIFAR10} and \cref{figure_COVER} after the
+distribution of sizes and accuracy. We limit our plot to the ($80-100\%$
+accuracy range because we consider that models with lower accuracy have less
+practical use).
+
+Regarding size, the key observation we can make is that size improvenets are
+significant for 
+
+
 
 
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions}
@@ -169,7 +178,6 @@ One could consider it as a "theoretical lower bound" of the best achievable loss
 
 We picked multiple combinations of dataset and regularization parameters ($\lambda$) and for each we fit with different aggressiveness parameters ($\gamma$). We measure the loss after convergence and the total cost and report the result in \cref{neuron_removal_figure}. In order to reduce the noise in the result, each experiment was performed $30$ times and we display the range arround $\pm$ $1$ standard deviation.
 
-\textbf{TODO: Interpret the results}
 \begin{figure}
 \begin{center}
 \includegraphics[width=\columnwidth]{neuron_removal}
@@ -194,10 +202,23 @@ search over the hyper-parameters the \texttt{CIFAR10} dataset}
 \begin{center}
 \includegraphics[width=\columnwidth]{COVER_FC_summary}
 \vspace*{-5mm}
-\caption{COVER}
+\caption{\label{figure_COVER} Summary of the result of random
+search over the hyper-parameters the \texttt{COVERTYPE} dataset}
 \end{center}
 \vspace*{-4mm}
 \end{figure}
 
 
-\section{Speeding up training with pruning}
+\section{Architectures obtained after convergence}
+
+We sucessfully demonstrated that the architecture \textit{Shrinknets} converge
+to make sense both in term of size and performance. And for a given accuracy the
+size needed is significantly smaller than when we use the classic heursitc we
+commonly use to size convolutional neural networks. It might be an indication
+that this strategy is suboptimal and might need to be adjusted. During our
+experimentations on simpler datasets like \texttt{MNIST} and
+\texttt{FashionMNIST} we observed that even if they have the same number of
+classes, input features, and output distribution. For a fixed $\lambda$
+\textit{ShrinkNets} converged to considerably bigger networks in the case of
+\texttt{FashionMNIST}.
+take a look closer to the architectures \textit{ShrinkNets} converge to
