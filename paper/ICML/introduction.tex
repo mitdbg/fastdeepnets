@@ -10,7 +10,7 @@ accuracy when assessing model quality.  However, these three dimensions of
 performance (prediction accuracy, inference time and model size) are largely
 optimized independently, often with suboptimal results.
 
-Of course, the problem of finding compressed or small networks is not new.
+Of course, the problem of finding faster and smaller networks is not new.
 Existing techniques to make a pre-trained neural network smaller can be
 categorized in two approaches: (1) quantization \cite{Jouppi:2017:IPA:3079856.3080246} and code
 compilation, techniques that can be applied blindly to
@@ -19,7 +19,7 @@ systematically prune connections or neurons~\cite{han2015deepcompression,Cun}.
 While the first category is always useful, but only
 has limited impact on the network size, the second category can reduce the model
 size much more but has several drawbacks:   First, those techniques often
-negatively impact model quality.  Second, they can (surprisingly) negatively
+negatively impact model quality.  Second, they can also (surprisingly) negatively
 impact inference time as they transform dense matrix operations into sparse
 ones, which can be substantially slower to execute on GPUs which do not support
 efficiently sparse linear algebra\cite{han2015deepcompression}. 
