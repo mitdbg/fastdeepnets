@@ -1,5 +1,5 @@
 from matplotlib import rc, use
-use('agg')
+# use('agg')
 rc('font',**{'family':'serif','serif':['Palatino']})
 rc('text', usetex=True)
 import torch
@@ -9,9 +9,13 @@ import numpy as np
 from glob import glob
 from paper.ICML.models.VGG import cfg
 from algorithms.expectation_random_permutation import max_expectation
+
+theirs = np.array([x for x  in[64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'] if x is not 'M'])
 configs = {
     'COVER_FC': {
         'ymin': 0.5,
+        's_range': (0.7, 10),
+        'ref': (3440, 0.83),
         'cpu': {
             'warmup': 50,
             'rep': 500,
@@ -25,6 +29,7 @@ configs = {
     },
     'CIFAR10_VGG': {
         'ymin': 0.4,
+        's_range': (0.8, 6),
         'cpu': {
             'warmup': 1,
             'rep': 10,
@@ -65,7 +70,7 @@ def load_files(prefix, mode):
     return result
 
 def get_best_entry(logs):
-    vac = logs[logs.measure == 'val_acc']
+    vac = logs[logs.measure == 'val_acc'].ix[int(len(logs) / 2):]
     return logs[logs.epoch == vac.ix[vac['value'].argmax()].epoch]
 
 def get_final_measure(log, measure='test_acc'):
@@ -158,6 +163,8 @@ def summarize_experiment(prefix):
     r1 = np.array([generate_stats(x) for x in load_files(prefix, 'DYNAMIC')])
     dynamics = pd.DataFrame(r1, columns=columns[:r1.shape[1]])
     statics = pd.DataFrame([generate_stats(x) for x in load_files(prefix, 'STATIC')], columns=columns[:r1.shape[1]])
+    if prefix == 'COVER_FC':
+        dynamics = dynamics[dynamics.factor == 3]
     return dynamics, statics
 
 def plot_comparable(ax, dyn, dynamic_pareto, static, metric='size'):
@@ -171,12 +178,12 @@ def plot_comparable(ax, dyn, dynamic_pareto, static, metric='size'):
     ax.plot(r[:, 0], r[:, 1], label='%s improvement' % metric, color='black')
 
 
-def plot_size_accuracy_component(ax, dataset, color, label):
+def plot_size_accuracy_component(ax, dataset, color, label, marker=None):
     M = dataset[['test_acc', 'size']].as_matrix()
     pareto = M[is_pareto_efficient(M * np.array([-1, 1]))]
     pareto.sort(axis=0)
     ax.plot(pareto[:, 1], pareto[:, 0], c=color, label="%s Pareto front" % label)
-    ax.scatter(dataset['size'], dataset['test_acc'], c=color, label="%s model" % label, alpha=0.3)
+    ax.scatter(dataset['size'], dataset['test_acc'], c=color, label="%s model" % label, alpha=0.3, marker=marker)
     return pareto
 
 def plot_all(dyn, sta, dataset):
@@ -185,7 +192,7 @@ def plot_all(dyn, sta, dataset):
     ax1 = plt.subplot2grid((5, 2), (0, 0), colspan=2, rowspan=2) 
     ax1.set_xlabel('Size (floating point parameters)')
     ax1.set_ylabel('Accuracy')
-    ax1.set_title('Result of hyper-parameter optimization')
+    ax1.set_title('Distribution of models by size and accuracy')
     ax2 = plt.subplot2grid((5, 2), (2, 0), colspan=2)
     ax2.set_title('Size benefits')
     ax2.set_ylabel('Compression factor')
@@ -198,9 +205,12 @@ def plot_all(dyn, sta, dataset):
     ax6 = plt.subplot2grid((5, 2), (4, 1))
     ax6.set_title('GPU speedup ($bs=%s$)' % conf['gpu']['large_batches'])
     ax1.set_xscale('log')
+    plt.subplots_adjust(wspace=0.0, hspace=0.0)
     dyn_pareto = plot_size_accuracy_component(ax1, dyn, 'C0', 'ShrinkNets')
-    plot_size_accuracy_component(ax1, sta, 'C1', 'Static')
-    ax1.legend(loc='lower right')
+    plot_size_accuracy_component(ax1, sta, 'C1', 'Static', marker='^')
+    if 'ref' in conf:
+        ax1.scatter([conf['ref'][0]], [conf['ref'][1]], marker='*', label='Result from Scardapane', color='C4')
+    ax1.legend(loc='lower right', framealpha=0.5)
     plot_comparable(ax2, dyn, dyn_pareto, sta, 'size')
     plot_comparable(ax3, dyn, dyn_pareto, sta, 'bench_cpu_small')
     plot_comparable(ax4, dyn, dyn_pareto, sta, 'bench_cpu_big')
@@ -213,10 +223,65 @@ def plot_all(dyn, sta, dataset):
     for ax in [ax2, ax3, ax4, ax5, ax6]:
         ax.set_xlim(0.8)
     ax1.set_ylim(ymin=conf['ymin'])
+    ax2.set_ylim(ymax=40)
+    ax2.set_xlabel('Desired accuracy')
+
+    for ax in [ax3, ax4, ax5, ax6]:
+        ax.set_ylabel('Speedup')
+        ax.set_ylim(conf['s_range'])
 
     f = plt.gcf()
     f.set_size_inches((5, 10))
     plt.tight_layout()
     plt.savefig('%s_summary.pdf' % dataset, bbox_inches='tight', pad_inches=0)
+
+def select_models(dynamic):
+    results = [(i, get_final_measure(x[2].logs, 'test_acc')) for i, x in enumerate(dynamic)]
+    best = max(results, key=lambda x: x[1])[0]
+    best= dynamic[best][2].logs
+    rr = np.array([x[1] for x in results])
+    good = np.abs(rr - 0.905).argmin()
+    print(rr[good])
+    return best,dynamic[good][2].logs
+
+def get_size_at_epoch(log, epoch):
+    l = log[log.epoch == epoch]
+    sizes = []
+    i = 1
+    while True:
+        try:
+            t = int(l[l.measure == 'size_%s' % i].value)
+            sizes.append(t)
+            i += 1
+        except:
+            break
+    return sizes[:-2]
+
+def plot_shape(ax, log, steps=8):
+    max_epoch = get_final_measure(log, 'epoch')
+    selected = np.linspace(1, max_epoch, steps).astype(int)
+    for epoch in selected:
+        if epoch == 1:
+            sizes = theirs * 2
+        else:
+            sizes = get_size_at_epoch(log, epoch)
+        r = list(range(1, len(sizes) + 1))
+        ax.fill_between(r, sizes, alpha=0.1, color='C0')
+    last_sizes = get_size_at_epoch(log, max_epoch)
+    ax.plot(r, last_sizes, label='Final size')
+    ax.plot(r, theirs, ':', color='black', label='original VGG size')
+
+def plot_shapes(dynamic):
+    best, good = select_models(dynamic)
+    fig, lines = plt.subplots(2, 1, sharex=True)
+    plt.subplots_adjust(wspace=0.05, hspace=0.05)
+    plot_shape(lines[0], best)
+    plot_shape(lines[1], good)
+    for ax in lines:
+        ax.set_ylabel('\\#Convolution kernels')
+    lines[1].set_xlabel('Layer')
+    lines[1].legend(loc='upper left')
+    fig.set_size_inches((5, 7))
+    plt.savefig('size_evolution.pdf', bbox_inches='tight', pad_inches=0)
 
 

@@ -1,7 +1,21 @@
 \section{Discussion}
 
+\gl{Did not have time to write it but added some pointers}
+
 \begin{itemize}
-  \item Where does the method shine?
-  \item Side-effects of method: smaller networks, time to train
-  \item Potential extensions/limitations
+  \item Where does the method shine:  We shine where there are too many layers
+    To explore the network size and we have to rely on heuristics. It shines by
+    it simplicity compared to other methods \gl{Do we want to talk about the
+      number of lines of codes ?}. Prunning while we train, from the compression
+    results seem to be benificial to prune while training to achieve very good
+    compression.
+  \item Side-effects of method: smaller networks, time to train. There is not
+    significant difference in training time, mostly because the filter layer is
+    not optimized. However we can say the convergence speed is improved. For
+    example for \texttt{CIFAR10} the mean number of epoch to reach the best is $62.5$ for \textit{ShrinkNets} vs $68.4$ for normal networks. for \texttt{COVERTYPE}
+    the numbers are respectively $117.9$ and $130$.
+  \item Potential extensions/limitations: We could add a filter that learn the
+    size of convolutions for convolution layers. Supporting Residual Network
+    would allow us to support more architecture. We could also try to mix try to
+    learn the number of layers such is described in~\cite{meier}
 \end{itemize}

@@ -5,6 +5,7 @@
 % Recommended, but optional, packages for figures and better typesetting:
 \usepackage{microtype}
 \usepackage{graphicx}
+\usepackage{placeins}
 \usepackage{hyperref}
 \usepackage{cleveref}
 \usepackage{bm}
@@ -29,6 +30,7 @@
 \newcommand{\diag}[1]{\text{diag}\left(#1\right)}
 \newcommand{\intint}[1]{\left\llbracket#1\right\rrbracket}
 \newtheorem{proposition}{Proposition}[section]
+
 
 % Use the following line for the initial blind version submitted for review:
 \usepackage{icml2018}
@@ -100,8 +102,8 @@
   Let's write the abstract at the end
 \end{abstract}
 
-\section{Tentative outline}
-
+%\section{Tentative outline}
+%
 % \begin{itemize}
   % \item We want to figure out what is the proper network size
   % \item If we had a oversized network and for each neuron we would have an on/off switch, we could optimize the state of each switch to achieve any size/accuracy tradeof (we can prove that, do we care ?)
@@ -129,54 +131,55 @@
 % \end{itemize}
 
 % \section{Outline2}
-\begin{itemize}
-  \item Introduction
-  \begin{itemize}
-    \item Finding an appropriately sized network is challenging
-    \item ML practitioners spend a large amount of time tuning the size of layers
-    in a network in order to get the best possible accuracy.
-    \item Many techniques have been proposed for hyperparam opt but these
-    are computationally expensive and take long to train
-    \item We propose ShrinkNets, an approach to tune the size of the network 
-    as it is being trained without incurring the significant costs of 
-    hyperparameter optimization. 
-    \item Thus, our contribution are: ...
-  \end{itemize}
-  \item Our Approach
-  \begin{itemize}
-    \item Assign an on/off switch to each neuron. But this is np-hard, so we
-    consider a relaxation
-    \item Formulation
-    \item Relationship to sparsity
-    \item Strategies to kill neurons (relation to theory above?)
-    \item Implementation details
-  \end{itemize}
-  \item Related Work
-  \begin{itemize}
-    \item Hyperparameter optimization: random, bayesian opt, bandit methods
-    \item distillation techniques
-    \item post-training compression techniques
-    \item group sparsity, non-parametric neural networks
-    \item training dynamics paper: first overfitting and then randomization?
-  \end{itemize}
-  \item Experiments
-  \begin{itemize}
-    \item Accuracy obtained by Shrinknets
-    \item Time taken to reach that accuracy compared with other hyperopt methods
-    \item Characterize method wrt params
-    \item Other experiments
-  \end{itemize}
-  \item Discussion
-  \begin{itemize}
-    \item Where does the method shine?
-    \item Side-effects of method: smaller networks, time to train
-    \item Potential extensions/limitations
-  \end{itemize}
-  \item Conclusion
-\end{itemize}
+%\begin{itemize}
+%  \item Introduction
+%  \begin{itemize}
+%    \item Finding an appropriately sized network is challenging
+%    \item ML practitioners spend a large amount of time tuning the size of layers
+%    in a network in order to get the best possible accuracy.
+%    \item Many techniques have been proposed for hyperparam opt but these
+%    are computationally expensive and take long to train
+%    \item We propose ShrinkNets, an approach to tune the size of the network 
+%    as it is being trained without incurring the significant costs of 
+%    hyperparameter optimization. 
+%    \item Thus, our contribution are: ...
+%  \end{itemize}
+%  \item Our Approach
+%  \begin{itemize}
+%    \item Assign an on/off switch to each neuron. But this is np-hard, so we
+%    consider a relaxation
+%    \item Formulation
+%    \item Relationship to sparsity
+%    \item Strategies to kill neurons (relation to theory above?)
+%    \item Implementation details
+%  \end{itemize}
+%  \item Related Work
+%  \begin{itemize}
+%    \item Hyperparameter optimization: random, bayesian opt, bandit methods
+%    \item distillation techniques
+%    \item post-training compression techniques
+%    \item group sparsity, non-parametric neural networks
+%    \item training dynamics paper: first overfitting and then randomization?
+%  \end{itemize}
+%  \item Experiments
+%  \begin{itemize}
+%    \item Accuracy obtained by Shrinknets
+%    \item Time taken to reach that accuracy compared with other hyperopt methods
+%    \item Characterize method wrt params
+%    \item Other experiments
+%  \end{itemize}
+%  \item Discussion
+%  \begin{itemize}
+%    \item Where does the method shine?
+%    \item Side-effects of method: smaller networks, time to train
+%    \item Potential extensions/limitations
+%  \end{itemize}
+%  \item Conclusion
+%\end{itemize}
 
 \input{introduction}
 \input{approach}
+\input{impl}
 \input{evaluation}
 \input{related_work}
 \input{discussion}
@@ -184,14 +187,15 @@
 
 \appendix
 \input{appendix}
+\FloatBarrier
 
 
 % In the unusual situation where you want a paper to appear in the
 % references without citing it in the main text, use \nocite
 \nocite{OpenML2013}
 
-\bibliography{custom}
 \bibliographystyle{icml2018}
+\bibliography{custom,general}
 
 
 

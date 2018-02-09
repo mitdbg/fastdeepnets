@@ -1,9 +1,71 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{32}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abadi et~al.(2016)Abadi, Barham, Chen, Chen, Davis, Dean, Devin,
+  Ghemawat, Irving, Isard, Kudlur, Levenberg, Monga, Moore, Murray, Steiner,
+  Tucker, Vasudevan, Warden, Wicke, Yu, Zheng, Brain, Osdi, Barham, Chen, Chen,
+  Davis, Dean, Devin, Ghemawat, Irving, Isard, Kudlur, Levenberg, Monga, Moore,
+  Murray, Steiner, Tucker, Vasudevan, Warden, Wicke, Yu, and Zheng]{Abadi2016b}
+Abadi, Mart{\'{i}}n, Barham, Paul, Chen, Jianmin, Chen, Zhifeng, Davis, Andy,
+  Dean, Jeffrey, Devin, Matthieu, Ghemawat, Sanjay, Irving, Geoffrey, Isard,
+  Michael, Kudlur, Manjunath, Levenberg, Josh, Monga, Rajat, Moore, Sherry,
+  Murray, Derek~G, Steiner, Benoit, Tucker, Paul, Vasudevan, Vijay, Warden,
+  Pete, Wicke, Martin, Yu, Yuan, Zheng, Xiaoqiang, Brain, Google, Osdi,
+  Implementation, Barham, Paul, Chen, Jianmin, Chen, Zhifeng, Davis, Andy,
+  Dean, Jeffrey, Devin, Matthieu, Ghemawat, Sanjay, Irving, Geoffrey, Isard,
+  Michael, Kudlur, Manjunath, Levenberg, Josh, Monga, Rajat, Moore, Sherry,
+  Murray, Derek~G, Steiner, Benoit, Tucker, Paul, Vasudevan, Vijay, Warden,
+  Pete, Wicke, Martin, Yu, Yuan, and Zheng, Xiaoqiang.
+\newblock {TensorFlow : A System for Large-Scale Machine Learning}.
+\newblock In \emph{OSDI}, 2016.
+\newblock ISBN 9781931971331.
+
+\bibitem[Aghasi et~al.(2016)Aghasi, Abdi, Nguyen, and Romberg]{Aghasi2016}
+Aghasi, Alireza, Abdi, Afshin, Nguyen, Nam, and Romberg, Justin.
+\newblock {Net-Trim: Convex Pruning of Deep Neural Networks with Performance
+  Guarantee}.
+\newblock 2016.
+\newblock URL
+  \url{https://papers.nips.cc/paper/6910-net-trim-convex-pruning-of-deep-neural-networks-with-performance-guarantee.pdf
+  http://arxiv.org/abs/1611.05162}.
+
+\bibitem[Bergstra \& Yoshua(2012)Bergstra and
+  Yoshua]{BergstraJAMESBERGSTRA2012}
+Bergstra, James and Yoshua, Bengio.
+\newblock {Random Search for Hyper-Parameter Optimization}.
+\newblock \emph{Journal of Machine Learning Research}, 13:\penalty0 281--305,
+  2012.
+\newblock ISSN 1532-4435.
+\newblock \doi{10.1162/153244303322533223}.
+\newblock URL
+  \url{http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf}.
+
+\bibitem[Blackard(1998)]{Blackard:1998:CNN:928509}
+Blackard, Jock~A.
+\newblock \emph{Comparison of Neural Networks and Discriminant Analysis in
+  Predicting Forest Cover Types}.
+\newblock PhD thesis, Fort Collins, CO, USA, 1998.
+\newblock AAI9921979.
+
+\bibitem[Cun et~al.(1990)Cun, Denker, and Solla]{Cun}
+Cun, Yann~Le, Denker, John~S, and Solla, Sara~a.
+\newblock {Optimal Brain Damage}.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2\penalty0
+  (1):\penalty0 598--605, 1990.
+\newblock ISSN 1098-6596.
+\newblock \doi{10.1.1.32.7223}.
+\newblock URL \url{https://papers.nips.cc/paper/250-optimal-brain-damage.pdf}.
+
+\bibitem[Guyon et~al.(2007)Guyon, Saffari, Dror, and Cawley]{4371065}
+Guyon, I., Saffari, A., Dror, G., and Cawley, G.
+\newblock Agnostic learning vs. prior knowledge challenge.
+\newblock In \emph{2007 International Joint Conference on Neural Networks},
+  pp.\  829--834, Aug 2007.
+\newblock \doi{10.1109/IJCNN.2007.4371065}.
 
 \bibitem[Han et~al.(2015)Han, Mao, and Dally]{han2015deepcompression}
 Han, Song, Mao, Huizi, and Dally, William~J.
@@ -16,12 +78,45 @@ Hinton, Geoffrey, Vinyals, Oriol, and Dean, Jeff.
 \newblock Distilling the knowledge in a neural network.
 \newblock \emph{arXiv preprint arXiv:1503.02531}, 2015.
 
+\bibitem[Ioffe \& Szegedy(2015)Ioffe and Szegedy]{DBLP:journals/corr/IoffeS15}
+Ioffe, Sergey and Szegedy, Christian.
+\newblock Batch normalization: Accelerating deep network training by reducing
+  internal covariate shift.
+\newblock \emph{CoRR}, abs/1502.03167, 2015.
+\newblock URL \url{http://arxiv.org/abs/1502.03167}.
+
 \bibitem[Jamieson \& Talwalkar(2016)Jamieson and Talwalkar]{jamieson2016}
 Jamieson, Kevin and Talwalkar, Ameet.
 \newblock Non-stochastic best arm identification and hyperparameter
   optimization.
 \newblock In \emph{Artificial Intelligence and Statistics}, pp.\  240--248,
   2016.
+
+\bibitem[Kingma \& Ba(2014)Kingma and Ba]{DBLP:journals/corr/KingmaB14}
+Kingma, Diederik~P. and Ba, Jimmy.
+\newblock Adam: {A} method for stochastic optimization.
+\newblock \emph{CoRR}, abs/1412.6980, 2014.
+\newblock URL \url{http://arxiv.org/abs/1412.6980}.
+
+\bibitem[Krizhevsky(2009)]{Krizhevsky2009}
+Krizhevsky, Alex.
+\newblock {Learning Multiple Layers of Features from Tiny Images}.
+\newblock \emph{{\ldots} Science Department, University of Toronto, Tech.
+  {\ldots}}, pp.\  1--60, 2009.
+\newblock ISSN 1098-6596.
+\newblock \doi{10.1.1.222.9220}.
+\newblock URL
+  \url{https://www.cs.toronto.edu/{~}kriz/learning-features-2009-TR.pdf
+  http://scholar.google.com/scholar?hl=en{\&}btnG=Search{\&}q=intitle:Learning+Multiple+Layers+of+Features+from+Tiny+Images{\#}0}.
+
+\bibitem[LeCun et~al.(2001)LeCun, Bottou, Bengio, and Haffner]{Lecun1998}
+LeCun, Y, Bottou, L, Bengio, Yoshua, and Haffner, P.
+\newblock {Gradient-Based Learning Applied to Document Recognition}.
+\newblock In \emph{Intelligent Signal Processing}, pp.\  306--351, 2001.
+\newblock ISBN 0018-9219.
+\newblock \doi{10.1109/5.726791}.
+\newblock URL
+  \url{http://vision.stanford.edu/cs598{\_}spring07/papers/Lecun98.pdf}.
 
 \bibitem[Li et~al.(2016)Li, Jamieson, DeSalvo, Rostamizadeh, and
   Talwalkar]{li2016hyperband}
@@ -30,6 +125,37 @@ Li, Lisha, Jamieson, Kevin, DeSalvo, Giulia, Rostamizadeh, Afshin, and
 \newblock Hyperband: A novel bandit-based approach to hyperparameter
   optimization.
 \newblock \emph{arXiv preprint arXiv:1603.06560}, 2016.
+
+\bibitem[Meier()]{meier}
+Meier, Benjamin.
+\newblock Going deeper: Infinite deep neural networks.
+\newblock URL
+  \url{https://github.com/kutoga/going_deeper/raw/master/doc/going_deeper.pdf}.
+
+\bibitem[Nair \& Hinton(2010)Nair and Hinton]{Nair2010}
+Nair, Vinod and Hinton, Geoffrey~E.
+\newblock {Rectified Linear Units Improve Restricted Boltzmann Machines}.
+\newblock \emph{Proceedings of the 27th International Conference on Machine
+  Learning}, \penalty0 (3):\penalty0 807--814, 2010.
+\newblock ISSN 1935-8237.
+\newblock \doi{10.1.1.165.6419}.
+\newblock URL \url{http://www.cs.toronto.edu/{~}fritz/absps/reluICML.pdf}.
+
+\bibitem[Paszke et~al.(2017)Paszke, Gross, Chintala, Chanan, Yang, DeVito, Lin,
+  Desmaison, Antiga, and Lerer]{paszke2017automatic}
+Paszke, Adam, Gross, Sam, Chintala, Soumith, Chanan, Gregory, Yang, Edward,
+  DeVito, Zachary, Lin, Zeming, Desmaison, Alban, Antiga, Luca, and Lerer,
+  Adam.
+\newblock Automatic differentiation in pytorch.
+\newblock 2017.
+
+\bibitem[Philipp \& Carbonell(2017)Philipp and Carbonell]{Philipp}
+Philipp, George and Carbonell, Jaime~G.
+\newblock {Nonparametric Neural Network}.
+\newblock In \emph{Proc. International Conference on Learning Representations},
+  number 2016, pp.\  1--27, 2017.
+\newblock URL \url{https://www.cs.cmu.edu/{~}jgc/publication/Nonparametric
+  Neural Networks.pdf https://openreview.net/pdf?id=BJK3Xasel}.
 
 \bibitem[Rasmussen \& Williams(2006)Rasmussen and Williams]{GaussianProcesses}
 Rasmussen, CE and Williams, CKI.
@@ -45,6 +171,32 @@ Romero, Adriana, Ballas, Nicolas, Kahou, Samira~Ebrahimi, Chassang, Antoine,
 \newblock Fitnets: Hints for thin deep nets.
 \newblock \emph{arXiv preprint arXiv:1412.6550}, 2014.
 
+\bibitem[Russakovsky et~al.(2015)Russakovsky, Deng, Su, Krause, Satheesh, Ma,
+  Huang, Karpathy, Khosla, Bernstein, Berg, and Fei-Fei]{ILSVRC15}
+Russakovsky, Olga, Deng, Jia, Su, Hao, Krause, Jonathan, Satheesh, Sanjeev, Ma,
+  Sean, Huang, Zhiheng, Karpathy, Andrej, Khosla, Aditya, Bernstein, Michael,
+  Berg, Alexander~C., and Fei-Fei, Li.
+\newblock {ImageNet Large Scale Visual Recognition Challenge}.
+\newblock \emph{International Journal of Computer Vision (IJCV)}, 115\penalty0
+  (3):\penalty0 211--252, 2015.
+\newblock \doi{10.1007/s11263-015-0816-y}.
+
+\bibitem[Scardapane et~al.(2017)Scardapane, Comminiello, Hussain, and
+  Uncini]{Scardapane2017}
+Scardapane, Simone, Comminiello, Danilo, Hussain, Amir, and Uncini, Aurelio.
+\newblock {Group sparse regularization for deep neural networks}.
+\newblock \emph{Neurocomputing}, 241:\penalty0 81--89, 2017.
+\newblock ISSN 18728286.
+\newblock \doi{10.1016/j.neucom.2017.02.029}.
+\newblock URL \url{https://arxiv.org/pdf/1607.00485.pdf}.
+
+\bibitem[Shwartz-Ziv \& Tishby(2017)Shwartz-Ziv and Tishby]{Shwartz-Ziv2017}
+Shwartz-Ziv, Ravid and Tishby, Naftali.
+\newblock {Opening the Black Box of Deep Neural Networks via Information}.
+\newblock \emph{arXiv}, pp.\  1--19, mar 2017.
+\newblock URL \url{http://arxiv.org/abs/1703.00810
+  https://arxiv.org/pdf/1703.00810.pdf{\%}0Ahttp://arxiv.org/abs/1703.00810}.
+
 \bibitem[Snoek et~al.(2012)Snoek, Larochelle, and Adams]{Snoek12}
 Snoek, Jasper, Larochelle, Hugo, and Adams, Ryan~P.
 \newblock Practical bayesian optimization of machine learning algorithms.
@@ -54,6 +206,28 @@ Snoek, Jasper, Larochelle, Hugo, and Adams, Ryan~P.
 \newblock URL
   \url{http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms.pdf}.
 
+\bibitem[Spyromitros-Xioufis et~al.(2016)Spyromitros-Xioufis, Tsoumakas,
+  Groves, and Vlahavas]{Spyromitros-Xioufis2016}
+Spyromitros-Xioufis, Eleftherios, Tsoumakas, Grigorios, Groves, William, and
+  Vlahavas, Ioannis.
+\newblock Multi-target regression via input space expansion: treating targets
+  as inputs.
+\newblock \emph{Machine Learning}, 104\penalty0 (1):\penalty0 55--98, 2016.
+\newblock ISSN 1573-0565.
+\newblock \doi{10.1007/s10994-016-5546-z}.
+\newblock URL \url{http://dx.doi.org/10.1007/s10994-016-5546-z}.
+
+\bibitem[Srivastava et~al.(2014)Srivastava, Hinton, Krizhevsky, Sutskever, and
+  Salakhutdinov]{Srivastava2014}
+Srivastava, Nitish, Hinton, Geoffrey, Krizhevsky, Alex, Sutskever, Ilya, and
+  Salakhutdinov, Ruslan.
+\newblock {Dropout: A Simple Way to Prevent Neural Networks from Overfitting}.
+\newblock \emph{Journal of Machine Learning Research}, 15:\penalty0 1929--1958,
+  2014.
+\newblock ISSN 15337928.
+\newblock \doi{10.1214/12-AOS1000}.
+\newblock URL \url{https://www.cs.toronto.edu/{~}hinton/absps/JMLRdropout.pdf}.
+
 \bibitem[Vanschoren et~al.(2013)Vanschoren, van Rijn, Bischl, and
   Torgo]{OpenML2013}
 Vanschoren, Joaquin, van Rijn, Jan~N., Bischl, Bernd, and Torgo, Luis.
@@ -61,6 +235,37 @@ Vanschoren, Joaquin, van Rijn, Jan~N., Bischl, Bernd, and Torgo, Luis.
 \newblock \emph{SIGKDD Explorations}, 15\penalty0 (2):\penalty0 49--60, 2013.
 \newblock \doi{10.1145/2641190.2641198}.
 \newblock URL \url{http://doi.acm.org/10.1145/2641190.2641198}.
+
+\bibitem[Vergara et~al.(2012)Vergara, Vembu, Ayhan, Ryan, Homer, and
+  Huerta]{VERGARA2012320}
+Vergara, Alexander, Vembu, Shankar, Ayhan, Tuba, Ryan, Margaret~A., Homer,
+  Margie~L., and Huerta, Ramón.
+\newblock Chemical gas sensor drift compensation using classifier ensembles.
+\newblock \emph{Sensors and Actuators B: Chemical}, 166-167:\penalty0 320 --
+  329, 2012.
+\newblock ISSN 0925-4005.
+\newblock \doi{https://doi.org/10.1016/j.snb.2012.01.074}.
+\newblock URL
+  \url{http://www.sciencedirect.com/science/article/pii/S0925400512002018}.
+
+\bibitem[Xiao et~al.(2017)Xiao, Rasul, and Vollgraf]{Xiao2017}
+Xiao, Han, Rasul, Kashif, and Vollgraf, Roland.
+\newblock {Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine
+  Learning Algorithms}.
+\newblock 2017.
+\newblock URL \url{https://arxiv.org/pdf/1708.07747.pdf
+  http://arxiv.org/abs/1708.07747}.
+
+\bibitem[Yuan \& Lin(2006)Yuan and Lin]{Yuan2006}
+Yuan, Ming and Lin, Yi.
+\newblock {Model selection and estimation in regression with grouped
+  variables}.
+\newblock \emph{Journal of the Royal Statistical Society. Series B: Statistical
+  Methodology}, 68\penalty0 (1):\penalty0 49--67, 2006.
+\newblock ISSN 13697412.
+\newblock \doi{10.1111/j.1467-9868.2005.00532.x}.
+\newblock URL
+  \url{http://pages.stat.wisc.edu/{~}myuan/papers/glasso.final.pdf}.
 
 \bibitem[Zoph \& Le(2016)Zoph and Le]{DBLP:journals/corr/ZophL16}
 Zoph, Barret and Le, Quoc~V.
