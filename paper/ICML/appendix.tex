@@ -1,6 +1,6 @@
 \section{Appendix}
 \subsection{Proofs}
-Unless specified, all the proofs consider the Multi-Target linear regression problem
+Unless stated explicitely, all the propositions consider the Multi-Target linear regression problem.
 \begin{proposition}
 \label{gps_equivalence}
   $\forall (n, p) \in \mathbb{N}_+^2, \bm{y} \in \mathbb{R}^{n}, \bm{x} \in \mathbb{R}^{p} \lambda \in \mathbb{R}$
@@ -8,20 +8,28 @@ Unless specified, all the proofs consider the Multi-Target linear regression pro
   \begin{align*}
     & \min_{\bf{A}} \norm{\bf{y} - \bf{A}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A^T\right)_j}_2 \\
      = &\min_{\bf{A'}, \bm{\beta}} \norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1 \\
-     & \text{s.t.} \forall j \in \intint{1, p}, \norm{\left(A'^T\right)_j}_2^2 = 1
+     & \text{s.t.} \forall j, 1 \leq j \leq p, \norm{\left(A'^T\right)_j}_2^2 = 1
   \end{align*}
 \end{proposition}
 
 \begin{proof}
+  we will split this proof in two different sections. the first one will
+  demonstrate that there is at least one global minimum. and the second
+  will show how to construct $2^k$ distinct solutions from a single global
+  minimum.
   In order to prove this statement we will show that for any solution $\bm{A}$ in the first problem, there exists a solution in the second with the exact same value, and vice-versa.
-We now assume we have a potential solution $\bm{A}$ for the first problem and we define $\bm{\beta}$ such that $\bm{\beta}_j = \norm{\left(\bm{A}^T\right)_j}_2^2$, and $\bm{A}' = \bm{A}\left(\diag{\bm{\beta}}\right)^{-1}$. It is easy to see that the constraint on $\bm{A}'$ is statisfied by construction. Now:
+  \\ \textbf{Part 1:} We assume we have a potential solution $\bm{A}$ for the first problem and we define $\bm{\beta}$ such that $\bm{\beta}_j = \norm{\left(\bm{A}^T\right)_j}_2^2$, and $\bm{A}' = \bm{A}\left(\diag{\bm{\beta}}\right)^{-1}$. It is easy to see that the constraint on $\bm{A}'$ is statisfied by construction. Now:
   \begin{align*}
     & \norm{\bf{y} - \bf{A}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A^T\right)_j}_2 \\
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A'^T\right)_j\beta_j}_2 \\
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \abs{\beta_j} \cdot 1\\
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
   \end{align*}
-  Assuming we take an $\bm{A}'$ that satisfy the constraint and a $\bm{\beta}$, we can define $\bm{A} = \bm{A'}\diag{\bm{\beta}}$. We can apply the same operations in reverse order and obtain an instance of the first problem with the same value. We can now see that the two problems must have the same minimum otherwise we would be able to construct a solution to the other with exact same value.
+  Which concludes the first part.
+  \\ \textbf{Part 2:} Assuming we take an $\bm{A}'$ that satisfy the constraint and a $\bm{\beta}$, we can define $\bm{A} = \bm{A'}\diag{\bm{\beta}}$. We can apply the same operations in reverse order and obtain an instance of the first problem with the same value.
+  \\ \textbf{Conclusion} There is no way these two problems have different minima,
+  because we are able to construct a solution to a problem from the solution
+  of the other while preserving the value of the objective.
 \end{proof}
 
 \begin{proposition}
@@ -31,7 +39,7 @@ We now assume we have a potential solution $\bm{A}$ for the first problem and we
 \end{equation*}
 is not convex in $\bm{A}$ and $\bm{\beta}$.
 \begin{proof}
-  To prove this we will take the simplest instance of the problem: with only scalars. We have $f(a, \beta) = \left(y - a\beta x\right)^2$. For simplicty let's take $y = $ and $x > 0$. If we take two candidates $s_1 = (0, 2)$ and $s_2 = (2, 0)$, we have $f(s_1) = f(s_2) = 0$. However $f(\frac{2}{2}, \frac{2}{2}) = x > \frac{1}{2} f(0, 2) + \frac{1}{2}f(2, 0)$, which break the convexity property. Since we showed that a particular case of the problem is non-convex then necessarly the general cannot be convex.
+  To prove this we will take the simplest instance of the problem: where everything is a scalar. We have $f(a, \beta) = \left(y - a\beta x\right)^2$. For simplicty let's take $y = 0$ and $x > 0$. If we consider two candidates $s_1 = (0, 2)$ and $s_2 = (2, 0)$, we have $f(s_1) = f(s_2) = 0$. However $f(\frac{2}{2}, \frac{2}{2}) = x > \frac{1}{2} f(0, 2) + \frac{1}{2}f(2, 0)$, which break the convexity property. Since we showed that a particular case of the problem is non-convex then necessarly the general case cannot be convex.
 \end{proof}
 \end{proposition}
 
@@ -55,9 +63,12 @@ For this proposition we will not restrict ourselves to single layer but the comp
 \end{proposition}
 
 \begin{proof}
-First let's prove that there is at least one minimum to this problem. The two components of the expression are always positive so we know that this problem is bounded by below by $0$. Let's assume this function does not have a minimum. Then there is a sequence of parameters $(S_n)_{n>0}$ such that the function evaluated at that point convereges to the infimum of the problem. Since the function is defined everywhere does not have a minimum then this sequence must diverge. Since the entire sequence deverge the there is at least one individual parameter that diverges. First case, the parameter is a component $k$ of some $\bm{\beta_i}$ for some $i$. Necessarly $\norm{\bm{\beta_i}}_1$ diverge towards $+ \infty$, which is incompatible with the fact that $(S_n)$ converges to the infimum. We can have the exact same argument if the diverging parameter is in $\bm{A_i}$ or $\bm{b_i}$ because $p > 0$. Since there is always a contradiction then our assumption that the function has no global minimum must be false. Therefore, this problem has at least one global minimum.
-
-\par Let's consider one optimal solution of the problem. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ does not change the the first part of the objetive because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and are both global minimum. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
+  We will split this proof in two parts. First we will show that there is at least
+  one global minimum, then we will show how to construct $2^n - 1$ other distinct
+  solutions with the same objective.
+\\ \textbf{Part 1:}
+The two components of the expression are always positive so we know that this problem is bounded by below by $0$. $\Omega_{\lambda, \lambda_2, p}^{rs}$ is trivially coercive. Since we have a sum of terms, all bounded by below by $0$ and one of them is coercive, then the entire function admit at least one global minimum.
+\\ \textbf{Part 2:} Let's consider one global minimum. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ do not change the the first part of the objetive because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and by extension also global minimuma. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
 
 \end{proof}
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions experiments}
