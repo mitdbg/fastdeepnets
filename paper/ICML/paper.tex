@@ -38,6 +38,7 @@
 % Use the following line for the initial blind version submitted for review:
 \usepackage{icml2018}
 \newcommand{\srm}[1]{\textcolor{red}{{\bf Sam:} #1}}
+\newcommand{\tim}[1]{\textcolor{red}{{\bf Tim:} #1}}
 \newcommand{\ra}[1]{\textcolor{blue}{{\bf ra:} #1}}
 \newcommand{\gl}[1]{\textcolor{violet}{{\bf Gl:} #1}}
 \newcommand{\mpv}[1]{\textcolor{green}{{\bf MV:} #1}}
@@ -105,22 +106,23 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-As neural networks are being increasingly deployed in 
-different applications and on different hardware, it has
-become increasingly important to optimize inference time
-and model size along with model accuracy.
-Most current work optimizes model size, model accuracy and
-inference time in different stages and results in suboptimal
-results at the cost of computational inefficiency.
-In this work, we propose a new techique called ShrinkNets that
-optimizes all three of these metrics simultaneously by learning
-optimal network size at training time.
-Specifically our technique presents a new method to simultaneously optimize network size and model performance by neuron-level pruning.
-Neuron-level pruning not only produces much smaller 
-networks for a given accuracy threshold but also produces
-dense weight matrices that are efficient at inference time.
-By applying our technique to a variety of models with both convolutional and fully connected layers, we show that ShrinkNets can reduce XXX by YYY and ZZZ by AAA in only BBB amount of time.
-
+As neural networks are being increasingly deployed in different applications and
+on different hardware, it has become increasingly important to optimize
+inference time and model size along with model accuracy.  Most current work
+optimizes model size, model accuracy and inference time in different stages and
+results in suboptimal results at the cost of computational inefficiency.  In
+this work, we propose a new techique called ShrinkNets that optimizes all three
+of these metrics simultaneously by learning optimal network size at training
+time.  Specifically our technique presents a new method to simultaneously
+optimize network size and model performance by neuron-level pruning.
+Neuron-level pruning not only produces much smaller networks for a given
+accuracy threshold but also produces dense weight matrices that are efficient at
+inference time.  By applying our technique to a variety of models with both
+convolutional and fully connected layers, we show that ShrinkNets can reduce by
+35\% the network size with respect to a static network for \texttt{CIFAR10}, and
+it can achieve speedups during inference time of up to 40X. In addition, the
+most accurate networks found by ShrinkNets are similar or more accurate than
+those found by statically trained networks.  
 \end{abstract}
 
 %\section{Tentative outline}
