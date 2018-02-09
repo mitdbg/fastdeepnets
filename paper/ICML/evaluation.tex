@@ -1,114 +1,145 @@
 %!TEX root=paper.tex
 \section{Evaluation}
 
-The goal of our evaluation is to show two main properties of
-\textit{ShrinkNets}: they are exploring the space of possible sizes in a "smart"
-way, and that as a result we obtain the smaller or equal size than
-\textit{Static Networks}. We will then evaluate the performance benefits implied
-by these gains in size.
+The goal of our evaluation is to explore:
+\begin{itemize}
+	\item
+Whether, by varying $\lambda$, \textit{ShrinkNets} can efficiently explore (in terms of number of training runs)  the spectrum of high-accuracy models from small to large, on both CNNs and fully connected networks.  Our results show that, for each network size, we obtain models that perform as well or better than 
+\textit{Static Networks}, trained via traditional hyperparameter optimization.
 
-\subsection{Datasets and Setup}
+\item Whether, because these  smaller networks are dense, they result in improved inference times on both CPUs and GPUs.
+
+\item Whether the ShrinkNets approach results in network architectures that are substantially different than the best network architecutres (in terms of relative number of neurons per layered) identified in the literature.
+
+\item \srm{something else?}
+\end{itemize}
+
+\ra{add here the impl. thingy from s3, so we give the context of how we use
+shrinknets}
+
+\subsection{Performance vs. Traditional Methods}
+
+We evaluate ShrinkNets on two datasets:  \texttt{CIFAR10} and \texttt{COVERTYPE}.  In this section, we report how we employed ShrinkNets on these datasets and compare our results to 
+training without ShrinkNets.
 
 \subsubsection{\texttt{CIFAR10}}
 
-Previous attempt at solving this problem focus on simple datasets and simple
-architectures (limited to Fully connected). We believe that self-resizing
-network really matter for problems where the architecture you need to solve them
-involve so many layers that it is impractical to explore the space of possible
-sizes. We considered ImageNet \cite{ILSVRC15} but the time required to train models is so long
-that it would have not been possible to train enough and get statistically
-significant results. This is why we picked \texttt{CIFAR10} \cite{Krizhevsky2009}. It is an
+\ra{this is related work}Previous research~\cite{Scardapane2017} that attempts to optimize network size during training
+ focused on simple datasets and simple (i.e., fully connected)
+architectures. We believe that self-resizing
+network are most important for problems where the architecture 
+involves many layers, such that that it is impractical to explore the space of all possible
+layer-size configurations.\ra{until here} For that reason, we picked \texttt{CIFAR10} \cite{Krizhevsky2009}. It is an
 image classification dataset containing $60000$ color images $(3 \times 32
-\times 32)$, belonging to $10$ different classes.
-
-To solve this task we use the \texttt{VGG16} model \cite{Srivastava2014}. It is
-constituted of alternating convolutional layers and \textit{MaxPool} layers
+\times 32)$, belonging to $10$ different classes, running on  the \texttt{VGG16} network \cite{Srivastava2014}. VGG16
+consists of alternating convolutional layers and \textit{MaxPool} layers
 interleaved by \textit{BatchNorm} \cite{DBLP:journals/corr/IoffeS15} and
-\textit{ReLU} \cite{Nair2010}  layers. The two last layers are Fully connected
-layers separated by just a \textit{ReLU} activation function.
+\textit{ReLU} \cite{Nair2010}  layers. The two last layers are fully connected
+layers separated by a \textit{ReLU} activation function.
 
-To turn it into a ShrinkNet we introduce \textit{Switch Layers} after each
-\textit{BatchNorm} and each Fully connected (except the last one).
+\srm{keep this?}
+ Although ShrinkNets supports larger networks and datasets as well (i.e., ImageNet \cite{ILSVRC15}),  the time required to such train models and get statistically significant result was prohibitive -- especially when comparing against classical hyperparameter search over network architecture.  
 
-ShrinkNets assume that the starting size of the network is an upper bound on the
-optimal size. We though that picking two times the recommended size for each
-layer (that was designed for ImageNet), is a generous upper bound. For the
-classification layers we use $5000$ neurons as an upper bound where the ImageNet
-version uses $4096$ \gl{This is on the top of my head, need to be double checked}.
+
+We applied ShrinkNets to the VGG16 network by adding \textit{Switch Layers} after each
+\textit{BatchNorm} layer and each fully connected layer (except the last).
+Recall that ShrinkNets assume that the starting size of the network is an upper bound on the
+optimal size. For this reason, we simply started with a network with double the recommended size for each
+layer as an upper bound (this is larger than what ImageNet, for example uses). Thus, for the
+classification layers we use $5000$ neurons as a starting limit (ImageNet
+ uses $4096$ \gl{This is on the top of my head, need to be double checked}).
 
 We assume no prior knowledge on the optimal batch size, learning rate,
-$\lambda$ or weight decay ($\lambda_2$). This is why, we randomly sample them
-from a range of reasonable values (\gl{should we make them explicit ?}).
-Training is done using our library, based on \texttt{PyTorch} \cite{paszke2017automatic}, that
-support dynamically resized layers. We train the network using gradient descent
-and \textit{Adam} optimizer \cite{DBLP:journals/corr/KingmaB14}. We start with
-the learning rate sampled randomly and every $5$ epochs of non improvement in
+$\lambda$ or weight decay ($\lambda_2$). Instead, we trained a number of models,
+ randomly and independently selecting the values of these parameters 
+from a range of reasonable values (\gl{should we make them explicit ?} \srm{yes}).
+We trained using our modified \texttt{PyTorch} \cite{paszke2017automatic} library that
+supports dynamically resized layers (our code is available at \srm{add anonymized link}). Training is done using gradient descent and the
+ \textit{Adam} optimizer \cite{DBLP:journals/corr/KingmaB14}. Specifically, 
+ we start with
+the learning rate sampled randomly; for every $5$ epochs of non-improvement in
 validation accuracy we divide the learning rate by $10$. We stop training after
-$400$ epochs or when the learning rate is under $10^{-7}$ whichever comes
-first. \gl{Should I also give the details about the removal strategy we used
+$400$ epochs or when the learning rate is under $10^{-7}$, whichever comes
+first.  \gl{Should I also give the details about the removal strategy we used
   and the $\gamma$ and threshold I used ? because this is clearly getting
-  boring} For each of the models we trained, we pick the epoch with the best
+  boring} \srm{probably not necessary} 
+  For each of the models we trained, we pick the epoch with the best
 validation accuracy and report the corresponding testing accuracy. Because of
-the nature of our method, it can happen that for network that are aggressively
-compressed, the best validation accuracy is obtained early in the training,
+the nature of our method, it can happen that for networks that are aggressively
+compressed, the best validation accuracy is obtained early in  training,
 before the size has converged. To be sure that accuracy measured corresponds to
 the final shape and not the starting shape, we only consider the second half of
 the training when picking the best epoch. For each model, we also measure the
-total size, in number of floating point parameters, excluding the
-\textit{Switch Layers} because as we saw in \cref{neuron_killing}, we can
-get rid of them when training is done.
+total size, in terms of number of floating point parameters, excluding the
+\textit{Switch Layers} because as described in \cref{neuron_killing}, these are eliminated
+after training.
 
-We want to compare against classical (\textit{Static}) networks. The number of
-parameters that control the size is large: 13 for the size of convolutional
-layers and $2$ for the fully connected ones. Without Shrinknets to help and fuse
-all these parameters in a single $\lambda$ it is infeasible to sample reasonably
-well a search space of that size. This is why we have to rely on the very well
-known heuristic that the original VGG architecture (and many CNNs) \gl{try to
-  find the paper that introduces this heuristic}. For \textit{Static Networks}
-we sample the size between $0.1$ and $2$ times the size optimized for ImageNet.
+We compare against classical (\textit{Static}) networks. In such networks, the number of
+parameters that control the size is large: 13 parameters for the convolutional
+layers and $2$ for the fully connected layers. ShrinkNets effectively fuse
+all these parameters in a single $\lambda$, but in conventional architectures
+where all of these parameters are free, it is infeasible to obtain a reasonable
+sample of a search space of this size. For this reason, we rely on the conventional
+ heuristic that the original VGG architecture (and many CNNs) \gl{try to
+  find the paper that introduces this heuristic} user, where \srm{describe what the heuristic is -- doubling of neurons up to apoint?} For \textit{Static Networks}
+we sample the size between $0.1$ and $2$ times the size \srm{size of what?} optimized for ImageNet. \srm{Why are we using ImageNet and not CIFAR10 as the comparison point?}
 We report the same numbers as we did for \textit{ShrinkNets} and we compare the
-two distributions of models we obtain on the first plot of \cref{figure_CIFAR10}.
+two distributions.  
+\srm{I worry that this method of selecting network sizes for Static will of course constrain it to larger sizes and worse perforamance.  What if we just randomly sample networks?  Would it look terrible?}
+
+The results are shown in the top figure of \cref{figure_CIFAR10}. Here, the blue dots show the models produced by ShrinkNets, and the orange dots show the models produced for the static networks.  For each model, we plot its accuracy and model size. The lines show the Pareto frontier of models in each of the two optimization settings. From the figure, it's apparent that ShrinkNets much more effectively explores the trade-off between model size and accuracy.
+ \srm{Would be good to show Lambda values on the figure somehow.  }
+ \srm{I thought we were going to summarize with distributional plots instead of Pareto frontiers?}
+ \srm{Summarize more quantitatively -- best model performance, model performance drop off for a factor of 10 reduction in seize, etc. so that we can repeat a quantitative claim in the intro, i.e.,
+ ``Note that the best performing ShrinkNets models has 9x.x\% accuracy while the best static model has 9x.x\% accuracy, while the ShrinkNets model is x times smaller.  In addition, if we give up just 1\% error, ShrinkNets finds a model that is z times smaller.'' (If we do this, would be good to highlight these points in the figure somehow)}
 
 
 \subsubsection{\texttt{COVERTYPE} dataset}
 
-The second dataset we use for evaluation the \texttt{COVERTYPE} \cite{Blackard:1998:CNN:928509} dataset. This dataset
-contains $581012$ description of geographical area (elevation, inclination,
-etc...) and the goal is to predict the type of forest growing there. We picked
+The second dataset we use for evaluation is the \texttt{COVERTYPE} \cite{Blackard:1998:CNN:928509} dataset. This dataset
+contains $581012$ descriptions of geographical area (elevation, inclination,
+etc...) and the goal is to predict the type of forest growing in each area. We picked
 this dataset for several reasons. First it is simple, such that we can reach good
-accuracy with only a few layers. This important because we want to show that
+accuracy with only a few fully-connected layers. This important because we want to show that
 \textit{ShrinkNets} find sizes as good as \textit{Static Networks}, even if we
 are sampling the entire space of possible network sizes. The second reason is that Scardapane et al~\cite{Scardapane2017}
 also perform their evaluation on this dataset, which allow us to compare the
-results obtained by the two methods. \srm{what two methods?}
+results obtained by our method with the method in ~\cite{Scardapane2017}.
 
-The only difference in terms of setup are minimal. We use the same architecture
-as \cite{Scardapane2017}, i.e. three layers Fully Connected neural network with  no
-\textit{Dropout} \cite{Srivastava2014} nor \textit{BatchNorm}. \gl{Should we say here that we
+The experimental setup on this dataset is similar to {\tt CIFAR10}. We use the same architecture
+as \cite{Scardapane2017}, i.e., three fully-connected layers network with  no
+\textit{Dropout} \cite{Srivastava2014} or \textit{BatchNorm}. \gl{Should we say here that we
   don't expect Dropout to work here ? I could write an entire paragraph about it
-  if needed}. In this case for the \textit{Static Networks}, we sample
-independently sizes of the three different layers to explore all possible
+  if needed}. In this case, for the \textit{Static Networks}, we 
+independently samples the sizes of the three different layers to explore all possible
 architectures.
 
-\subsection{Results of the random search procedure}
+The results are shown in the top figure of \cref{figure_COVER}, with the two optimization methods plotted as before. Here, {\it Static} method finds models that perform well at a variety of sizes, because it is able to explore the entire parameter space.  This is as expected;  the fact that ShrinkNets performs as well as the Static indicates that ShrinkNets is doing an effective job of exploring the parameter space using just the single $\lambda$ parameter.  
+ \srm{Summarize more quantitatively -- best model performance, model performance drop off for a factor of 10 reduction in seize, etc. so that we can repeat a quantitative claim in the intro, i.e.,
+ ``Here, the best performing ShrinkNets models has 9x.x\% accuracy while the best static model has 9x.x\% accuracy, while the ShrinkNets model is x times smaller.  Further, note that ShrinkNets finds a model with 9x.x\% accuracy that is y times than the best performing model. 
+ Also, as on CIFAR10, if we give up just 1\% error, ShrinkNets finds a model that is z times smaller.'' (If we do this, would be good to highlight these points in the figure somehow)}
 
-On the plot, the Pareto front for the two training methods clearly indicates
-that not only \textit{ShrinkNets} find models that are as accurate as
-\textit{Static Networks}, but they are more efficient in terms of size. Even
+\subsubsection{Discussion}
+
+\srm{we may not need to keep this unless we can think of something more to say}
+
+The Pareto frontier in the two figures shows that 
+that  \textit{ShrinkNets} is able find models that both as accurate and smaller than
+\textit{Static Networks}.
 when we sample the entire size space (in the \texttt{COVERTYPE} case),
 \textit{ShrinkNets} are better or equally as good as \textit{Static Networks}.
-it has two implications. First it reinforces, our observation in [ref] that
+This has two implications. First it reinforces our observation \srm{our observation?} in [ref] that
 showed that the models do not suffer from the non-convexity introduced by the
 multiplication by the \textit{Switch Layer}. Secondly it could let us conjecture
 that the parametrization from a $\lambda$ (real value) to the size of the
 size of the network (vector) close to optimal. Indeed, if it was
 not the case then eventually a randomly sampled size would have beaten
-\textit{ShrinkNets} models. \gl{Too strong ?}
+\textit{ShrinkNets} models. \gl{Too strong ?} \srm{I think this is too strong -- we have no evidence this is true, do we?}
 
 \subsection{Benefits of smaller sizes}
 
-We showed in the previous section that \textit{ShrinkNets} were able to find
-more or at least as efficient as \textit{Static Networks}. In this experiment we
+We showed in the previous experiments that the \textit{ShrinkNets} approach is able to find
+networks with accuracy equal to or better than \textit{Static Networks}. In this experiment we
 want to determine benefits of the smaller size we get.
 
 For some applications, the absolute best accuracy is not something desirable if
@@ -124,7 +155,7 @@ distribution of sizes and accuracy. We limit our plot to the ($80-100\%$
 accuracy range because we consider that models with lower accuracy have less
 practical use).
 
-Regarding size, the key observation we can make is that size improvenets are
+Regarding size, the key observation we can make is that size improvements are
 significant for the \texttt{CIFAR10}. In the range of accuracies we are
 interested in, improvements in size go from 4x to 40x. On the \texttt{COVERTYPE}
 dataset even if the compression ratio is always above 1, it hardly exceeds 3x,
@@ -135,7 +166,7 @@ We observe that unlike local sparsity compression based method, our method
 translates directly improvement in size to higher bandwidth at inference time.
 In situations where inference is already incredibly fast (\texttt{COVERTYPE}
 with a batch size of $1$ and \texttt{CIFAR10} with a batch size of $1$ on GPU),
-improvements are dominted by noise. However, on machine learning frameworks
+improvements are dominated by noise. However, on machine learning frameworks
 more focused on latency it should be possible to measure them.
 
 
@@ -149,7 +180,8 @@ more focused on latency it should be possible to measure them.
 % \vspace*{-4mm}
 % \end{figure}
 
-\begin{figure}
+\begin{figure*}[t]\centering
+\begin{minipage}{2.7in}
 \begin{center}
 \includegraphics[width=\columnwidth]{CIFAR10_VGG_summary}
 \vspace*{-5mm}
@@ -157,9 +189,8 @@ more focused on latency it should be possible to measure them.
 search over the hyper-parameters the \texttt{CIFAR10} dataset}
 \end{center}
 \vspace*{-4mm}
-\end{figure}
-
-\begin{figure}
+\end{minipage}
+\begin{minipage}{2.7in}
 \begin{center}
 \includegraphics[width=\columnwidth]{COVER_FC_summary}
 \vspace*{-5mm}
@@ -169,39 +200,47 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 }
 \end{center}
 \vspace*{-4mm}
-\end{figure}
+\end{minipage}
+\end{figure*}
 
 
 \subsection{Architectures obtained after convergence}
 
-We sucessfully demonstrated that the architecture \textit{Shrinknets} converge
-to make sense both in term of size and performance. And for a given accuracy
-the size needed is significantly smaller than when we use the classic heursitc
-we commonly use to size convolutional neural networks. It might be an
-indication that this strategy is suboptimal and might need to be adjusted.
-During our experimentations on simpler datasets like \texttt{MNIST}
-\cite{Lecun1998} and \texttt{FashionMNIST} \cite{Xiao2017} we observed that
-even if they have the same number of classes, input features, and output
-distribution. For a fixed $\lambda$ \textit{ShrinkNets} converged to
+The previous experiments showed that \textit{ShrinkNets} finds architectures
+the effectively explore the frontier of model size and accuracy. Further, for
+a  given accuracy,
+the size needed is significantly smaller than when we use the \srm{name it} heuristic
+ commonly used to size convolutional neural networks. This suggests that this
+ conventional heuristic may not in fact be optimal, especially when looking for 
+ smaller models. 
+Empirically we observed this to often be the case.  For example, 
+during our experimentations on the \texttt{MNIST}
+\cite{Lecun1998} and \texttt{FashionMNIST} \cite{Xiao2017} datasets (not reported here due to space constraints), we observed that
+even though these datasets have the same number of classes, input features, and output
+distributions,  for a fixed $\lambda$ \textit{ShrinkNets} converged to
 considerably bigger networks in the case of \texttt{FashionMNIST}. This
-evidence shows that final architecture not only depends on the output
-distribution or shape of the data but actually reflects the dataset, indeed we
-know that \texttt{MNIST} is a much easier problem than \texttt{FashionMNIST}.
+evidence shows that optimal architecture not only depends on the output
+distribution or shape of the data but actually reflects the dataset.  This makes sense,
+as  \texttt{MNIST} is a much easier problem than \texttt{FashionMNIST}.
 
-We provide two examples of architectures learned by \textit{ShrinkNet}. One
-for the best test available test accuracy and a slightly underperforming but
-significantly smaller that it's equivalent \textit{Static Network}. For
-these two architectures we show the size at different time during training to
-give a sense how the convergence happen.
+To illustrate this point on a larger dataset, 
+we show two examples of architectures learned by \textit{ShrinkNets} in Figure~\ref{fig:network_size_evolution}.  The top plot shows the model with the best
+ test accuracy, with \srm{identical performance to the best static network?}; 
+ the bottom shows a network that slightly under-performs the best in terms of accuracy but is
+significantly smaller that the best equivalent \textit{Static Network} \srm{how much smaller?}.
+In the plot, the dashed line shows the number of neurons in each layer of the original VGG net, and the shaded regions show the size of the ShrinkNet as it converges (with the darkest region representing the fully converged network).  Observe that the final network that is trained looks quite different in the two cases, with the optimal performing network appearing similar to the original VGG net, whereas the shrunken network allocates many fewer neurons to the middle layers, and then additional neurons to the final fewer layers.
 
-\begin{figure}[t]
+\begin{figure}[htb]
 \begin{center}
-\includegraphics[width=\columnwidth]{size_evolution}
-\vspace*{-5mm} \caption{\label{network_size_evolution} Evolution of the size of
+\includegraphics[width=.7\columnwidth]{size_evolution}
+\vspace*{-5mm} 
+\caption{ Evolution of the size of
   each layer over time (lighter: beginning, darker: end). On top a very large
   network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
   accuracy. 
-} \end{center}
+} 
+\label{fig:network_size_evolution}
+\end{center}
 \vspace*{-4mm}
 \end{figure}
 
