@@ -80,12 +80,12 @@ For this proposition we will not restrict ourselves to single layer but the comp
   solutions with the same objective.
 \\ \textbf{Part 1:}
 The two components of the expression are always positive so we know that this problem is bounded by below by $0$. $\Omega_{\lambda, \lambda_2, p}^{rs}$ is trivially coercive. Since we have a sum of terms, all bounded by below by $0$ and one of them is coercive, then the entire function admit at least one global minimum.
-\\ \textbf{Part 2:} Let's consider one global minimum. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ do not change the the first part of the objetive because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and by extension also global minimuma. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
+\\ \textbf{Part 2:} Let's consider one global minimum. For each component $k$ of $\bm{\beta_i}$ for some $i$. Negating it and negating the $k^{th}$ column of $\bm{A_i}$ do not change the the first part of the objective because the two factors cancel each other. The two norms do not change either because by definition the norm is independant of the sign. As a result these two sets of parameter have the same value and by extension also global minimuma. It is easy to see that going from this global minimum we can decide to negate or not each element in each $\bm{\beta_i}$. We have a binary choice for each parameter, there are $k = \sum_{i=1}^n \#\bm{\beta_i}$ parameters, so we have at least $2^k$ global minima.
 
 \end{proof}
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions experiments}
 As we showed, Group sparsity share similarities with our method, and we claim
-that ShrinkNets are a relaxation of group sparsity.  In this experiment we want
+that ShrinkNets are a relaxation of Group sparsity.  In this experiment we want
 to compare the two aproaches.  We decided to focus on multi-target linear
 regression because in the single target case, groups in the Group Sparsity
 problem would have a size of one ($\bm{A}$ would be a vector in this case).
@@ -97,8 +97,8 @@ the \textit{Gas Sensor Array Drift Dataset} \cite{VERGARA2012320} (that we short
 
 For each dataset we fit with different regularization parameters and measure
 the error and sparsity obtained after convergence. In this context we define
-sparsity as the ratio of columns that have all their weight under $10^{-3}$ in
-absolute value. Regularization parameters were choosed in order to obtain the
+sparsity as the ratio of columns that have all their weights under $10^{-3}$ in
+absolute value. Regularization parameters were choosen in order to obtain the
 widest sparsity spectrum. Loss is normalized depending on the problem to be in
 the $[0, 1]$ range. We summarized the results in \cref{sparsity_accuracy}. From
 our experiments it is clear that ShrinkNets can fit the data closer than Group
