@@ -78,6 +78,8 @@ INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/booktabs/booktabs.sty
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/booktabs/booktabs.sty
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/paralist/paralist.sty
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/paralist/paralist.sty
+INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/tools/xspace.sty
+INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/tools/xspace.sty
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/amsmath/amsmath.sty
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/amsmath/amsmath.sty
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/amsmath/amstext.sty
@@ -225,8 +227,6 @@ INPUT /usr/local/texlive/2013/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
 INPUT /Users/madden/fastdeepnets/paper/ICML/related_work.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/related_work.tex
-INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/omsptm.fd
-INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/omsptm.fd
 INPUT /Users/madden/fastdeepnets/paper/ICML/approach.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/approach.tex
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
@@ -247,6 +247,8 @@ INPUT /Users/madden/fastdeepnets/paper/ICML/impl.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/impl.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/evaluation.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/evaluation.tex
+INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/omsptm.fd
+INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/omsptm.fd
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 INPUT /usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm
