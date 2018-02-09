@@ -14,6 +14,9 @@ Whether, by varying $\lambda$, \textit{ShrinkNets} can efficiently explore (in t
 \item \srm{something else?}
 \end{itemize}
 
+\ra{add here the impl. thingy from s3, so we give the context of how we use
+shrinknets}
+
 \subsection{Performance vs. Traditional Methods}
 
 We evaluate ShrinkNets on two datasets:  \texttt{CIFAR10} and \texttt{COVERTYPE}.  In this section, we report how we employed ShrinkNets on these datasets and compare our results to 
@@ -21,12 +24,12 @@ training without ShrinkNets.
 
 \subsubsection{\texttt{CIFAR10}}
 
-Previous research~\cite{Scardapane2017} that attempts to optimize network size during training
+\ra{this is related work}Previous research~\cite{Scardapane2017} that attempts to optimize network size during training
  focused on simple datasets and simple (i.e., fully connected)
 architectures. We believe that self-resizing
 network are most important for problems where the architecture 
 involves many layers, such that that it is impractical to explore the space of all possible
-layer-size configurations. For that reason, we picked \texttt{CIFAR10} \cite{Krizhevsky2009}. It is an
+layer-size configurations.\ra{until here} For that reason, we picked \texttt{CIFAR10} \cite{Krizhevsky2009}. It is an
 image classification dataset containing $60000$ color images $(3 \times 32
 \times 32)$, belonging to $10$ different classes, running on  the \texttt{VGG16} network \cite{Srivastava2014}. VGG16
 consists of alternating convolutional layers and \textit{MaxPool} layers
