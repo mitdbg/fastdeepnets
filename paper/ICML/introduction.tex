@@ -50,6 +50,8 @@ contrast to existing neural network compression techniques~\cite{Aghasi2016,han2
 not only small, but where the  layers are dense, which means that inference
 time is also improved, e.g., on GPUs.
 
+XXX people actually don't treat network size as a hyperparameter;  we do!
+
 
 % {\bf Old introduction:}
 % One of the key defactors that affects neural net perforamnce is  is the {\it shape} of the network, 
@@ -97,6 +99,7 @@ In summary, our contributions are as follows:
 \begin{compactenum}
 \item We propose a novel technique based on dynamically switching on and off neurons, 
 which allows us to optimize the network size as the network is trained. 
+\item \srm{xxx postprocessing techniques to strip out switch layers}
 \item We show that our technique is a relaxation of group LASSO~\cite{Yuan2006} and prove that our problem admits many global minima.
 \item \srm{Some claim about model size vs performance}
 \item We demonstrate the efficacy of our technique on both convolutional and fully-connected neural nets,

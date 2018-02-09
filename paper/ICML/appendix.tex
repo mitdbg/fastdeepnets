@@ -1,4 +1,16 @@
+%!TEX root=paper.tex
 \section{Appendix}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=.7\columnwidth]{regressions}
+\vspace*{-5mm}
+\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknet on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
+
+\end{center}
+\vspace*{-4mm}
+\end{figure}
+
 \subsection{Proofs}
 Unless specified, all the proofs consider the Multi-Target linear regression problem
 \begin{proposition}
@@ -82,12 +94,3 @@ our experiments it is clear that ShrinkNets can fit the data closer than Group
 Sparsity for the same amount of sparsity. The fact that we are able to reach
 very low loss demonstrate that even if our objective function is non convex, in
 practice it works as good or better as convex alternatives.
-\begin{figure}
-\begin{center}
-\includegraphics[width=\columnwidth]{regressions}
-\vspace*{-5mm}
-\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknet on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
-
-\end{center}
-\vspace*{-4mm}
-\end{figure}

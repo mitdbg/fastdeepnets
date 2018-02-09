@@ -206,8 +206,6 @@ INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm
 INPUT /Users/madden/fastdeepnets/paper/ICML/introduction.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/introduction.tex
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
-INPUT /Users/madden/fastdeepnets/paper/ICML/approach.tex
-INPUT /Users/madden/fastdeepnets/paper/ICML/approach.tex
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmr8r.tfm
 INPUT /usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map
@@ -225,6 +223,8 @@ INPUT /usr/local/texlive/2013/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmr8r.tfm
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
+INPUT /Users/madden/fastdeepnets/paper/ICML/approach.tex
+INPUT /Users/madden/fastdeepnets/paper/ICML/approach.tex
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmr7t.tfm
 INPUT /Users/madden/fastdeepnets/paper/ICML/theory.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/theory.tex
@@ -270,11 +270,11 @@ INPUT /Users/madden/fastdeepnets/paper/ICML/conclusion.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/conclusion.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/appendix.tex
 INPUT /Users/madden/fastdeepnets/paper/ICML/appendix.tex
+INPUT /Users/madden/fastdeepnets/paper/ICML/regressions.pdf
+INPUT /Users/madden/fastdeepnets/paper/ICML/regressions.pdf
+INPUT /Users/madden/fastdeepnets/paper/ICML/regressions.pdf
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
 INPUT /usr/local/texlive/2013/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm
-INPUT /Users/madden/fastdeepnets/paper/ICML/regressions.pdf
-INPUT /Users/madden/fastdeepnets/paper/ICML/regressions.pdf
-INPUT /Users/madden/fastdeepnets/paper/ICML/regressions.pdf
 INPUT /Users/madden/fastdeepnets/paper/ICML/paper.bbl
 INPUT /Users/madden/fastdeepnets/paper/ICML/paper.bbl
 INPUT /Users/madden/fastdeepnets/paper/ICML/paper.aux

@@ -3,14 +3,14 @@
   author={Chollet, Fran\c{c}ois and others},
   year={2015},
   publisher={GitHub},
-  howpublished={\url{https://github.com/fchollet/keras}},
+  howpublished={\OPTurl{https://github.com/fchollet/keras}},
 }
 @article{paszke2017automatic,
   title={Automatic differentiation in PyTorch},
   author={Paszke, Adam and Gross, Sam and Chintala, Soumith and Chanan, Gregory and Yang, Edward and DeVito, Zachary and Lin, Zeming and Desmaison, Alban and Antiga, Luca and Lerer, Adam},
   year={2017}
 }
-@misc{meier, title={Going Deeper: Infinite Deep Neural Networks}, url={https://github.com/kutoga/going_deeper/raw/master/doc/going_deeper.pdf}, journal={going_deeper}, publisher={github}, author={Meier, Benjamin}}
+@misc{meier, title={Going Deeper: Infinite Deep Neural Networks}, OPTurl={https://github.com/kutoga/going_deeper/raw/master/doc/going_deeper.pdf}, journal={going_deeper}, publisher={github}, author={Meier, Benjamin}}
 
 @article{OpenML2013,
 author = {Vanschoren, Joaquin and van Rijn, Jan N. and Bischl, Bernd and Torgo, Luis},
@@ -20,7 +20,7 @@ volume = {15},
 number = {2},
 year = {2013},
 pages = {49--60},
-url = {http://doi.acm.org/10.1145/2641190.2641198},
+OPTurl = {http://doi.acm.org/10.1145/2641190.2641198},
 doi = {10.1145/2641190.2641198},
 publisher = {ACM},
 address = {New York, NY, USA},
@@ -34,7 +34,7 @@ editor = {F. Pereira and C. J. C. Burges and L. Bottou and K. Q. Weinberger},
 pages = {2951--2959},
 year = {2012},
 publisher = {Curran Associates, Inc.},
-url = {http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms.pdf}
+OPTurl = {http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machine-learning-algorithms.pdf}
 }
 
 @Book {GaussianProcesses,
@@ -45,7 +45,7 @@ url = {http://papers.nips.cc/paper/4522-practical-bayesian-optimization-of-machi
    abstract = {Gaussian processes (GPs) provide a principled, practical, probabilistic approach to learning in kernel machines. GPs have received increased attention in the machine-learning community over the past decade, and this book provides a long-needed systematic and unified treatment of theoretical and practical aspects of GPs in machine learning. The treatment is comprehensive and self-contained, targeted at researchers and students in machine learning and applied statistics.
 The book deals with the supervised-learning problem for both regression and classification, and includes detailed algorithms. A wide variety of covariance (kernel) functions are presented and their properties discussed. Model selection is discussed both from a Bayesian and a classical perspective. Many connections to other well-known techniques from machine learning and statistics are discussed, including support-vector machines, neural networks, splines, regularization networks, relevance vector machines and others. Theoretical issues including learning curves and the PAC-Bayesian framework are treated, and several approximation methods for learning with large datasets are discussed. The book contains illustrative examples and exercises, and code and datasets are available on the Web. Appendixes provide mathematical background and a discussion of Gaussian Markov processes.},
    department = {Department Sch{\"o}lkopf},
-   web_url = {https://mitpress.mit.edu/books/gaussian-processes-machine-learning},
+   web_OPTurl = {https://mitpress.mit.edu/books/gaussian-processes-machine-learning},
    publisher = {MIT Press},
    address = {Cambridge, MA, USA},
    series = {Adaptive Computation and Machine Learning},
@@ -106,11 +106,11 @@ The book deals with the supervised-learning problem for both regression and clas
   journal   = {CoRR},
   volume    = {abs/1611.01578},
   year      = {2016},
-  url       = {http://arxiv.org/abs/1611.01578},
+  OPTurl       = {http://arxiv.org/abs/1611.01578},
   archivePrefix = {arXiv},
   eprint    = {1611.01578},
   timestamp = {Wed, 07 Jun 2017 14:42:02 +0200},
-  biburl    = {http://dblp.org/rec/bib/journals/corr/ZophL16},
+  bibOPTurl    = {http://dblp.org/rec/bib/journals/corr/ZophL16},
   bibsource = {dblp computer science bibliography, http://dblp.org}
 }
 
@@ -139,7 +139,7 @@ pages = "320 - 329",
 year = "2012",
 issn = "0925-4005",
 doi = "https://doi.org/10.1016/j.snb.2012.01.074",
-url = "http://www.sciencedirect.com/science/article/pii/S0925400512002018",
+OPTurl = "http://www.sciencedirect.com/science/article/pii/S0925400512002018",
 author = "Alexander Vergara and Shankar Vembu and Tuba Ayhan and Margaret A. Ryan and Margie L. Homer and Ramón Huerta",
 keywords = "Sensor drift, Metal-oxide sensors, Time series classification, Ensemble methods, Support vector machines",
 abstract = "Sensor drift remains to be the most challenging problem in chemical sensing. To address this problem we have collected an extensive dataset for six different volatile organic compounds over a period of three years under tightly controlled operating conditions using an array of 16 metal-oxide gas sensors. The recordings were made using the same sensor array and a robust gas delivery system. To the best of our knowledge, this is one of the most comprehensive datasets available for the design and development of drift compensation methods, which is freely reachable on-line. We introduced a machine learning approach, namely an ensemble of classifiers, to solve a gas discrimination problem over extended periods of time with high accuracy rates. Experiments clearly indicate the presence of drift in the sensors during the period of three years and that it degrades the performance of the classifiers. Our proposed ensemble method based on support vector machines uses a weighted combination of classifiers trained at different points of time. As our experimental results illustrate, the ensemble of classifiers is able to cope well with sensor drift and performs better than the baseline competing methods."
@@ -158,7 +158,7 @@ pages="55--98",
 abstract="In many practical applications of supervised learning the task involves the prediction of multiple target variables from a common set of input variables. When the prediction targets are binary the task is called multi-label classification, while when the targets are continuous the task is called multi-target regression. In both tasks, target variables often exhibit statistical dependencies and exploiting them in order to improve predictive accuracy is a core challenge. A family of multi-label classification methods address this challenge by building a separate model for each target on an expanded input space where other targets are treated as additional input variables. Despite the success of these methods in the multi-label classification domain, their applicability and effectiveness in multi-target regression has not been studied until now. In this paper, we introduce two new methods for multi-target regression, called stacked single-target and ensemble of regressor chains, by adapting two popular multi-label classification methods of this family. Furthermore, we highlight an inherent problem of these methods---a discrepancy of the values of the additional input variables between training and prediction---and develop extensions that use out-of-sample estimates of the target variables during training in order to tackle this problem. The results of an extensive experimental evaluation carried out on a large and diverse collection of datasets show that, when the discrepancy is appropriately mitigated, the proposed methods attain consistent improvements over the independent regressions baseline. Moreover, two versions of Ensemble of Regression Chains perform significantly better than four state-of-the-art methods including regularization-based multi-task learning methods and a multi-objective random forest approach.",
 issn="1573-0565",
 doi="10.1007/s10994-016-5546-z",
-url="http://dx.doi.org/10.1007/s10994-016-5546-z"
+OPTurl="http://dx.doi.org/10.1007/s10994-016-5546-z"
 }
 @INPROCEEDINGS{4371065, 
 author={I. Guyon and A. Saffari and G. Dror and G. Cawley}, 
