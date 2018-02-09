@@ -55,9 +55,7 @@ optimizer \cite{DBLP:journals/corr/KingmaB14}. Specifically, we start with the
 learning rate sampled randomly; for every $5$ epochs of non-improvement in
 validation accuracy we divide the learning rate by $10$. We stop training after
 $400$ epochs or when the learning rate is under $10^{-7}$, whichever comes
-first.  \gl{Should I also give the details about the removal strategy we used
-and the $\gamma$ and threshold I used ? because this is clearly getting boring}
-\srm{probably not necessary} For each of the models we trained, we pick the
+first. For each of the models we trained, we pick the
 epoch with the best validation accuracy and report the corresponding testing
 accuracy. Because of the nature of our method, it can happen that for networks
 that are aggressively compressed, the best validation accuracy is obtained early
@@ -102,8 +100,7 @@ last).  Recall that ShrinkNets assume that the starting size of the network is
 an upper bound on the optimal size. For this reason, we simply started with a
 network with double the recommended size for each layer as an upper bound (this
 is larger than what ImageNet, for example uses). Thus, for the classification
-layers we use $5000$ neurons as a starting limit (ImageNet uses $4096$ \gl{This
-is on the top of my head, need to be double checked}).
+layers we use $5000$ neurons as a starting limit.
 
 We compare against classical (\textit{Static}) networks. In such networks, the
 number of parameters that control the size is large: 13 parameters for the
@@ -112,15 +109,14 @@ effectively fuse all these parameters in a single $\lambda$, but in conventional
 architectures where all of these parameters are free, it is infeasible to obtain
 a reasonable sample of a search space of this size. For this reason, we rely on
 the conventional heuristic that the original VGG architecture (and many CNNs)
-\gl{try to find the paper that introduces this heuristic} use, where
-\srm{describe what the heuristic is -- doubling of neurons up to apoint?} For
-\textit{Static Networks} we sample the size between $0.1$ and $2$ times the size
-\srm{size of what?} optimized for ImageNet. \srm{Why are we using ImageNet and
-not CIFAR10 as the comparison point?} We report the same numbers as we did for
+use, where the number of channels is doubled every after \textit{MaxPool} laxer.
+For \textit{Static Networks} we sample the size between $0.1$ and $2$ times the size
+original one, optimized for ImageNet. We report the same numbers as we did for
 \textit{ShrinkNets} and we compare the two distributions. \srm{I worry that
 this method of selecting network sizes for Static will of course constrain it to
 larger sizes and worse performance. What if we just randomly sample networks?
-Would it look terrible?}
+Would it look terrible?} \gl {I don't see any pricatical way of sampling
+reasonable a 13 dimension space if a single point take 1h to be evaluated}
 
 The results are shown in the top figure of \cref{figure_CIFAR10}, with blue dots
 indicating ShrinkNet models and orange dots indicating static networks. For each
@@ -265,7 +261,7 @@ most dramatically.  On CPU, speedups range up to 6x depending on the batch size,
   On GPU, the speedups are less substantial because the CUDA benchmarking utility that we use for evaluation can choose better algorithms for larger matrices which masks some of our benefit, although they are still often 1.5x--2x faster for large batch sizes.
 The speedup results on {\tt COVERTYPE} are similar to those for network size:  because the networks are not much smaller, they are not much faster either.
 
-A key takeaway of these speedup results is that, unlike local sparsity compression methods, our methods' improvement on size translates directly to higher throughput at inference time. \srm{Can we cite something showing that local sparsity does not improve performance even w/ small nets?}, at least for larger batches when hardware can be fully utilized.
+A key takeaway of these speedup results is that, unlike local sparsity compression methods, our methods' improvement on size translates directly to higher throughput at inference time. \srm{Can we cite something showing that local sparsity does not improve performance even w/ small nets?} \gl{The deep compression in table III shows it very well}, at least for larger batches when hardware can be fully utilized.
 
 
 
@@ -329,7 +325,7 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 \ra{the following is interesting, but how is it related to the above?}
 ShrinkNets effectively explores the frontier of model size and accuracy. For a
 given target accuracy, the size needed is significantly smaller than when we use the
-\srm{name it} heuristic commonly used to size convolutional neural networks.
+"channel doubling" heuristic commonly used to size convolutional neural networks.
 This suggests that this conventional heuristic may not in fact be optimal,
 especially when looking for smaller models.  Empirically we observed this to
 often be the case.  For example, during our experimentations on the
