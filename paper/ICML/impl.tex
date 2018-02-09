@@ -32,12 +32,11 @@ in the gradients---which occurs commonly when training networks with
 stochastic gradient descent---because the threshold depends on the scale of
 each weight.
 
-\textbf{Sign change strategy}: Under this strategy neurons are removed when
-the weight value changes its sign. This strategy works well in practice but it
-is also sensitive to gradient noise. \ra{explain what's the consequence of
-that} If we sample the gradient in a way that is not fully representative of
-the dataset we might  experience one-time zero crossing which could wrongly
-kill a neuron.
+\textbf{Sign change strategy}: Under this strategy neurons are removed when the
+weight value changes its sign. This strategy works well in practice but it is
+also sensitive to gradient noise. If we sample the gradient in a way that is
+not fully representative of the dataset we might  experience one-time zero
+crossing which could wrongly kill a neuron.
 
 \textbf{Sign variance strategy}: Instead of killing  on the first zero
 crossing, we can instead measure the exponential moving variance of the sign
@@ -66,8 +65,7 @@ they include switch layers---and therefore more parameters---they introduce
 unnecessary overhead at inference time. To avoid this overhead, we reduce the
 network parameters by combining each switch layer with its respective network
 layer by multiplying the respective parameters before emitting the final
-trained network.   \ra{can't we just simply prevent the following problem at
-network design time?}In the unlikely case that a switch layer is sandwiched
+trained network. In the unlikely case that a switch layer is sandwiched
 between two non-linearly scalable layers, we leave the switch layer as is.
 
 \noindent\textbf{Neural Garbage Collection: }ShrinkNets decides on-the-fly
