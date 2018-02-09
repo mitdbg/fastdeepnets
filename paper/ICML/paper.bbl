@@ -1,4 +1,4 @@
-\begin{thebibliography}{27}
+\begin{thebibliography}{24}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -34,13 +34,6 @@ Cun, Yann~Le, Denker, John~S, and Solla, Sara~a.
   (1):\penalty0 598--605, 1990.
 \newblock ISSN 1098-6596.
 \newblock \doi{10.1.1.32.7223}.
-
-\bibitem[Guyon et~al.(2007)Guyon, Saffari, Dror, and Cawley]{4371065}
-Guyon, I., Saffari, A., Dror, G., and Cawley, G.
-\newblock Agnostic learning vs. prior knowledge challenge.
-\newblock In \emph{2007 International Joint Conference on Neural Networks},
-  pp.\  829--834, Aug 2007.
-\newblock \doi{10.1109/IJCNN.2007.4371065}.
 
 \bibitem[Han et~al.(2015{\natexlab{a}})Han, Mao, and Dally]{Han2015}
 Han, Song, Mao, Huizi, and Dally, William~J.
@@ -146,16 +139,6 @@ Snoek, Jasper, Larochelle, Hugo, and Adams, Ryan~P.
   (eds.), \emph{Advances in Neural Information Processing Systems 25}, pp.\
   2951--2959. Curran Associates, Inc., 2012.
 
-\bibitem[Spyromitros-Xioufis et~al.(2016)Spyromitros-Xioufis, Tsoumakas,
-  Groves, and Vlahavas]{Spyromitros-Xioufis2016}
-Spyromitros-Xioufis, Eleftherios, Tsoumakas, Grigorios, Groves, William, and
-  Vlahavas, Ioannis.
-\newblock Multi-target regression via input space expansion: treating targets
-  as inputs.
-\newblock \emph{Machine Learning}, 104\penalty0 (1):\penalty0 55--98, 2016.
-\newblock ISSN 1573-0565.
-\newblock \doi{10.1007/s10994-016-5546-z}.
-
 \bibitem[Srivastava et~al.(2014)Srivastava, Hinton, Krizhevsky, Sutskever, and
   Salakhutdinov]{Srivastava2014}
 Srivastava, Nitish, Hinton, Geoffrey, Krizhevsky, Alex, Sutskever, Ilya, and
@@ -165,16 +148,6 @@ Srivastava, Nitish, Hinton, Geoffrey, Krizhevsky, Alex, Sutskever, Ilya, and
   2014.
 \newblock ISSN 15337928.
 \newblock \doi{10.1214/12-AOS1000}.
-
-\bibitem[Vergara et~al.(2012)Vergara, Vembu, Ayhan, Ryan, Homer, and
-  Huerta]{VERGARA2012320}
-Vergara, Alexander, Vembu, Shankar, Ayhan, Tuba, Ryan, Margaret~A., Homer,
-  Margie~L., and Huerta, Ramón.
-\newblock Chemical gas sensor drift compensation using classifier ensembles.
-\newblock \emph{Sensors and Actuators B: Chemical}, 166-167:\penalty0 320 --
-  329, 2012.
-\newblock ISSN 0925-4005.
-\newblock \doi{https://doi.org/10.1016/j.snb.2012.01.074}.
 
 \bibitem[Xiao et~al.(2017)Xiao, Rasul, and Vollgraf]{Xiao2017}
 Xiao, Han, Rasul, Kashif, and Vollgraf, Roland.
