@@ -38,7 +38,6 @@ also sensitive to gradient noise. If we sample the gradient in a way that is
 not fully representative of the dataset we might  experience one-time zero
 crossing which could wrongly kill a neuron.
 
-
 \textbf{Sign variance strategy}: Instead of killing  on the first zero
 crossing, we can instead measure the exponential moving variance of the sign
 ($-1, 1$) of each parameter in the \textit{switch layer}. When the value of
