@@ -25,6 +25,7 @@ Warning--I didn't find a database entry for "quant"
 Warning--I didn't find a database entry for "something"
 Warning--I didn't find a database entry for "XXX"
 Warning--I didn't find a database entry for ""
+Warning--I didn't find a database entry for "nvidia-paper-xxx"
 Warning--empty journal in Aghasi2016
 Warning--empty school in Blackard:1998:CNN:928509
 Warning--empty year in meier
@@ -32,45 +33,45 @@ Warning--there's a number but no volume in Nair2010
 Warning--empty journal in paszke2017automatic
 Warning--there's a number but no series in Philipp
 Warning--empty journal in Xiao2017
-You've used 32 entries,
+You've used 31 entries,
             2773 wiz_defined-function locations,
-            851 strings with 13599 characters,
-and the built_in function-call counts, 18997 in all, are:
-= -- 1665
-> -- 1499
+            822 strings with 11980 characters,
+and the built_in function-call counts, 18165 in all, are:
+= -- 1555
+> -- 1460
 < -- 21
-+ -- 501
-- -- 469
-* -- 1687
-:= -- 3032
-add.period$ -- 143
-call.type$ -- 32
-change.case$ -- 249
-chr.to.int$ -- 32
-cite$ -- 71
-duplicate$ -- 711
-empty$ -- 1212
-format.name$ -- 521
-if$ -- 3905
++ -- 488
+- -- 457
+* -- 1593
+:= -- 2885
+add.period$ -- 119
+call.type$ -- 31
+change.case$ -- 242
+chr.to.int$ -- 31
+cite$ -- 69
+duplicate$ -- 690
+empty$ -- 1173
+format.name$ -- 508
+if$ -- 3733
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 31
-newline$ -- 213
-num.names$ -- 130
-pop$ -- 449
+missing$ -- 30
+newline$ -- 187
+num.names$ -- 126
+pop$ -- 458
 preamble$ -- 1
-purify$ -- 219
+purify$ -- 213
 quote$ -- 0
-skip$ -- 629
+skip$ -- 613
 stack$ -- 0
-substring$ -- 483
-swap$ -- 91
+substring$ -- 462
+swap$ -- 90
 text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 347
+type$ -- 336
 warning$ -- 7
-while$ -- 135
+while$ -- 130
 width$ -- 0
-write$ -- 502
+write$ -- 447
 (There were 3 error messages)
