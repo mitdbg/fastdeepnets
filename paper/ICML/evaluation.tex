@@ -16,11 +16,11 @@ network really matter for problems where the architecture you need to solve them
 involve so many layers that it is impractical to explore the space of possible
 sizes. We considered ImageNet but the time required to train models is so long
 that it would have not been possible to train enough and get statistically
-significant results. This is why we picked \texttt{CIFAR10} [ref]. It is an
+significant results. This is why we picked \texttt{CIFAR10} \cite{Krizhevsky2009}. It is an
 image classification dataset containing $60000$ color images $(3 \times 32
 \times 32)$, belonging to $10$ different classes.
 
-To solve this task we use the \texttt{VGG16} model [ref]. It is constituted of
+To solve this task we use the \texttt{VGG16} model \cite{Srivastava2014}. It is constituted of
 alternating convolutional layers and \textit{MaxPool} layers interleaved by
 \textit{BatchNorm} [ref] and \textit{ReLU} [ref] layers. The two last layers are
 Fully connected layers separated by just a \textit{ReLU} activation function.
@@ -37,24 +37,24 @@ version uses $4096$ \gl{This is on the top of my head, need to be double checked
 We assume no prior knowledge on the optimal batch size, learning rate,
 $\lambda$ or weight decay ($\lambda_2$). This is why, we randomly sample them
 from a range of reasonable values (\gl{should we make them explicit ?}).
-Training is done using our library, based on \texttt{PyTorch} [ref], that
+Training is done using our library, based on \texttt{PyTorch} \cite{paszke2017automatic}, that
 support dynamically resized layers. We train the network using gradient descent
-and \textit{Adam} optimizer [ref]. We start with the learning rate sampled
-randomly and every $5$ epochs of non improvement in validation accuracy we
-divide the learning rate by $10$. We stop training after $400$ epochs or when
-the learning rate is under $10^{-7}$ whichever comes first. \gl{Should I also
-  give the details about the removal strategy we used and the $\gamma$ and
-  threshold I used ? because this is clearly getting boring}
-For each of the models we trained, we pick the epoch with the best validation
-accuracy and report the corresponding testing accuracy. Because of the nature of
-our method, it can happen that for network that are aggressively compressed, the
-best validation accuracy is obtained early in the training, before the size has
-converged. To be sure that accuracy measured corresponds to the final shape and
-not the starting shape, we only consider the second half of the training when
-picking the best epoch. For each model, we also measure the total size, in
-number of floating point parameters, excluding the \textit{Switch Layers}
-because as we saw in section \gl{REFERENCE\_ME}, we can get rid of them when
-training is done.
+and \textit{Adam} optimizer \cite{DBLP:journals/corr/KingmaB14}. We start with
+the learning rate sampled randomly and every $5$ epochs of non improvement in
+validation accuracy we divide the learning rate by $10$. We stop training after
+$400$ epochs or when the learning rate is under $10^{-7}$ whichever comes
+first. \gl{Should I also give the details about the removal strategy we used
+  and the $\gamma$ and threshold I used ? because this is clearly getting
+  boring} For each of the models we trained, we pick the epoch with the best
+validation accuracy and report the corresponding testing accuracy. Because of
+the nature of our method, it can happen that for network that are aggressively
+compressed, the best validation accuracy is obtained early in the training,
+before the size has converged. To be sure that accuracy measured corresponds to
+the final shape and not the starting shape, we only consider the second half of
+the training when picking the best epoch. For each model, we also measure the
+total size, in number of floating point parameters, excluding the
+\textit{Switch Layers} because as we saw in section \gl{REFERENCE\_ME}, we can
+get rid of them when training is done.
 
 We want to compare against classical (\textit{Static}) networks. The number of
 parameters that control the size is large: 13 for the size of convolutional
@@ -70,7 +70,7 @@ two distributions of models we obtain on the first plot of \cref{figure_CIFAR10}
 
 \subsubsection{\texttt{COVERTYPE} dataset}
 
-Our second dataset we will evaluate on is \texttt{COVERTYPE} [ref]. This dataset
+Our second dataset we will evaluate on is \texttt{COVERTYPE} \cite{Blackard:1998:CNN:928509}. This dataset
 contains $581012$ description of geographical area (elevation, inclination,
 etc...) and the goal is to predict the type of forest growing there. We picked
 this one for couple of reasons. First it is simple that we can reach good
@@ -81,8 +81,8 @@ also perform their evaluation on this dataset, which allow us to compare the
 results obtained by the two methods.
 
 The only difference in terms of setup are minimal. We use the same architecture
-as [ref], i.e. three layers Fully Connected neural network with  no
-\textit{Dropout} [ref] nor \textit{BatchNorm} [ref]. \gl{Should we say here that we
+as \cite{Scardapane2017}, i.e. three layers Fully Connected neural network with  no
+\textit{Dropout} \cite{Srivastava2014} nor \textit{BatchNorm} \cite{DBLP:journals/corr/IoffeS15}. \gl{Should we say here that we
   don't expect Dropout to work here ? I could write an entire paragraph about it
   if needed}. In this case for the \textit{Static Networks}, we sample
 independently sizes of the three different layers to explore all possible
@@ -175,8 +175,8 @@ to make sense both in term of size and performance. And for a given accuracy the
 size needed is significantly smaller than when we use the classic heursitc we
 commonly use to size convolutional neural networks. It might be an indication
 that this strategy is suboptimal and might need to be adjusted. During our
-experimentations on simpler datasets like \texttt{MNIST} and
-\texttt{FashionMNIST} we observed that even if they have the same number of
+experimentations on simpler datasets like \texttt{MNIST} \cite{Lecun1998} and
+\texttt{FashionMNIST} \cite{Xiao2017} we observed that even if they have the same number of
 classes, input features, and output distribution. For a fixed $\lambda$
 \textit{ShrinkNets} converged to considerably bigger networks in the case of
 \texttt{FashionMNIST}. This evidence shows that final architecture not only
@@ -194,38 +194,6 @@ give a sense how the convergence happen.
 \subsection{Multi-Target Linear and Multi-Class Logistic regressions [To be
   moved in the theoretical part]}
 
-As we showed, Group sparsity share similarities with our method, and we claim
-that ShrinkNets are a relaxation of group sparsity.  In this experiment we want
-to compare the two aproaches.  We decided to focus on multi-target linear
-regression because in the single target case, groups in the Group Sparsity
-problem would have a size of one ($\bm{A}$ would be a vector in this case).
-
-The evaluation will be done on two datasets \texttt{scm1d} and \texttt{oes97}
-[ref] for linear regressions and we will use \texttt{gina\_prior2} [ref] and
-the \textit{Gas Sensor Array Drift Dataset} [ref] (that we shorten in
-\texttt{gsadd}) for logistic regressions.
-
-For each dataset we fit with different regularization parameters and measure
-the error and sparsity obtained after convergence. In this context we define
-sparsity as the ratio of columns that have all their weight under $10^{-3}$ in
-absolute value. Regularization parameters were choosed in order to obtain the
-widest sparsity spectrum. Loss is normalized depending on the problem to be in
-the $[0, 1]$ range. We summarized the results in \cref{sparsity_accuracy}. From
-our experiments it is clear that ShrinkNets can fit the data closer than Group
-Sparsity for the same amount of sparsity. The fact that we are able to reach
-very low loss demonstrate that even if our objective function is non convex, in
-practice it works as good or better as convex alternatives. Details about these
-datasets and the parameters used are available in \cref{linear_datasets}.
-
-\begin{figure}
-\begin{center}
-\includegraphics[width=\columnwidth]{regressions}
-\vspace*{-5mm}
-\caption{\label{sparsity_accuracy}Loss/Sparsity trade off comparison between Group Sparsity and Shrinknet on linear and logistic regression. From top to bottom and left to right we show the results for \texttt{scm1d}, \texttt{oes97}, \texttt{gina\_prior2} and \texttt{gsadd}.}
-
-\end{center}
-\vspace*{-4mm}
-\end{figure}
 
 \subsection{Neuron Removal strategies [TO be removed]}
 
