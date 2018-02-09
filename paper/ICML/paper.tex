@@ -101,7 +101,22 @@
 \printAffiliationsAndNotice{} % otherwise use the standard text.
 
 \begin{abstract}
-  Let's write the abstract at the end
+As neural networks are being increasingly deployed in 
+different applications and on different hardware, it has
+become increasingly important to optimize inference time
+and model size along with model accuracy.
+Most current work optimizes model size, model accuracy and
+inference time in different stages and results in suboptimal
+results at the cost of computational inefficiency.
+In this work, we propose a new techique called ShrinkNets that
+optimizes all three of these metrics simultaneously by learning
+optimal network size at training time.
+Specifically our technique presents a new method to simultaneously optimize network size and model performance by neuron-level pruning.
+Neuron-level pruning not only produces much smaller 
+networks for a given accuracy threshold but also produces
+dense weight matrices that are efficient at inference time.
+By applying our technique to a variety of models with both convolutional and fully connected layers, we show that ShrinkNets can reduce XXX by YYY and ZZZ by AAA in only BBB amount of time.
+
 \end{abstract}
 
 %\section{Tentative outline}
