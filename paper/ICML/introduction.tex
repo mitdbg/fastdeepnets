@@ -2,15 +2,13 @@
 
 \section{Introduction}
 
-As neural networks become increasingly widely deployed in a variety of
-applications  -- ranging from improving camera quality on mobile phones
-\cite{googleapple} to language translation \cite{languagetranslation} to text
-auto-completion \cite{autocomplete} -- and on diverse hardware architectures
--- from laptops to phones to embedded sensors --  inference performance and
-model size are becoming as important in learning as metrics measures of
-prediction quality. However, these three aspect of model performance --
-quality, performance and size -- are largely optimized separately today, often
-with suboptimal results.
+Neural networks are increasingly being deployed in a wide variety  of
+applications  and on diverse hardware architectures ranging from laptops to
+phones to embedded sensors. This wide variety of deployment settings means
+that inference time and model size are becoming as important as  prediction
+quality when assessing model performance.  However, these three dimensions of
+performance (model quality, inference time and model size)  are largely
+optimized separately today, often with suboptimal results.
 
 Of course, the problem of finding compressed or small networks is not new.
 Existing techniques typically aim make a pre-trained neural network smaller
@@ -37,21 +35,23 @@ even a small fraction of possible network configurations.
 %I am still not super happy with the flow. Will work on it more. 
 
 In contrast, in this paper we present a new method to simultaneously optimize
-both network size and model performance. The key idea is to learn the right
+ network size and model performance. The key idea is to learn the right
 network size at the same time that we optimize for prediction performance for a
 specific task. Our approach, called {\it ShrinkNets}, starts with an {\it
-oversized} network, and dynamically shrinks it by eliminating unimportant
+over-sized} network, and dynamically shrinks it by eliminating unimportant
 neurons---those that do not contribute to prediction performance---during
-training time. For that, ShrinkNets must detect the unimportant neurons, and
-remove them from the network, thus drastically reducing the network size. The
+training time. To do this, ShrinkNets must detect the unimportant neurons, and
+remove them from the network. The
 removal of entire neurons and not connections is crucial, because it leads to
-dense networks, which lead to better inference performance. To support the
+dense networks, which in turn leads to better inference performance. To support the
 detection and removal of unimportant neurons we introduce a new layer, called
-\textbf{Switch layer}. Introducing this new layer means we must redefine the
-loss function to account for the sparsity effect it introduces. ShrinkNets has
+\textbf{Switch layer}. Introducing this new layer simply requires us to
+add a term to the
+loss function to optimize the weights of this layer during training. ShrinkNets has
 two main benefits. First, it explores the architecture of models that are both
 small and perform well, rather than starting with a high-performance model and
-making it small.  This allows us to efficiently generate a family of smaller and
+making it small.  It does this using a single new hyperparameter that effectively 
+models the target network size.  This allows us to efficiently generate a family of smaller and
 accurate models without an exhaustive and expensive hyperparameter search over
 the number of neurons in each layer.  Second, in contrast to existing neural
 network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our
@@ -60,9 +60,6 @@ dense, which means that inference time is also improved, e.g., on GPUs.
 
 
 
-
-
-XXX people actually don't treat network size as a hyperparameter;  we do!
 
 
 % {\bf Old introduction:}
@@ -113,7 +110,6 @@ In summary, our contributions are as follows:
 which allows us to optimize the network size as the network is trained. 
 \item \srm{xxx postprocessing techniques to strip out switch layers}
 \item We show that our technique is a relaxation of group LASSO~\cite{Yuan2006} and prove that our problem admits many global minima.
-\item \srm{Some claim about model size vs performance}
 \item We demonstrate the efficacy of our technique on both convolutional and fully-connected neural nets,
 showing that 
 ShrinkNets finds networks within +/-X\% of best hand-crafted accuracy in XX\% of
@@ -122,9 +118,8 @@ model/dataset where this is true.}
 \item We demonstrate that ShrinkNets can achieve this accuracy with only YY\% 
 of neurons. \srm{This claim should be something about how much smaller a network with say 99\%
 accuracy is one some real dataset}
-\item \srm{Something about dense networks and then benefit over optimal brain damage}
 \item \srm{Some claim about inference time}
-\item \srm{Some claim about compatibility with existing compression techniques?}
+\item \srm{Some claim about model size vs performance}
 \end{compactenum}
 
 The remaining of this paper is organized as follows. In section
