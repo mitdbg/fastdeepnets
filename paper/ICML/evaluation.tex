@@ -18,8 +18,6 @@ improved inference times on both CPUs and GPUs.
 substantially different than the best network architectures (in terms of
 relative number of neurons per layered) identified in the literature.
 
-\item \srm{something else?}
-
 \end{compactitem}
 
 \noindent\textbf{Implementation: }We implemented \swls and
@@ -126,9 +124,6 @@ For each
 model, we plot its accuracy and model size. The lines show the Pareto frontier
 of models in each of the two optimization settings. ShrinkNets explore the
 trade-off between model size and accuracy more effectively. 
-\srm{Would be good
-to show Lambda values on the figure somehow.  } \srm{I thought we were going to
-summarize with distributional plots instead of Pareto frontiers?} 
 %\srm{Summarize
 %more quantitatively -- best model performance, model performance drop off for a
 %factor of 10 reduction in seize, etc. so that we can repeat a quantitative claim
@@ -138,10 +133,11 @@ summarize with distributional plots instead of Pareto frontiers?}
 %finds a model that is z times smaller.'' (If we do this, would be good to
 %highlight these points in the figure somehow)}
 
-Note that the best performing ShrinkNets models has \ra{xx} accuracy while the
-best static model has \ra{xx} accuracy, while the ShrinkNets model is \ra{xx}
-times smaller. In addition, if we give up just 1\% error, ShrinkNets finds a
-model that is \ra{xx} times smaller. 
+Note that the best performing ShrinkNets models has $92.07\%$ accuracy which
+is identical to the accuracy of the static network, while the ShrinkNets model
+is $2.22$ times smaller. In addition, if we give up just 1\% error, ShrinkNets
+finds a model that is 35.5 times smaller than any static network that performs
+as good or better.
 
 \subsubsection{Small Network Setting: \texttt{COVERTYPE}}
 
@@ -173,10 +169,10 @@ entire parameter space.  This is as expected;  the fact that ShrinkNets performs
 as well as the Static indicates that ShrinkNets is doing an effective job of
 exploring the parameter space using just the single $\lambda$ parameter.
 
-Note that the best performing ShrinkNets models has \ra{xx} accuracy while the
-best static model has \ra{xx} accuracy, while the ShrinkNets model is \ra{xx}
-times smaller. In addition, if we give up just 1\% error, ShrinkNets finds a
-model that is \ra{xx} times smaller. 
+Note that the best performing ShrinkNets models has $96.91\%$ accuracy while the
+best static model is only $96.66\%$ accurate, while the ShrinkNets model is $2.51$
+times smaller. In addition, if we give up just 0.5\% error, ShrinkNets finds a
+model that is 38.6 times smaller than any static network with equivalent accuracy.
 
 %\srm{Summarize more quantitatively -- best model performance, model performance
 %drop off for a factor of 10 reduction in seize, etc. so that we can repeat a
@@ -265,7 +261,7 @@ most dramatically.  On CPU, speedups range up to 6x depending on the batch size,
   On GPU, the speedups are less substantial because the CUDA benchmarking utility that we use for evaluation can choose better algorithms for larger matrices which masks some of our benefit, although they are still often 1.5x--2x faster for large batch sizes.
 The speedup results on {\tt COVERTYPE} are similar to those for network size:  because the networks are not much smaller, they are not much faster either.
 
-A key takeaway of these speedup results is that, unlike local sparsity compression methods, our methods' improvement on size translates directly to higher throughput at inference time. \srm{Can we cite something showing that local sparsity does not improve performance even w/ small nets?} \gl{The deep compression in table III shows it very well}, at least for larger batches when hardware can be fully utilized.
+A key takeaway of these speedup results is that, unlike local sparsity compression methods, our methods' improvement on size translates directly to higher throughput at inference time~\cite{Han2015}.
 
 
 
@@ -308,8 +304,6 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 \end{minipage}
 \end{figure*}
 
-\ra{checkpoint}
-
 \subsection{Architectures obtained after convergence}
 
 \begin{figure}[htb]
@@ -345,10 +339,10 @@ shape of the data but actually reflects the dataset.  This makes sense, as
 To illustrate this point on a larger dataset, we show two examples of
 architectures learned by \textit{ShrinkNets} in
 Figure~\ref{fig:network_size_evolution}.  The top plot shows the model with the
-best test accuracy, with \srm{identical performance to the best static
-network?}; the bottom shows a network that slightly under-performs the best in
+best test accuracy, with identical performance to the best static
+network; the bottom shows a network that slightly under-performs the best in
 terms of accuracy but is significantly smaller that the best equivalent
-\textit{Static Network} \srm{how much smaller?}.  In the plot, the dashed line
+\textit{Static Network}.  In the plot, the dashed line
 shows the number of neurons in each layer of the original VGG net, and the
 shaded regions show the size of the ShrinkNet as it converges (with the darkest
 region representing the fully converged network).  Observe that the final
