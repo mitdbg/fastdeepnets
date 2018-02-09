@@ -1,24 +1,15 @@
 %!TEX root=paper.tex
 \section{Evaluation}
 
-The goal of our evaluation is to explore:
-
-\begin{compactitem}
-\item Whether, by varying $\lambda$, \shrink can efficiently
+The goal of our evaluation is to explore (1) whether, by varying $\lambda$, \shrink can efficiently
 explore (in terms of number of training runs)  the spectrum of high-accuracy
 models from small to large, on both CNNs and fully connected networks.  Our
 results show that, for each network size, we obtain models that perform as well
 or better than \textit{Static Networks}, trained via traditional hyperparameter
-optimization.
-
-\item Whether, because these  smaller networks are dense, they result in
-improved inference times on both CPUs and GPUs.
-
-\item Whether the \shrink approach results in network architectures that are
+optimization;  (2) whether, because these  smaller networks are dense, they result in
+improved inference times on both CPUs and GPUs; and (3) whether the \shrink approach results in network architectures that are
 substantially different than the best network architectures (in terms of
 relative number of neurons per layered) identified in the literature.
-
-\end{compactitem}
 
 \noindent\textbf{Implementation: }We implemented \swls and
 the associated training procedure as a library in
@@ -95,9 +86,9 @@ separated by a \textit{ReLU} activation function.
 We applied \shrink to the VGG16 network by adding \swls
 after each \textit{BatchNorm} layer and each fully connected layer (except the
 last).  Recall that \shrink assume that the starting size of the network is
-an upper bound on the optimal size. For this reason, we simply started with a
-network with double the recommended size for each layer as an upper bound (this
-is larger than what ImageNet, for example uses). 
+an upper bound on the optimal size. Thus, we started with a
+network with 2x the recommended size for each layer as an upper bound (this
+is larger than what ImageNet uses). 
 % Thus, for the classification
 % layers we use $5000$ neurons as a starting limit.
 
@@ -272,24 +263,23 @@ A key takeaway of these speedup results is that, unlike local sparsity compressi
 
 \begin{figure*}[t]\centering
 \begin{minipage}{2.7in}
-\begin{center}
+\centering
 \includegraphics[width=\columnwidth]{CIFAR10_VGG_summary-arrows}
-\vspace*{-5mm}
+\vspace*{-10mm}
 \caption{\label{figure_CIFAR10} Summary of the result of random
 search over the hyper-parameters the \texttt{CIFAR10} dataset}
-\end{center}
-\vspace*{-4mm}
+\vspace*{-5mm}
+\end{minipage}
+\begin{minipage}{.3in}
+~~
 \end{minipage}
 \begin{minipage}{2.7in}
-\begin{center}
-\includegraphics[width=\columnwidth]{COVER_FC_summary-arrows}
-\vspace*{-5mm}
+\centering\includegraphics[width=\columnwidth]{COVER_FC_summary-arrows}
+\vspace*{-10mm}
 \caption{\label{figure_COVER} Summary of the result of random
 search over the hyper-parameters the \texttt{COVERTYPE} dataset
-\srm{label the x axes on the bottom plots; change ``Desired accuracy`` ``Accuracy''}
 }
-\end{center}
-\vspace*{-4mm}
+\vspace*{-5mm}
 \end{minipage}
 \end{figure*}
 
@@ -304,6 +294,7 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
   network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
   accuracy. 
 } 
+\vspace*{-5mm} 
 \label{fig:network_size_evolution}
 \end{center}
 \vspace*{-4mm}

@@ -1,4 +1,4 @@
-\begin{thebibliography}{24}
+\begin{thebibliography}{22}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -163,15 +163,5 @@ Yuan, Ming and Lin, Yi.
   Methodology}, 68\penalty0 (1):\penalty0 49--67, 2006.
 \newblock ISSN 13697412.
 \newblock \doi{10.1111/j.1467-9868.2005.00532.x}.
-
-\bibitem[Zoph \& Le(2016)Zoph and Le]{DBLP:journals/corr/ZophL16}
-Zoph, Barret and Le, Quoc~V.
-\newblock Neural architecture search with reinforcement learning.
-\newblock \emph{CoRR}, abs/1611.01578, 2016.
-
-\bibitem[Zoph et~al.(2017)Zoph, Vasudevan, Shlens, and Le]{zoph2017learning}
-Zoph, Barret, Vasudevan, Vijay, Shlens, Jonathon, and Le, Quoc~V.
-\newblock Learning transferable architectures for scalable image recognition.
-\newblock \emph{arXiv preprint arXiv:1707.07012}, 2017.
 
 \end{thebibliography}

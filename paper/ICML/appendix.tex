@@ -11,19 +11,19 @@
 %\vspace*{-4mm}
 %\end{figure}
 
-\subsection{Proofs}
-Unless stated explicitly, all the propositions consider the Multi-Target linear regression problem.
+Here we prove the propositions given in Section~\ref{sec:approach}.  
+%Unless stated explicitly, all the propositions consider the Multi-Target linear regression problem.
 \begin{proposition}
 \label{gps_equivalence}
-  $\forall (n, p) \in \mathbb{N}_+^2, \bm{y} \in \mathbb{R}^{n}, \bm{x} \in \mathbb{R}^{p} \lambda \in \mathbb{R}$
-  
+  $\forall (n, p) \in \mathbb{N}_+^2, \bm{y} \in \mathbb{R}^{n}, \bm{x} \in \mathbb{R}^{p} \lambda \in \mathbb{R}$:
+  %
   \begin{align*}
     & \min_{\bf{A}} \norm{\bf{y} - \bf{A}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \norm{\left(A^T\right)_j}_2 \\
      = &\min_{\bf{A'}, \bm{\beta}} \norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1 \\
      & \text{s.t.} \forall j, 1 \leq j \leq p, \norm{\left(A'^T\right)_j}_2^2 = 1
   \end{align*}
 \end{proposition}
-
+\vspace{-.3in}
 \begin{proof}
   We split the proof into two parts. First, we
   demonstrate that there is at least one global minimum. Then, we 
@@ -37,19 +37,15 @@ Unless stated explicitly, all the propositions consider the Multi-Target linear 
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \sum_{j=1}^p \abs{\beta_j} \cdot 1\\
     = &\norm{\bf{y} - \bf{A'}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
   \end{align*}
-  Which concludes the first part.
   \\ \textbf{Part 2:} Assuming we take an $\bm{A}'$ that satisfies the constraint and a $\bm{\beta}$, we can define $\bm{A} = \bm{A'}\diag{\bm{\beta}}$. We can apply the same operations in reverse order and obtain an instance of the first problem with the same value.
   \\ \textbf{Conclusion} There is no way these two problems have different minima,
   because we are able to construct a solution to a problem from the solution
   of the other while preserving the value of the objective.
 \end{proof}
 
-\begin{proposition}
-\label{unconstrained_non_convex}
-\begin{equation*}
-     \norm{\bf{y} - \bf{A}\diag{\bm{\beta}}\bf{x}}_2^2
-\end{equation*}
-is not convex in $\bm{A}$ and $\bm{\beta}$.
+\begin{proposition} \label{unconstrained_non_convex}
+$     \norm{\bf{y} - \bf{A}\diag{\bm{\beta}}\bf{x}}_2^2
+$ is not convex in $\bm{A}$ and $\bm{\beta}$.
 \begin{proof}
   To prove this we will take the simplest instance of the problem: where everything is a scalar. We have $f(a, \beta) = \left(y - a\beta x\right)^2$. For simplicty we's take $y = 0$ and $x > 0$. If we consider two candidates $s_1 = (0, 2)$ and $s_2 = (2, 0)$, we have $f(s_1) = f(s_2) = 0$. However $f(\frac{2}{2}, \frac{2}{2}) = x > \frac{1}{2} f(0, 2) + \frac{1}{2}f(2, 0)$, which break the convexity property. Since we showed that a particular case of the problem is non-convex then necessarily the general case cannot be convex.
 \end{proof}
@@ -57,9 +53,8 @@ is not convex in $\bm{A}$ and $\bm{\beta}$.
 
 \begin{proposition}
 \label{unconstrained_shrinknet_no_min}
-\begin{equation*}
-     \min_{\bf{A}, \bm{\beta}} \norm{\bf{y} - \bf{A}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
-\end{equation*}
+$     \min_{\bf{A}, \bm{\beta}} \norm{\bf{y} - \bf{A}\diag{\bm{\beta}}\bf{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
+$
 has no solution if $\lambda > 0$.
 \end{proposition}
 \begin{proof}
