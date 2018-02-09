@@ -67,14 +67,18 @@ are not likely to improve inference times even though they reduce network size.
 %removing entire blocks of parameter to maintain dense matrices, however their
 %method only applies to convolutional layers.
 
-\noindent\textbf{Auto-ML: } Some work that focuses on automatically learning
-model architecture through the use of genetic algorithms and reinforcement
-learning techniques~\cite{DBLP:journals/corr/ZophL16, zoph2017learning}. These
-techniques are focused on learning higher-level architectures (e.g.,
-building blocks for neural network architectures). In particular, they do not
-focus on finding small but well-performing networks for inference, which is the
-goal of ShrinkNets.
-\tim{Argument is not really convincing, but those techniques require to train full models and might take weeks to converge. }
+%\noindent\textbf{Auto-ML: } Some work focuses on automatically learning
+%model architecture through the use of genetic algorithms and reinforcement
+%learning techniques~\cite{DBLP:journals/corr/ZophL16, zoph2017learning}. These
+%techniques are focused on learning higher-level architectures (e.g., building
+%blocks for neural network architectures). In particular, they require to train
+%full models and may take weeks to converge. 
+
+%do not
+%focus on finding small but well-performing networks for inference, which is the
+%goal of ShrinkNets.
+%\tim{Argument is not really convincing, but those techniques require to train
+%full models and might take weeks to converge. }
 
 \noindent\textbf{Dynamically Sizing Networks: }The techniques closest to our
 proposed method are those based on group sparsity such as
