@@ -33,10 +33,10 @@ to fully connected as well as convolutional layers.
 
 Our objective is to minimize the number of ``on'' switches to reduce the model size as much
 as possible while preserving prediction accuracy. This can be achieved by jointly
-minimizing the training loss of the network and applying an L0 norm to the 
+minimizing the training loss of the network and applying an $l_0$ norm to the 
 $\bm{\beta}$ parameters of the \swl. 
-Since minimizing the L0 norm is an NP-Hard problem, we instead relax the constraint
-to an L1 norm by constraining $\bm{\beta}$ to be a real number
+Since minimizing the $l_0$ norm is an NP-Hard problem, we instead relax the constraint
+to an $l_1$ norm by constraining $\bm{\beta}$ to be a real number
 instead of a binary value.
 % Because finding an optimal binary
 % assignment is an NP-Hard problem, we relax the problem by allowing
