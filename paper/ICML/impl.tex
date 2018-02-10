@@ -12,24 +12,24 @@ Switch layers are initialized with weights sampled from $\mathcal{N}(0,1)$;
 their values change as part of the training process so as to switch \emph{on}
 or \emph{off} neurons. When neurons are deactivated by switch layers, we need
 to remove them to actually shrink the network size.
-In the following we discuss three potential strategies to remove neurons. 
+In the following we discuss three strategies to decide when to deactivate neurons. 
 %Since after removing a neuron it will no longer be able to contribute to  prediction accuracy, we must devise strategies that remove neurons while remaining robust to changing gradient values. We observe three strategies:
 
 \textbf{Threshold strategy}: Under this strategy neurons are removed based on
 a fixed threshold expressed in terms of its absolute value. This is the method
-used by deep compression \cite{Han2015}. We found this method is very sensitive to the initializaiton 
+used by deep compression \cite{Han2015}. We found this method is very sensitive to the initialization 
 and not robust to noise in the gradients---which occurs commonly when training networks with
 stochastic gradient descent---because the threshold depends on the scale of
 each weight.
 
-\textbf{Sign change strategy}: Under this strategy neurons are removed when the
-weight value changes its sign. As before this strategy is also sensitive to gradient noise; if we sample the gradient in a way that is not fully representative of the dataset we might experience one-time zero crossing which could wrongly remove a neuron.
+\textbf{Sign change strategy}: Under this strategy neurons are deactivated when the
+weight value changes its sign. As before this strategy is also sensitive to gradient noise; if we sample the gradient in a way that is not fully representative of the dataset we might experience one-time zero crossing which could wrongly deactivate a neuron.
 
 \textbf{Sign variance strategy}: Instead of removing on the first zero
 crossing, we can instead measure the exponential moving variance of the sign
 ($-1, 1$) of each parameter in the \textit{switch layer}. When the value of
 the exponential moving variances goes over a predefined threshold, we consider
-the neuron deactivated, and therefore we remove it. This strategy introduces
+the neuron deactivated. This strategy introduces
 two extra parameters, one to control the behavior of the inertia of the
 variance, and the threshold. 
 However, we found that this strategy performs the best in practice and is used throughout our evaluation section. 
@@ -48,8 +48,8 @@ layer by multiplying the respective parameters before emitting the final trained
 network. As a result, the final network is a dense network without any switching layers. 
 
 \noindent\textbf{Neural Garbage Collection: } \shrink decides on-the-fly which
-neurons to remove. Since \shrink removes a large fraction of neurons, we must
-dynamically resize the network at runtime to not unnecessarily impact network
+neurons to deactivate. Since \shrink deactivate a large fraction of neurons, we must
+dynamically remove these neurons at runtime to not unnecessarily impact network
 training time. We implemented a neural garbage collection method as part of our
 library which takes care of updating the necessary network layers as well as
 updating optimizer state to reflect the neuron removal.
