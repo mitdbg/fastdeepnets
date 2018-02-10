@@ -121,11 +121,11 @@ The results are shown in the top figure of \cref{figure_COVER}, with the two
 optimization methods plotted as before. Here, {\it Static} method finds models
 that perform well at a variety of sizes, because it is able to explore the
 entire parameter space.  This is as expected;  the fact that \shrink perform
-as well as the Static indicates that \shrink are doing an effective job of
+as well as Static indicates that \shrink are doing an effective job of
 exploring the parameter space using just the single $\lambda$ parameter.
 
-Note that the best performing \shrink models has $96.91\%$ accuracy while the
-best static model is only $96.66\%$ accurate, while the \shrink shrink model is $2.51$
+Note that the best performing \shrink models have $96.91\%$ accuracy while the
+best static model is only $96.66\%$ accurate, while the \shrink model is $2.51$
 times smaller. In addition, if we give up just 0.5\% error, \shrink find a
 model that is 38.6 times smaller than any static network with equivalent accuracy.
 
@@ -209,7 +209,7 @@ compression methods, our methods' improvement on size translates directly to
 higher throughput at inference time~\cite{Han2015}.
 
 
-\begin{figure*}[t]\centering
+\begin{figure*}[tb]\centering
 \begin{minipage}{2.7in}
 \centering
 \includegraphics[width=\columnwidth]{CIFAR10_VGG_summary-arrows}
@@ -231,21 +231,6 @@ search over the hyper-parameters the \texttt{COVERTYPE} dataset
 \end{minipage}
 \end{figure*}
 
-
-\begin{figure}[htb]
-\begin{center}
-\vspace{-.1in}
-\includegraphics[width=.6\columnwidth]{size_evolution}
-\vspace*{-5mm} 
-\caption{ Evolution of the size of
-  each layer over time (lighter: beginning, darker: end). On top a very large
-  network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
-  accuracy. 
-} 
-\label{fig:network_size_evolution}
-\end{center}
-\vspace*{-4mm}
-\end{figure}
 
 \subsection{Architectures obtained after convergence}
 \shrink effectively explore the frontier of model size and accuracy. For a
@@ -277,5 +262,21 @@ network that is trained looks quite different in the two cases, with the optimal
 performing network appearing similar to the original VGG net, whereas the
 shrunken network allocates many fewer neurons to the middle layers, and then
 additional neurons to the final fewer layers.
+
+
+\begin{figure}[h]
+\begin{center}
+\vspace{-.1in}
+\includegraphics[width=.6\columnwidth]{size_evolution}
+\vspace*{-5mm} 
+\caption{ Evolution of the size of
+  each layer over time (lighter: beginning, darker: end). On top a very large
+  network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
+  accuracy. 
+} 
+\label{fig:network_size_evolution}
+\end{center}
+\vspace*{-4mm}
+\end{figure}
 
 
