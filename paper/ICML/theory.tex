@@ -39,7 +39,7 @@ group sparsity regularization then becomes (when $\sqrt{n}$ is folded into the $
 % cardinality? why not $|x|$?,}  \gl{In europe |x| is for the abolute value, and I was using it in the notation section that someone removed, therefore there would have been a notation conflict}to make the notation simpler, we
 
 Group sparsity and \shrink try to achieve the same goal. We discuss next how
-they are related to each other. First let's recall the two problems. In the context of approximating $\bm{y}$ with a linear regression from features $\bm{x}$), the
+they are related to each other. First let's recall the two problems. In the context of approximating $\bm{y}$ with a linear regression from features $\bm{x}$, the
 original \shrink problem is 
 %
 \begin{equation}
@@ -55,7 +55,7 @@ And the group sparsity problem is:
 
 We can prove that under the condition: $\forall j\in \intint{1, p},
 \norm{\left(\bm{A}^T\right)_j}_2 = 1$ the two problems are equivalent
-(\cref{gps_equivalence}, see Apendix). However if we relax this constraint then \shrink
+(\cref{gps_equivalence}, see Appendix). However if we relax this constraint then \shrink
 becomes non-convex and has no global minimum
 (\cref{unconstrained_non_convex,unconstrained_shrinknet_no_min}, also in Appendix). Fortunately,
 by adding an extra term to the \shrink regularization term we can prove that:
