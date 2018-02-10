@@ -38,7 +38,7 @@ However, we found that this strategy performs the best in practice and is used t
 
 \subsection{Additional Optimizations for ShrinkNets}
 
-\noindent\textbf{Preparing for Inference: } With ShrinkNets we obtain
+\noindent\textbf{Preparing for Inference: } With \shrink we obtain
 reduced-sized networks during training, which is the first steps towards faster
 inference. This networks are readily available for inference. However, because
 they include switch layers---and therefore more parameters---they introduce
@@ -47,8 +47,8 @@ network parameters by combining each switch layer with its respective network
 layer by multiplying the respective parameters before emitting the final trained
 network. As a result, the final network is a dense network without any switching layers. 
 
-\noindent\textbf{Neural Garbage Collection: }ShrinkNets decides on-the-fly which
-neurons to remove. Since ShrinkNets removes a large fraction of neurons, we must
+\noindent\textbf{Neural Garbage Collection: } \shrink decides on-the-fly which
+neurons to remove. Since \shrink removes a large fraction of neurons, we must
 dynamically resize the network at runtime to not unnecessarily impact network
 training time. We implemented a neural garbage collection method as part of our
 library which takes care of updating the necessary network layers as well as
