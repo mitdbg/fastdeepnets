@@ -115,11 +115,11 @@ In summary, our contributions are as follows:
 on and off neurons, which allows us to optimize the network size while the
 network is trained. 
 
-\noindent\textbf{2.} We implement our technique so as to remove entire neurons,
-therefore leading not only to small and well-performing networks, but also
-dense, which means higher inference performance. Furthermore, our switching
-layers used during training can be savely removed before the model is used for
-inference, leading to zero additional overhead. 
+\noindent\textbf{2.} We extend our technique to remove entire neurons,
+ leading not only to smaller networks, but also
+dense matrices, which yield improved inference times as networks shrink. Furthermore, our switching
+layers used during training can be safely removed before the model is used for
+inference, meaning they add no additional overhead at inference time.
 
 %\item \srm{xxx postprocessing techniques to strip out switch layers}
 
@@ -128,10 +128,10 @@ LASSO~\cite{Yuan2006} and prove that our problem admits many global minima.
 
 \noindent\textbf{4.} We evaluate ShrinkNets with both fully-connected as well as
 convolutional neural networks. For \texttt{CIFAR10}, we achieve the same
-accuracy than a traditionally trained network while reducing the network size by
-a factor of $2.2x$. Further, when willing to sacrifice only $1$\% of
-performance, ShrinkNets finds networks which are 35\% smaller. All in all, this
-leads to speedups in inference time of up to 6x. 
+accuracy as a traditionally trained network while reducing the network size by
+a factor of $2.2X$. Further, while sacrificing just $1$\% of
+performance, ShrinkNets finds networks that are 35X smaller. All in all, this
+leads to speedups in inference time of up to 6X. 
 
 
 %\end{compactenum}
