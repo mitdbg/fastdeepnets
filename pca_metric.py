@@ -13,6 +13,11 @@ from sklearn.decomposition import PCA
 from scipy.linalg import inv, norm
 from algorithms.exp_norm_mixture_fit import fit as fit_exp_norm
 from algorithms.digamma_mixture_fit import fit as fit_digamma
+from matplotlib import rc, use
+rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
+
+with_title = False
 
 from models.MNIST_1h import MNIST_1h
 
@@ -67,6 +72,7 @@ def get_activations(model, loader):
     result = torch.cat(outputs, 0)
     return result - result.mean(0)
 
+
 def simplify_all(values, basis):
     D = torch.inverse(basis).mm(values.transpose(0, 1))
     result = D.clone().zero_()
@@ -89,6 +95,26 @@ def get_distances(activations, pcas):
         results.append(np.array(errs))
     return results
 
+def get_accuracies(models, loader, pcas):
+    results = []
+    for pca, model in zip(pcas, models):
+        model_accuracies = []
+        for images, labels in loader:
+            images = wrap(Variable(images, volatile=True))
+            a = model.partial_forward(images, False).data
+            accs_per_components = []
+            for reconstructed in simplify_all(a, wrap(torch.from_numpy(pca.components_))):
+                x = model.activation(reconstructed)
+                x = model.output_layer(x)
+                prediction = x.max(1)[1].data.cpu()
+                cac = (labels == prediction).sum()
+                accs_per_components.append(cac)
+            model_accuracies.append(accs_per_components)
+        model_accuracies = np.array(model_accuracies).sum(0) / 60000
+        results.append(model_accuracies)
+        print(model_accuracies)
+    return results
+
 def get_dl(dataset, prefix):
     return DataLoader(
         dataset(
@@ -108,7 +134,8 @@ def get_pca(activations):
 
 def plot_variance(variances, prefix):
     plt.figure(figsize=(10, 5))
-    plt.title('%s - Explained variance per component for multiple models' % prefix)
+    if with_title:
+        plt.title('%s - Explained variance per component for multiple models' % prefix)
     for x in variances:
         plt.plot(x, label=('%s neurons' % len(x)))
     plt.yscale('log')
@@ -117,20 +144,51 @@ def plot_variance(variances, prefix):
     plt.xlabel('xth component (sorted)')
     plt.ylabel('Explained variance')
     plt.ylim((1e-13, 1e4))
-    plt.savefig('./plots/%s_1h_pca_explained_variance.png' % prefix)
+    a = plt.gca()
+    a.yaxis.grid(b=True, which='major', linestyle='-')
+    a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    a.xaxis.grid(b=True, which='major', linestyle='-')
+    a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    plt.savefig('./plots/%s_1h_pca_explained_variance.png' % prefix,
+                bbox_inches='tight', pad_inches=0)
     plt.close()
 
 def plot_distances(distances, prefix):
     plt.figure(figsize=(10, 5))
-    plt.title('%s - Square distance of PCA reconstruction' % prefix)
+    if with_title:
+        plt.title('%s - Square distance of PCA reconstruction' % prefix)
     for x in distances:
-        plt.plot(x, label=('%s neurons' % len(x)))
+        plt.plot(x, label=('%s neurons' % (len(x) - 1)))
     plt.legend()
     plt.xlabel('Number of components kept')
     plt.ylabel('Mean distance (L2)')
-    plt.savefig('./plots/%s_1h_pca_reconstruction_distance.png' % prefix)
+    a = plt.gca()
+    a.yaxis.grid(b=True, which='major', linestyle='-')
+    a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    a.xaxis.grid(b=True, which='major', linestyle='-')
+    a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    plt.savefig('./plots/%s_1h_pca_reconstruction_distance.png' % prefix,
+                bbox_inches='tight', pad_inches=0)
     plt.close()
 
+def plot_accuracies(accuracies, prefix):
+    plt.figure(figsize=(10, 5))
+    for r in accuracies:
+        plt.plot(r, label=('%s neurons' % (len(r) - 1)))
+    plt.xscale('log')
+    plt.ylim((0, 1))
+    plt.xlim(xmin=10)
+    plt.legend()
+    plt.xlabel('Number of components kept')
+    plt.ylabel('Accuracy')
+    a = plt.gca()
+    a.yaxis.grid(b=True, which='major', linestyle='-')
+    a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    a.xaxis.grid(b=True, which='major', linestyle='-')
+    a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    plt.savefig('./plots/%s_1h_pca_reconstruction_accuracy.png' % prefix,
+                bbox_inches='tight', pad_inches=0)
+    plt.close()
 
 def pipeline(ds, prefix):
     dl = get_dl(ds, prefix)
@@ -140,8 +198,10 @@ def pipeline(ds, prefix):
     pcas = [get_pca(x) for x in activations]
     variances = [x.explained_variance_ for x in pcas]
     distances = get_distances(activations, pcas)
+    accuracies = get_accuracies(models, dl, pcas)
     plot_distances(distances, prefix)
     plot_variance(variances, prefix)
+    plot_accuracies(accuracies, prefix)
     return distances
 
 if __name__ == '__main__':
