@@ -18,6 +18,8 @@ rc('font',**{'family':'serif','serif':['Palatino']})
 rc('text', usetex=True)
 
 with_title = False
+ext = 'pdf'
+fig_size = (10, 6)
 
 from models.MNIST_1h import MNIST_1h
 
@@ -133,7 +135,7 @@ def get_pca(activations):
     return pca
 
 def plot_variance(variances, prefix):
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     if with_title:
         plt.title('%s - Explained variance per component for multiple models' % prefix)
     for x in variances:
@@ -149,12 +151,12 @@ def plot_variance(variances, prefix):
     a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
     a.xaxis.grid(b=True, which='major', linestyle='-')
     a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
-    plt.savefig('./plots/%s_1h_pca_explained_variance.png' % prefix,
+    plt.savefig('./plots/%s_1h_pca_explained_variance.%s' % (prefix, ext),
                 bbox_inches='tight', pad_inches=0)
     plt.close()
 
 def plot_distances(distances, prefix):
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     if with_title:
         plt.title('%s - Square distance of PCA reconstruction' % prefix)
     for x in distances:
@@ -167,12 +169,12 @@ def plot_distances(distances, prefix):
     a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
     a.xaxis.grid(b=True, which='major', linestyle='-')
     a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
-    plt.savefig('./plots/%s_1h_pca_reconstruction_distance.png' % prefix,
+    plt.savefig('./plots/%s_1h_pca_reconstruction_distance.%s' % (prefix, ext),
                 bbox_inches='tight', pad_inches=0)
     plt.close()
 
 def plot_accuracies(accuracies, prefix):
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     for r in accuracies:
         plt.plot(r, label=('%s neurons' % (len(r) - 1)))
     plt.xscale('log')
@@ -186,7 +188,7 @@ def plot_accuracies(accuracies, prefix):
     a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
     a.xaxis.grid(b=True, which='major', linestyle='-')
     a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
-    plt.savefig('./plots/%s_1h_pca_reconstruction_accuracy.png' % prefix,
+    plt.savefig('./plots/%s_1h_pca_reconstruction_accuracy.%s' % (prefix, ext),
                 bbox_inches='tight', pad_inches=0)
     plt.close()
 
