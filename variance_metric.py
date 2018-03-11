@@ -12,10 +12,25 @@ import matplotlib.pyplot as plt
 import scipy
 from algorithms.exp_norm_mixture_fit import fit as fit_exp_norm
 from algorithms.digamma_mixture_fit import fit as fit_digamma
-
 from models.MNIST_1h import MNIST_1h
+from matplotlib import rc, use
+rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
 
+with_title = False
+ext = 'pdf'
+fig_size = (10, 6)
+epochs = 30
 REPLICATES = 11
+
+def save_fig(file_name):
+    file_name = file_name.replace(".png", "")
+    a = plt.gca()
+    a.yaxis.grid(b=True, which='major', linestyle='-')
+    a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    a.xaxis.grid(b=True, which='major', linestyle='-')
+    a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
+    plt.savefig(file_name + '.' + ext, bbox_inches='tight', pad_inches=0)
 
 transform = transforms.Compose([
                        transforms.ToTensor(),
@@ -37,7 +52,7 @@ def load_model(id):
     with open('/tmp/model-%s.data' % id, 'rb') as f:
         return torch.load(f)
 
-def train(models, dl, epochs=30):
+def train(models, dl, epochs=epochs):
     criterion = nn.CrossEntropyLoss()
     optimizers = [Adam(model.parameters()) for model in models]
 
@@ -78,47 +93,50 @@ def get_activations(models, loader, wrap=wrap):
 
 def plot_distributions(activations, prefix):
     to_plot = [1, 3,  5, 9, 11, 13, 15]
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     for i in reversed(sorted(to_plot)):
         sns.distplot(activations[i], hist=False, label="%s neurons" % (len(activations[i]) / REPLICATES ))
     plt.xlim((0, 8.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
-    plt.title(prefix +' - Distribution of standard deviation of activation after hidden layer')
+    if with_title:
+        plt.title(prefix +' - Distribution of standard deviation of activation after hidden layer')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_dist_activations.png' % prefix)
+    save_fig('./plots/%s_1h_dist_activations.png' % prefix)
     plt.close()
 
 
 def plot_sum_variance(activations, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     sums = np.array([x.sum() for x in activations])
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     plt.plot(sizes, sums)
-    plt.title(prefix +' - Sum of variance depending on the size of the layer')
+    if with_title:
+        plt.title(prefix +' - Sum of variance depending on the size of the layer')
     plt.xlabel('Number of neurons')
     plt.ylabel('Sum of variance')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_sum_variance.png' % prefix)
+    save_fig('./plots/%s_1h_sum_variance.png' % prefix)
     plt.close()
 
 
 def plot_shapiro(activations, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     plt.plot(sizes, t_values)
-    plt.title(prefix +' - Results of normality tests(Shapiro) for different layer size')
+    if with_title:
+        plt.title(prefix +' - Results of normality tests(Shapiro) for different layer size')
     plt.xlabel('Number of neurons')
-    plt.ylabel('t_value')
+    plt.ylabel('t-value')
     argmax = sizes[t_values.argmax()]
     plt.axvline(x=argmax, color='C1')
     plt.xticks(list(plt.xticks()[0]) + [argmax])
     plt.xlim(0, 10000)
     plt.ylim((0, 1))
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_normality_test.png' % prefix)
+    save_fig('./plots/%s_1h_normality_test.png' % prefix)
     plt.close()
 
 
@@ -126,30 +144,32 @@ def plot_distributions_around_sweet(activations, prefix):
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
     argmax = t_values.argmax()
     to_plot = [argmax - 1, argmax, argmax + 1]
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     for i in reversed(sorted(to_plot)):
         sns.distplot(activations[i], hist=False, label="%s neurons" % (len(activations[i]) / REPLICATES))
     plt.xlim((0, 5))
     plt.ylim((0, 0.5))
     plt.xlabel('Standard deviation (unitless)')
     plt.ylabel('Density')
-    plt.title(prefix +' - Distribution of standard deviation of activation after hidden layer around the most normal')
+    if with_title:
+        plt.title(prefix +' - Distribution of standard deviation of activation after hidden layer around the most normal')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_dist_activations_around_sweet.png' % prefix)
+    save_fig('./plots/%s_1h_dist_activations_around_sweet.png' % prefix)
     plt.close()
 
 
 def plot_dead_neurons(activations, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     deads = np.array([(x == 0).sum() for x in activations])
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     plt.plot(sizes, deads)
-    plt.title(prefix +' - Evolution of the quantity of dead neurons')
+    if with_title:
+        plt.title(prefix +' - Evolution of the quantity of dead neurons')
     plt.xlabel('Number of neurons')
     plt.ylabel('Number of dead neurons')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_dead_neurons.png' % prefix)
+    save_fig('./plots/%s_1h_dead_neurons.png' % prefix)
     plt.close()
 
 def get_accuracy(models, loader):
@@ -168,18 +188,19 @@ def get_accuracy(models, loader):
 def plot_compare_shapiro_accuracy(activations, accuracies, prefix):
     sizes = np.array([len(x) / REPLICATES for x in activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in activations])
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     a = plt.gca()
     b = a.twinx()
     a.plot(sizes, t_values, color='C0')
     b.plot(sizes, accuracies, color='C1')
-    a.set_ylabel('t_value (shapiro test)')
+    a.set_ylabel('t-value (shapiro test)')
     b.set_ylabel('accuracy')
     plt.xscale('log', basex=2)
     a.set_xlabel('Number of neurons')
-    plt.title(prefix +' - Comparison between normality test and measured accuracy')
+    if with_title:
+        plt.title(prefix +' - Comparison between normality test and measured accuracy')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_acc_vs_shapiro.png' % prefix)
+    save_fig('./plots/%s_1h_acc_vs_shapiro.png' % prefix)
     plt.close()
 
 def plot_mixture_ratio(activations, accuracies, prefix):
@@ -190,7 +211,7 @@ def plot_mixture_ratio(activations, accuracies, prefix):
     digamma_ratio = np.array([fit_digamma(x)[1] for x in nz_activations])
     exp_norm_ratio = np.array([fit_exp_norm(x)[1] for x in nz_activations])
     t_values = np.array([scipy.stats.shapiro(x)[0] for x in nz_activations])
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     a = plt.gca()
     b = a.twinx()
     a.plot(sizes, digamma_ratio, color='C0', label='Digamma fitting')
@@ -206,8 +227,9 @@ def plot_mixture_ratio(activations, accuracies, prefix):
     plt.xscale('log', basex=2)
     b.set_ylim((0, 20))
     a.set_xlabel('Number of neurons')
-    plt.title(prefix +' - Comparison between multiple metrics')
-    plt.savefig('./plots/%s_1h_acc_vs_mixtures.png' % prefix)
+    if with_title:
+        plt.title(prefix +' - Comparison between multiple metrics')
+    save_fig('./plots/%s_1h_acc_vs_mixtures.png' % prefix)
     plt.close()
 
 def benchmark(dataset, prefix):
