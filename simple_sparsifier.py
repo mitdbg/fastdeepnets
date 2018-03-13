@@ -16,7 +16,14 @@ from utils.wrapping import wrap, unwrap
 from utils.MNIST import get_dl
 from utils.misc import tn
 
+
 EPOCHS = 15
+fig_size = (10, 6)
+with_title = False
+
+def save_fig(file_name):
+    file_name = file_name.replace(".png", "")
+    plt.savefig(file_name + '.' + ext, bbox_inches='tight', pad_inches=0)
 
 def train(models, dl, dl2, lamb=0.001, epochs=EPOCHS, l2_penalty=0.01, pre_out=None):
     try:
@@ -98,7 +105,8 @@ def evaluate_neuron_importance(model, dl):
 def plot_training(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs):
     order = np.argsort(lambdas)
     fig, (a, b) = plt.subplots(1, 2)
-    fig.suptitle("Training process with different penalties", fontsize=14)
+    if with_title:
+        fig.suptitle("Training process with different penalties", fontsize=14)
     b.set_xlabel('Epoch')
     a.set_xlabel('Epoch')
     a.set_ylabel('Accuracy (%)')
@@ -115,7 +123,7 @@ def plot_training(lambdas, training_accuracy, testing_accuracy, sizes, prefix, e
     b.minorticks_on()
     a.set_xlim(xmin=0, xmax=epochs-1)
     b.set_xlim(xmin=0, xmax=epochs-1)
-    fig.set_size_inches((10, 5))
+    fig.set_size_inches(fig_size)
     for index in order:
         c = 'C%s'%index
         a.plot(testing_accuracy[index]*100, color=c, linewidth=3)
@@ -125,7 +133,7 @@ def plot_training(lambdas, training_accuracy, testing_accuracy, sizes, prefix, e
     training_artist = plt.Line2D((0,1),(0,0), color='k', linestyle=':')
     testing_artist = plt.Line2D((0,1),(0,0), color='k', linestyle='-')
     a.legend([training_artist, testing_artist], ['Training', 'Testing'])
-    plt.savefig('./plots/%s_1h_training_strict_sparsifier.png' % prefix)
+    save_fig('./plots/%s_1h_training_strict_sparsifier.png' % prefix)
     plt.close()
 
 def plot_end(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs):
@@ -133,7 +141,7 @@ def plot_end(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs
     final_testing_acc = testing_accuracy[:, -1]
     final_sizes = sizes[:, -1]
     bar_indices = [len(lambdas) - 1] + list(range(len(lambdas) - 1))
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=fig_size)
     a = plt.gca()
     a.bar(bar_indices, 100 * final_training_acc, 0.65, color='C0', alpha=0.6, label='Training accuracy')
     a.bar(bar_indices, 100 * final_testing_acc, 0.85, color='C2', label='Testing accuracy')
@@ -148,7 +156,8 @@ def plot_end(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs
     a.set_ylabel('Accuracy (%)')
     a.set_xlabel('Size penalty')
     a.set_axisbelow(True)
-    plt.title('%s - Statistics after training %s epochs' % (prefix, epochs))
+    if with_title:
+        plt.title('%s - Statistics after training %s epochs' % (prefix, epochs))
     b = a.twinx()
     b.set_ylim(ymin=0, ymax=final_sizes.max()* 1.1)
     a.set_ylim(ymin=0, ymax=100)
@@ -157,7 +166,7 @@ def plot_end(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs
     b.plot(np.array(bar_indices)[order], final_sizes[order], color='C1', linewidth=4, marker='o', markerfacecolor='black', markersize=10, mew=2)
     a.legend(loc='lower right')
     plt.tight_layout()
-    plt.savefig('./plots/%s_1h_stats_strict_sparsifier.png' % prefix)
+    save_fig('./plots/%s_1h_stats_strict_sparsifier.png' % prefix)
     plt.close()
     return final_training_acc
 
@@ -252,47 +261,14 @@ def train_algo(model_gen, ds, l=1, size=50, f=10):
                 return models
     return models
 
-def plot_pareto(sizes, accs, prefix):
-    plt.figure(figsize=(5, 5))
-    plt.plot(sizes, accs * 100, color='C1', linewidth=4, marker='o', markerfacecolor='black', markersize=10, mew=2)
-    plt.ylabel('accuracy (%)')
-    plt.xlabel('Size of the netowrk')
-    plt.minorticks_on()
-    plt.title('%s -  Accuracy for different sizes' % prefix)
-    a = plt.gca()
-    a.yaxis.set_minor_locator(MultipleLocator(0.1))
-    a.yaxis.set_major_locator(MultipleLocator(1))
-    a.yaxis.grid(b=True, which='major', linestyle='-')
-    a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
-    a.xaxis.grid(b=True, which='major', linestyle='-')
-    a.xaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
-    plt.tight_layout()
-    plt.savefig('./plots/%s_1h_sparse_pareto.png' % prefix)
-    plt.close()
-
-def gen_pareto(models, ds):
-    dl = get_dl(ds, False)
-    accs = []
-    for i, (images, labels) in enumerate(dl):
-        images = wrap(Variable(images, requires_grad=False))
-        labels = wrap(Variable(labels, requires_grad=False))
-        labels = labels.unsqueeze(0).expand(len(models), labels.size(0))
-        outputs = torch.cumsum(torch.stack([m(images) for m in models]), 0)
-        predictions = outputs.max(2)[1]
-        accs.append((labels == predictions).float().mean(1).data.cpu().numpy())
-    accs = np.stack(accs).mean(axis=0)
-    sizes = np.array([tn(m.l0_loss().data) for m in models]).cumsum()
-    plot_pareto(sizes, accs, ds.__name__)
-    return sizes, accs
-
-def simple_benchmark(ds, replicas=10, epochs=100):
+def simple_benchmark(ds, replicas=10, epochs=100, starting_neurons=1000):
     dl = get_dl(ds)
     dl2 = get_dl(ds, False)
-    lambdas = np.power(10.0, -np.arange(0, 5))
+    lambdas = np.power(10.0, -np.arange(0, 6))
     lambdas = np.insert(lambdas, 0, 0)
     l = lambdas
     lambdas = np.tile(lambdas, (replicas, 1)).reshape(-1)
-    models = [MNIST_1h_sparsifier(500).cuda() for _ in lambdas]
+    models = [MNIST_1h_sparsifier(starting_neurons).cuda() for _ in lambdas]
     result = train(models, dl, dl2, lamb=lambdas, epochs=epochs, l2_penalty=0)
     result = [x.reshape(epochs, replicas, -1).mean(1).T for x in result]
     plot_training(l, result[2], result[3], result[0], ds.__name__, epochs)
@@ -300,7 +276,6 @@ def simple_benchmark(ds, replicas=10, epochs=100):
     return result
 
 if __name__ == '__main__':
-    print('hello how are you')
-    # simple_benchmark(MNIST, replicas=30, epochs=60)
-    # simple_benchmark(FashionMNIST, replicas=30, epochs=60)
+    simple_benchmark(MNIST, replicas=30, epochs=60)
+    simple_benchmark(FashionMNIST, replicas=30, epochs=60)
 
