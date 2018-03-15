@@ -15,10 +15,14 @@ from models.MNIST_1h_sparsifier import MNIST_1h_sparsifier
 from utils.wrapping import wrap, unwrap
 from utils.MNIST import get_dl
 from utils.misc import tn
+from matplotlib import rc, use
+rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
 
 
 EPOCHS = 15
 fig_size = (10, 6)
+ext = 'pdf'
 with_title = False
 
 def save_fig(file_name):
@@ -109,7 +113,7 @@ def plot_training(lambdas, training_accuracy, testing_accuracy, sizes, prefix, e
         fig.suptitle("Training process with different penalties", fontsize=14)
     b.set_xlabel('Epoch')
     a.set_xlabel('Epoch')
-    a.set_ylabel('Accuracy (%)')
+    a.set_ylabel('Accuracy (\\%)')
     b.set_ylabel('Network Size')
     a.minorticks_on()
     a.yaxis.set_minor_locator(MultipleLocator(1))
@@ -264,7 +268,7 @@ def train_algo(model_gen, ds, l=1, size=50, f=10):
 def simple_benchmark(ds, replicas=10, epochs=100, starting_neurons=1000):
     dl = get_dl(ds)
     dl2 = get_dl(ds, False)
-    lambdas = np.power(10.0, -np.arange(0, 6))
+    lambdas = np.power(10.0, -np.arange(1, 8))
     lambdas = np.insert(lambdas, 0, 0)
     l = lambdas
     lambdas = np.tile(lambdas, (replicas, 1)).reshape(-1)
@@ -276,6 +280,6 @@ def simple_benchmark(ds, replicas=10, epochs=100, starting_neurons=1000):
     return result
 
 if __name__ == '__main__':
-    simple_benchmark(MNIST, replicas=30, epochs=60)
+    # simple_benchmark(MNIST, replicas=30, epochs=60)
     simple_benchmark(FashionMNIST, replicas=30, epochs=60)
 
