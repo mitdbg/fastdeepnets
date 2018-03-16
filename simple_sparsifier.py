@@ -157,7 +157,7 @@ def plot_end(lambdas, training_accuracy, testing_accuracy, sizes, prefix, epochs
     a.yaxis.set_major_locator(MultipleLocator(5))
     a.yaxis.grid(b=True, which='major', linestyle='-')
     a.yaxis.grid(b=True, which='minor', alpha=0.4, linestyle='--')
-    a.set_ylabel('Accuracy (%)')
+    a.set_ylabel('Accuracy (//%)')
     a.set_xlabel('Size penalty')
     a.set_axisbelow(True)
     if with_title:
@@ -280,6 +280,6 @@ def simple_benchmark(ds, replicas=10, epochs=100, starting_neurons=1000):
     return result
 
 if __name__ == '__main__':
-    # simple_benchmark(MNIST, replicas=30, epochs=60)
-    simple_benchmark(FashionMNIST, replicas=30, epochs=60)
+    simple_benchmark(MNIST, replicas=30, epochs=60)
+    # simple_benchmark(FashionMNIST, replicas=30, epochs=60)
 
