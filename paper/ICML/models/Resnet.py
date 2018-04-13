@@ -64,19 +64,23 @@ class ResNet(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-    def _make_layer(self, inp, planes, blocks, stride=1):
-        downsample = inp
-        if stride != 1 or self.inplanes != planes * EXPANSION:
-            downsample = self.graph.add(Conv2d, 
-                                        out_channels=planes * EXPANSION,
-                                        kernel_size=1, stride=stride,
-                                        bias=False)(inp)
-            downsample = self.graph.add(BatchNorm)(downsample)
 
-        inp = block(self.graph, inp, planes, downsample, stride)
+    def _make_layer(self, inp, planes, blocks, stride=1):
+        def down_sampler(x):
+            if stride != 1 or self.inplanes != planes * EXPANSION:
+                downsample = self.graph.add(Conv2d,
+                                            out_channels=planes * EXPANSION,
+                                            kernel_size=1, stride=stride,
+                                            bias=False)(x)
+                return self.graph.add(BatchNorm)(downsample)
+            else:
+                return x
+
+
+        inp = block(self.graph, inp, planes, down_sampler(inp), stride)
         self.inplanes = planes * EXPANSION
         for i in range(1, blocks):
-            inp = block(self.graph, inp, planes, downsample)
+            inp = block(self.graph, inp, planes, inp)
         return inp
 
     def forward(self, x):
