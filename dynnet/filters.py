@@ -80,6 +80,7 @@ class SimpleFilter(Filter):
 
     def garbage_collect(self, log: GarbageCollectionLog):
         non_zero_features = nonzero(self.get_alive_features()).squeeze()
+        print(non_zero_features.size())
         self.output_features.remove_features(self, non_zero_features, log)
         # The input and the output feature bag is the same object
         # There is no need to update it

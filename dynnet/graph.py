@@ -52,9 +52,7 @@ class Graph(ModuleList):
         -------
         the module boxed into a graph vertex with links set up
         """
-        def create(parents: Optional[Union[DynamicModule,
-                                           List[DynamicModule]]]=None
-                   ) -> DynamicModule:
+        def create(*parents: List[DynamicModule]) -> DynamicModule:
             """Function that given the parents constructs the module
 
             It also set up the graph links apropriately
@@ -67,11 +65,7 @@ class Graph(ModuleList):
             """
             # Gathering input features
             input_features = []
-            if parents is not None:
-                try:
-                    iter(parents)
-                except TypeError:
-                    parents = [parents]
+            if parents:
                 for parent in parents:
                     if parent.output_features is not None:
                         input_features.append(parent.output_features)

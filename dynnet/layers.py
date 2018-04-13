@@ -1,7 +1,7 @@
 """This package contains simple neural network layers"""
 from typing import Any, Callable
 import numpy as np
-from torch import LongTensor, arange
+from torch import LongTensor, arange, stack
 from torch.autograd import Variable
 from torch.nn import (
     Linear as SimpleLinear,
@@ -379,6 +379,48 @@ class Flatten(DynamicModule):
 
     def __repr__(self):
         return "Flatten()"
+
+class Sum(DynamicModule):
+    """Sum multiple inputs of same shape
+    """
+
+    def __init__(self, *args, **kwargs):
+        input_features = kwargs['input_features']
+        self.input_count = len(input_features)
+        assert self.input_count > 1, (
+            "You need at least two inputs to sum")
+        first_features = input_features[0]
+        for other_feature in input_features[1:]:
+            assert first_features.feature_count ==\
+                   other_feature.feature_count,\
+                   "All inputs must have the same number of features"
+            assert first_features.additional_dims ==\
+                   other_feature.additional_dims,\
+                   "All inputs must have matching additional dimensions"
+
+        output_features = FeatureBag(first_features.feature_count,
+                                     *first_features.additional_dims)
+        graph = kwargs['graph']
+        super(Sum, self).__init__(input_features=input_features,
+                                  output_features=output_features,
+                                  graph=graph)
+
+    def forward(self, *inputs):
+        super(Sum, self).forward(*inputs)
+        result = stack(inputs).sum(0)
+        return result
+
+    def remove_input_features(self, remaining_features: LongTensor,
+                              input_index: Any,
+                              log: GarbageCollectionLog) -> None:
+        raise NotImplementedError("Sum operator is not yet dynamic")
+
+    def remove_output_features(self, remaining_features: LongTensor,
+                               log: GarbageCollectionLog) -> None:
+        raise NotImplementedError("Sum operator is not yet dynamic")
+
+    def __repr__(self):
+        return "Sum()"
 
 
 # Fill documentation
