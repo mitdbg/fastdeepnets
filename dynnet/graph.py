@@ -27,10 +27,10 @@ class Graph(ModuleList):
 
     def __init__(self):
         super(Graph, self).__init__()
-        self._children: Dict[DynamicModule,
-                            List[DynamicModule]] = defaultdict(list)
-        self.parents: Dict[DynamicModule,
-                           List[DynamicModule]] = defaultdict(list)
+        self._children: Dict[int,
+                            List[int]] = defaultdict(list)
+        self.parents: Dict[int,
+                           List[int]] = defaultdict(list)
 
     def add(self, factory: Callable[[], Module],
             *args, **kwargs) -> Callable[[Optional[List[DynamicModule]]],
@@ -87,11 +87,20 @@ class Graph(ModuleList):
 
             # Setting up the graph
             if parents is not None:
-                self.parents[module] = parents
+                self.parents[self.get_index(module)] = [self.get_index(x) for x in parents]
                 for parent in parents:
-                    self._children[parent].append(module)
+                    self._children[self.get_index(parent)].append(self.get_index(module))
             return module
         return create
+
+    def resolve_index(self, index):
+        return self[index]
+
+    def get_index(self, module):
+        for i, other_module in enumerate(self):
+            if other_module == module:
+                return i
+        raise Exception("Module %s was not found" % module)
 
     def garbage_collect(self):
         """Triggers garbage collection in the graph
@@ -143,18 +152,20 @@ class Graph(ModuleList):
         In this implementation we might be keeping too much memory, it would
         be useful to remove any tensor from memory if we know we will never
         """
-        memory = input_map.copy()
+        memory = {self.get_index(k): v for k, v in input_map.items()}
 
         outputs = list(outputs)
+        outputs = [self.get_index(x) for x in outputs]
         requested_outputs = outputs[:]
 
         # Simulating a stack to avoid stack overflows and computing an output
         # multiple times
         while outputs:
-            module = outputs.pop()
-            parents = self.parents[module]
+            module_id = outputs.pop()
+            parents = self.parents[module_id]
             assert parents, (
-                "Cannot compute without an input for %s" % module)
+                "Cannot compute without an input for %s" %
+                self.resolve_index(module_id))
             # Computing all the parents that do not have their output
             # available. A very pythonic way to do it would have been
             # to catch a key Error but we would not have been able to
@@ -162,10 +173,10 @@ class Graph(ModuleList):
             # first one
             left_to_do = [p for p in parents if p not in memory]
             if not left_to_do:
-                result = module(*[memory[p] for p in parents])
-                memory[module] = result
+                result = self.resolve_index(module_id)(*[memory[p] for p in parents])
+                memory[module_id] = result
             else:
-                outputs.append(module)
+                outputs.append(module_id)
                 outputs.extend(left_to_do)
 
         return [memory[m] for m in requested_outputs]
