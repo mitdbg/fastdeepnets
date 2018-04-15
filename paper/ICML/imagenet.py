@@ -142,7 +142,6 @@ def main():
             transforms.ToTensor(),
             normalize,
         ]))
-    return train_dataset
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
@@ -382,4 +381,4 @@ def accuracy(output, target, topk=(1,)):
 
 
 if __name__ == '__main__':
-    res = main()
+    main()
