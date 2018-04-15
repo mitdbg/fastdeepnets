@@ -35,7 +35,6 @@ class SimpleFilter(Filter):
         elif starting_value == 'uniform':
             self.weight = Parameter(rand(features.feature_count) * 2 - 1)
         else:
-            print(starting_value)
             self.weight = Parameter(ones(features.feature_count) * starting_value)
 
     def get_weights(self):
@@ -80,7 +79,6 @@ class SimpleFilter(Filter):
 
     def garbage_collect(self, log: GarbageCollectionLog):
         non_zero_features = nonzero(self.get_alive_features()).squeeze()
-        print(non_zero_features.size())
         self.output_features.remove_features(self, non_zero_features, log)
         # The input and the output feature bag is the same object
         # There is no need to update it

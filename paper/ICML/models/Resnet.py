@@ -35,8 +35,8 @@ class ResNet(nn.Module):
     def __init__(self, params):
         super(ResNet, self).__init__()
         num_classes = params['num_classes']
-        layers = RESNET_CFGS[params['config']]
-        factor = params['factor']
+        layers = RESNET_CFGS[int(params['config'])]
+        factor = int(params['factor'])
         self.graph = Graph()
         self.inplanes = 64 * factor
         self.inp = self.graph.add(Input, 3, 224, 224)()
