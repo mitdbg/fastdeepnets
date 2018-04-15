@@ -45,9 +45,9 @@ parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=90, type=int, metavar='N',
                     help='number of total epochs to run')
-parser.add_argument('--gamma', '-g', default=0.999, type=int, metavar='F',
+parser.add_argument('--gamma', '-g', default=0.999, type=float, metavar='F',
                     help='Moving average for Smooth Filters (default: 0.999)')
-parser.add_argument('--threshold', '-t', default=0.5, type=int, metavar='F',
+parser.add_argument('--threshold', '-t', default=0.5, type=float, metavar='F',
                     help='Threshold to kill a neuron using Smooth Filters (default:0.5)')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -142,6 +142,7 @@ def main():
             transforms.ToTensor(),
             normalize,
         ]))
+    return train_dataset
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
@@ -381,4 +382,4 @@ def accuracy(output, target, topk=(1,)):
 
 
 if __name__ == '__main__':
-    main()
+    res = main()
