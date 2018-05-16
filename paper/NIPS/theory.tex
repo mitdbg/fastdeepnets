@@ -1,0 +1,76 @@
+%!TEX root=paper.tex
+%\subsection{Relation to Group Sparsity}
+\noindent\textbf{Relation to Group Sparsity (LASSO): } \shrink removes neurons,
+i.e., inputs and outputs of layers. For a fully connected layer defined as:
+%
+\begin{equation} \label{fully_connected}
+  f_{\bm{A}, \bm{b}}(\bm{x})=a(\bm{Ax + b})
+\end{equation}
+%
+where $\bm{A}$ represents the connections and $\bm{b}$ the bias,
+removing an input neuron $j$ is equivalent to having $\left(\bm{A}^T\right)_j =
+\bm{0}$. Removing an output neuron $i$ is the same as setting $\bm{A}_i = \bm{0}$
+and $\bm{b}_i = 0$. Solving optimization problems while trying to set entire
+group of parameters to zero is the goal of group sparsity regularization
+\cite{Scardapane2017}. 
+In  any partitioning of the set of parameters $\bm{\theta}$ defining a model in $p$
+groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$, group sparsity 
+penalty is defined as (where $\lambda$ is the regularization parameter): 
+%
+\begin{equation}
+  \Omega_\lambda^{gp} = \lambda \sum_{i=1}^p \sqrt{\mathbf{card}(\bm{\theta_i}}) \norm{\bm{\theta_i}}_2 \\
+\end{equation}
+% \srm{define notation -- what is $\lambda$;  what is $\#\theta$, what is $\Omega$? Where does the square root come from?} \gl{This is how it is defined in the
+% original paper, it would require a few sentences to explain that, do really
+% need to do ?}
+In fully-connected layers, the groups are either: columns of
+$\bm{A}$ if we want to remove inputs, or rows of $\bm{A}$ and the corresponding
+entry in $\bm{b}$ if we want to remove outputs. For simplicity, we focus
+our analysis in the simple one-layer case. In this case, filtering outputs does
+not make sense, so we only consider removing inputs. The
+group sparsity regularization then becomes (when $\sqrt{n}$ is folded into the $\lambda$)
+%
+\begin{equation} \label{group_sparsity_regularization}
+  \Omega_\lambda^{gp} = \lambda \sum_{j=1}^p \norm{\bm{\left(A^T\right)_j}}_2 \\
+\end{equation}
+
+% Because $\forall i, \#\bm{\theta}_i = n$, embedded $\sqrt{n}$ inside $\lambda$.
+%  \ra{is \# the general way of expressing
+% cardinality? why not $|x|$?,}  \gl{In europe |x| is for the abolute value, and I was using it in the notation section that someone removed, therefore there would have been a notation conflict}to make the notation simpler, we
+
+Group sparsity and \shrink try to achieve the same goal. We discuss next how
+they are related to each other. First let's recall the two problems. In the context of approximating $\bm{y}$ with a linear regression from features $\bm{x}$, the
+original \shrink problem is 
+%
+\begin{equation}
+  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
+\end{equation}
+%
+And the group sparsity problem is:
+%
+\begin{equation}
+  \min_{\bm{A}} \norm{\bm{y} - \bm{A}\bm{x}}_2^2 + \Omega_\lambda^{gp}
+\end{equation}
+%
+
+We can prove that under the condition: $\forall j\in \intint{1, p},
+\norm{\left(\bm{A}^T\right)_j}_2 = 1$ the two problems are equivalent
+(\cref{gps_equivalence}, see Appendix). However if we relax this constraint then \shrink
+becomes non-convex and has no global minimum
+(\cref{unconstrained_non_convex,unconstrained_shrinknet_no_min}, also in Appendix). Fortunately,
+by adding an extra term to the \shrink regularization term we can prove that:
+%
+\begin{equation}
+  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s + \lambda_2\norm{A}_p^p
+\end{equation}
+%
+has global minimums for all $p>0$ (\cref{shrinknet_regularized_minimum}).
+This is the reason we defined the regularized \shrink penalty above as:
+%
+\begin{equation}
+  \Omega_{\lambda, \lambda_2, p}^{rs} = \lambda\norm{\bm{\beta}}_1 + \lambda_2\norm{\bm\theta}_p^p
+\end{equation}
+%
+In practice we observed that $p=2$ or $p=1$ are good a choice; note that the latter
+will also introduce additional sparsity into the parameters because the $l_1$ is, 
+thest best convex approximation of the $l_0$ norm.

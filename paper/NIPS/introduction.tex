@@ -1,0 +1,138 @@
+%!TEX root=paper.tex
+
+\section{Introduction}
+
+Neural networks are used in an increasing wide variety of
+applications and diverse set of hardware architectures, ranging from laptops to
+phones to embedded sensors. This wide variety of deployment settings means
+that inference time and model size are becoming as important as  prediction
+accuracy when assessing model quality.  However, these three dimensions of
+performance (prediction accuracy, inference time and model size) are largely
+optimized independently, often with suboptimal results.
+
+Of course, the problem of finding faster and smaller networks is not new.
+Existing techniques to make a pre-trained neural network smaller can be
+categorized in two approaches: (1) quantization \cite{Jouppi:2017:IPA:3079856.3080246} and code
+compilation, techniques that can be applied  to
+any network, and (2) techniques which analyze the structure of the network and
+systematically prune connections or neurons~\cite{han2015deepcompression,Cun}. 
+While the first category is always useful, but only
+has limited impact on the network size, the second category can reduce the model
+size much more but has several drawbacks:   First, those techniques often
+negatively impact model quality.  Second, they can also (surprisingly) negatively
+impact inference time as they transform dense matrix operations into sparse
+ones, which can be substantially slower to execute on GPUs which do not support
+efficiently sparse linear algebra\cite{han2015deepcompression}. 
+Third, these techniques generally start by optimizing a
+particular architecture for prediction performance, and then, as a post-
+processing step, applying compression  to generate a smaller model that meets
+the resource constraints of the deployment setting.  Because the network
+architecture is essentially fixed during this post-processing,   model
+architectures that work better in small settings may be missed -- this is
+especially true in large networks like many-layered CNNs,  where it is
+infeasible to try explore even a small fraction of possible network
+configurations.
+
+%I am still not super happy with the flow. Will work on it more. 
+
+In contrast, in this paper we present a new method to simultaneously optimize
+ network size and model performance. The key idea is to learn the right
+network size at the same time that we optimize for prediction performance. 
+Our approach, called \shrink, starts with an {\it
+over-sized} network, and dynamically shrinks it by eliminating unimportant
+neurons---those that do not contribute to prediction performance---during
+training time. To do this, \shrink must detect the unimportant neurons, and
+remove them from the network. The
+removal of entire neurons (vs. only connections) is crucial, because it leads to
+dense networks, which in turn leads to better inference performance. To support the
+detection and removal of unimportant neurons we introduce a new layer, called
+\swl. Introducing this new layer simply requires us to
+add a term to the
+loss function to optimize the parameters of this layer during training. 
+\shrink has
+two main benefits. First, it explores the architecture of models that are both
+small and perform well, rather than starting with a high-performing model and
+making it small.  \shrink accomplishes this goal by using a single new 
+hyperparameter that effectively models the target network size.  
+% This allows us to efficiently generate a family of smaller and
+% accurate models without requiring an exhaustive and expensive hyperparameter search over
+% the number of neurons in each layer.  
+Second, in contrast to existing neural
+network compression techniques~\cite{Aghasi2016,han2015deepcompression}, our
+approach results in models that are not only small, but where the weight matrices
+are dense, leading to better inference time.
+
+
+
+% {\bf Old introduction:}
+% One of the key defactors that affects neural net perforamnce is  is the {\it shape} of the network, 
+% i.e., the number of layers, the number of neurons per layer, and the connections between
+% layers.
+% An {\it under-sized} network, with too few neurons or layers,
+%  is likely to have low accuracy because of insufficient 
+% capacity while an {\it over-sized} network is slow to train due to additional 
+% parameters and is computationally inefficient at both training and inference time.
+% % A sub-optimal network shape can lead to low accuracy .
+% %Although the hyperparameters related wo network size can dramatically affect
+% % performance, there is no reliable way to efficiently set them.
+% Consequently, many {\it hyperparameter optimization} techniques have been proposed to determine the optimal size of
+% a neural network; these include random search~\cite{paper-on-random-is-good-enough}, 
+% what-is-this-paper~\cite{Bengio2012a}, 
+% meta-gradient descent~\cite{Pedregosa2016},
+% Gaussian processes~\cite{Bergstra2011a}, and many others.
+% \srm{Are we really sure that no other techniques optimize the network size during training like we do?  Don't we also require 
+% iterating over lambda?  Is this really the key contribution of our work, that it reduces model search time?  Isn't the key point that
+% we find smaller, better models?}
+% These existing techniques all require a compute-intensive search of 
+% model space,  often training of tens or hundreds of models.
+% As a result, tuning these techniques require times 
+% longer (or many times more computational power) 
+% than the time take for a single training run.
+
+% In this paper we present a novel method to automatically find an appropriate
+% network size, which drastically reduces optimization time. \srm{In comparison to previous search models?}
+% The key idea is to learn the network size while optimizing the primary objective function.
+% Our strategy, called \textbf{ShrinkNets}, is blah blah \mpv{Short blurb about the technique}
+% % For example, for an image classification task, with our approach we can 
+% % provide the training data to a network—without sizing it a priori—and expect 
+% % to end up with a network that has learned to classify images with an accuracy
+% % similar to a the best manually engineered network. 
+% Our approach has two main benefits. 
+% First, we no longer need to choose a network size before training.
+% We simply set an initial size for the network and then the algorithm will
+% determine the best network that is smaller or equal in size to the inital size.
+% Second, this optimization is done during a {\it single} training run, as opposed to the large number of training runs
+% required by existing hyperparameter optimization 
+% techniques.  As a result, we can find the best model 
+% faster as well as with less computational overhead.
+
+In summary, our contributions are as follows: 
+
+%\begin{compactenum}
+
+%\item 
+\noindent\textbf{1.} We propose a novel technique based on dynamically switching
+on and off neurons, which allows us to optimize the network size while the
+network is trained. 
+
+\noindent\textbf{2.} We extend our technique to remove entire neurons,
+ leading not only to smaller networks, but also
+dense matrices, which yield improved inference times as networks shrink. Furthermore, our switching
+layers used during training can be safely removed before the model is used for
+inference, meaning they add no additional overhead at inference time.
+
+%\item \srm{xxx postprocessing techniques to strip out switch layers}
+
+\noindent\textbf{3.} We show that our technique is a relaxation of group
+LASSO~\cite{Yuan2006} and prove that our problem admits many global minima.
+
+\noindent\textbf{4.} We evaluate ShrinkNets with both fully-connected as well as
+convolutional neural networks. For \texttt{CIFAR10}, we achieve the same
+accuracy as a traditionally trained network while reducing the network size by
+a factor of $2.2X$. Further, while sacrificing just $1$\% of
+performance, ShrinkNets finds networks that are 35X smaller. All in all, this
+leads to speedups in inference time of up to 6X. 
+
+
+%\end{compactenum}
+
