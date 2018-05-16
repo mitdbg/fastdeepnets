@@ -273,7 +273,7 @@ def plot_shape(ax, log, steps=8):
 
 def plot_shapes(dynamic):
     best, good = select_models(dynamic)
-    fig, lines = plt.subplots(2, 1, sharex=True)
+    fig, lines = plt.subplots(1, 2, sharex=True)
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
     plot_shape(lines[0], best)
     plot_shape(lines[1], good)
