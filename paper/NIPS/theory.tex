@@ -17,12 +17,16 @@ In  any partitioning of the set of parameters $\bm{\theta}$ defining a model in 
 groups: $\bm{\theta} = \bigcup_{i=1}^P \bm{\theta}_i$, group sparsity 
 penalty is defined as (where $\lambda$ is the regularization parameter): 
 %
+\vspace{-0.1in}
 \begin{equation}
+    \label{full_def}
   \Omega_\lambda^{gp} = \lambda \sum_{i=1}^p \sqrt{\mathbf{card}(\bm{\theta_i}}) \norm{\bm{\theta_i}}_2 \\
 \end{equation}
+\vspace{-0.2in}
 % \srm{define notation -- what is $\lambda$;  what is $\#\theta$, what is $\Omega$? Where does the square root come from?} \gl{This is how it is defined in the
 % original paper, it would require a few sentences to explain that, do really
 % need to do ?}
+
 In fully-connected layers, the groups are either: columns of
 $\bm{A}$ if we want to remove inputs, or rows of $\bm{A}$ and the corresponding
 entry in $\bm{b}$ if we want to remove outputs. For simplicity, we focus
@@ -30,47 +34,50 @@ our analysis in the simple one-layer case. In this case, filtering outputs does
 not make sense, so we only consider removing inputs. The
 group sparsity regularization then becomes (when $\sqrt{n}$ is folded into the $\lambda$)
 %
+\vspace{-0.1in}
 \begin{equation} \label{group_sparsity_regularization}
   \Omega_\lambda^{gp} = \lambda \sum_{j=1}^p \norm{\bm{\left(A^T\right)_j}}_2 \\
 \end{equation}
+\vspace{-0.2in}
 
 % Because $\forall i, \#\bm{\theta}_i = n$, embedded $\sqrt{n}$ inside $\lambda$.
 %  \ra{is \# the general way of expressing
 % cardinality? why not $|x|$?,}  \gl{In europe |x| is for the abolute value, and I was using it in the notation section that someone removed, therefore there would have been a notation conflict}to make the notation simpler, we
 
 Group sparsity and \shrink try to achieve the same goal. We discuss next how
-they are related to each other. First let's recall the two problems. In the context of approximating $\bm{y}$ with a linear regression from features $\bm{x}$, the
-original \shrink problem is 
-%
-\begin{equation}
-  \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
-\end{equation}
-%
-And the group sparsity problem is:
-%
-\begin{equation}
-  \min_{\bm{A}} \norm{\bm{y} - \bm{A}\bm{x}}_2^2 + \Omega_\lambda^{gp}
-\end{equation}
-%
+they are related to each other. First let's recall the two problems. In the
+context of approximating $\bm{y}$ with a linear regression from features
+$\bm{x}$, the two problems are:%
+\vspace{-0.25in}
+\begin{multicols}{2}
+    \begin{equation*}
+        \text{\shrink: } \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \lambda \norm{\bm{\beta}}_1
+    \end{equation*}
+    \break
+    \begin{equation*}
+        \text{\textbf{Group sparsity: }}\min_{\bm{A}} \norm{\bm{y} - \bm{A}\bm{x}}_2^2 + \Omega_\lambda^{gp}
+    \end{equation*}
+\end{multicols}
+\vspace{-0.1in}
 
 We can prove that under the condition: $\forall j\in \intint{1, p},
-\norm{\left(\bm{A}^T\right)_j}_2 = 1$ the two problems are equivalent
-(\cref{gps_equivalence}, see Appendix). However if we relax this constraint then \shrink
-becomes non-convex and has no global minimum
-(\cref{unconstrained_non_convex,unconstrained_shrinknet_no_min}, also in Appendix). Fortunately,
-by adding an extra term to the \shrink regularization term we can prove that:
+\norm{\left(\bm{A}^T\right)_j}_2 = 1$ the two problems are equivalent by taking
+$\bm{\beta}_j = \norm{\left(\bm{A}^T\right)_j}_2^2$, and replacing $\bm{A}$ by
+$\bm{A}\left(\diag{\bm{\beta}}\right)^{-1}$. However, if we relax this constraint
+then \shrink becomes non-convex and has no global minimum. The latter is true
+because one can divide $\bm{\beta}$ by an arbitrarly large constant and
+multipliying $A$ by the same value. Fortunately, by adding an extra term to the \shrink
+regularization term we can avoid that problem and prove that:
 %
 \begin{equation}
   \min_{\bm{A}, \bm{\beta}} \norm{\bm{y} - \bm{A}\diag{\bm{\beta}}\bm{x}}_2^2 + \Omega_\lambda^s + \lambda_2\norm{A}_p^p
 \end{equation}
 %
-has global minimums for all $p>0$ (\cref{shrinknet_regularized_minimum}).
-This is the reason we defined the regularized \shrink penalty above as:
-%
-\begin{equation}
-  \Omega_{\lambda, \lambda_2, p}^{rs} = \lambda\norm{\bm{\beta}}_1 + \lambda_2\norm{\bm\theta}_p^p
-\end{equation}
-%
-In practice we observed that $p=2$ or $p=1$ are good a choice; note that the latter
+has global minimums for all $p>0$. More specifically there are at least $2^k$,
+where $k$ is the total number of components in $\bm{\beta}$. Indeed, for any
+solution, one can obtain the same output by flipping any sign in $\bm{\beta}$
+and the corresponding entries in $\bm{A}$.  This is the reason we defined the
+regularized \shrink penalty above in \cref{full_def}.
+In practice, we observed that $p=2$ or $p=1$ are good a choice; note that the latter
 will also introduce additional sparsity into the parameters because the $l_1$ is, 
 thest best convex approximation of the $l_0$ norm.
