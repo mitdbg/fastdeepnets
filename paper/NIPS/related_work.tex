@@ -35,7 +35,16 @@ in practice, related work presents limited experimental evidence
 regarding this, likely because treating each layer as a hyperparameter
 would lead to an excessively large search space.
 In contrast, with \shrink, the size of the network can be tuned with 
-a single parameter.
+a single parameter. Recently, methods based on reinforcement learning have been
+proposed (\cite{Zoph2017b,Zoph2017a}) and shown to generate very accurate
+networks (NAS-Net). However as stated in \cite{Zoph2017b}, they still used the popular
+heuristic that doubles the number of channels every time the dimension of
+features is reduced without challenging it.
+
+
+\gl{Add another paragraph on architectures that are small by design ? (MobileNet
+ShuffleNet)}
+
 % More importantly, none of the hyperparameter optimization methods focuses on
 % finding small networks, which is a crucial property of ShrinkNets, necessary to
 % achieve good inference times.
@@ -80,18 +89,21 @@ are not likely to improve inference times even though they reduce network size.
 %\tim{Argument is not really convincing, but those techniques require to train
 %full models and might take weeks to converge. }
 
-\noindent\textbf{Dynamically Sizing Networks: }The techniques closest to our
+\paragraph{Dynamically Sizing Networks}The techniques closest to our
 proposed method are those based on group sparsity such as
-~\cite{Scardapane2017}, and those like~\cite{Philipp} that dynamically grow and shrink
- the size of the network during training.  \cite{Scardapane2017}
+~\cite{Scardapane2017,Alvarez2016a}, nuclear norm \cite{Alvarez2017a} and even
+physics-inspired methods \cite{Wen2017}. In \cite{Wen2016}, authors look beyond
+removing channels and experiment with shape and depth. In ~\cite{Philipp},
+network is dynamically grown and shrunk during training.  \cite{Scardapane2017}
 presents a method that also deactivates neurons using a loss function based on
 group-sparsity.  However, the exact details of how their method works are not
 given, and their experimental results (on a small, fully connected network), are
-substantially worse than ours as shown in Section 5.
-\cite{Philipp} propose a method called Adaptive Radial-Angular Gradient Descent
-that adds neurons on the fly and removes neurons via an $l_2$ penalty.  However,
-this approach requires a new optimizer and takes longer to converge compared to
-ShrinkNets.
-
-
+substantially worse than ours as shown in Section 5.  \cite{Philipp} propose a
+method called Adaptive Radial-Angular Gradient Descent that adds neurons on the
+fly and removes neurons via an $l_2$ penalty.  However, this approach requires a
+new optimizer and takes longer to converge compared to \shrink.
+\cite{Liu} is similar with \shrink in a sense that they both scale each
+channel/neuron by a scalar, however our approach is more general since it can be
+used with any architecture, even if they do not use batch normalization
+\gl{say that they don't do neural garbage collection ?}.
 

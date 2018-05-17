@@ -177,9 +177,9 @@ higher throughput at inference time~\cite{Han2015}.
 \includegraphics[width=1\columnwidth]{size_evolution}
 \vspace*{-5mm} 
 \caption{ Evolution of the size of
-  each layer over time (lighter: beginning, darker: end). On top a very large
-  network performing $92.07\%$, at the bottom a simpler model with $90.5\%$
-  accuracy. 
+  each layer over time (lighter: beginning, darker: end). On the left a VGG
+  network on \texttt{CIFAR10} with $90.5\%$ accuracy. On the right, ResNet-50
+  on \texttt{ImageNet} that yields a top-1 accuracy of $71.57\%$.
 } 
 \label{fig:network_size_evolution}
 \end{center}
@@ -223,13 +223,11 @@ shape of the data but actually reflects the dataset.  This makes sense, as
 \texttt{MNIST} is a much easier problem than \texttt{FashionMNIST}.
 
 To illustrate this point on a larger dataset, we show two examples of
-architectures learned by \shrink in
-Figure~\ref{fig:network_size_evolution}.  The right arrow shows the model with the
-best test accuracy, with identical performance to the best static
-network; the left arrow shows a network that slightly under-performs the best in
-terms of accuracy but is significantly smaller that the best equivalent
-\textit{Static Network}.  In the plot, the dashed line
-shows the number of neurons in each layer of the original VGG net, and the
+architectures learned by \shrink. The first one is directly taken from
+Figure~\ref{fig:network_size_evolution} and is typically a good trade-of between
+size and accuracy. The right one is the evolution the ResNet-50 model
+\cite{He2016a} trained on the ImageNet. In the plot, the dashed line
+shows the number of neurons in each layer of the original architecture, and the
 shaded regions show the size of the \shrink as it converges (with the darkest
 region representing the fully converged network).  Observe that the final
 network that is trained looks quite different in the two cases, with the optimal
