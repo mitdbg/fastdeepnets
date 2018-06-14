@@ -6,7 +6,7 @@ from torch.autograd import Variable
 from torch.optim import Adam
 import numpy as np
 from dynnet.graph import Sequential
-from dynnet.layers import Input, Linear, BatchNorm1d
+from dynnet.layers import Input, Linear, BatchNorm
 from dynnet.filters import SimpleFilter
 from dynnet.utils import shrinknet_penalty
 
@@ -58,7 +58,7 @@ class Model(torch.nn.Module):
             if dropout > 0:
                 graph.add(torch.nn.Dropout, p=dropout)
             if batch_norm:
-                graph.add(BatchNorm1d)
+                graph.add(BatchNorm)
         graph.add(Linear, out_features=output_features)
         self.graph = graph
 

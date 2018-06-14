@@ -191,7 +191,7 @@ class Sequential(Graph):
         parent = []
         if len(self) > 0:
             parent = [self[-1]]
-        return super(Sequential, self).add(factory, *args, **kwargs)(parent)
+        return super(Sequential, self).add(factory, *args, **kwargs)(*parent)
 
     def forward(self, inp):
         return super(Sequential, self).forward({self[0]: inp}, self[-1])[0]
