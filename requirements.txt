@@ -84,7 +84,7 @@ torchtext==0.2.0
 torchvision==0.1.9
 tqdm==4.19.5
 traitlets==4.3.2
-ujson==1.35
+ujson==5.4.0
 urllib3==1.22
 uuid==1.30
 wcwidth==0.1.7
