@@ -45,7 +45,7 @@ olefile==0.44
 oslo.concurrency==3.25.0
 oslo.config==5.2.0
 oslo.i18n==3.19.0
-oslo.utils==3.35.0
+oslo.utils==4.10.1
 pandas==0.20.3
 pathlib==1.0.1
 patsy==0.4.1
